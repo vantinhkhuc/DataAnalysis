@@ -165,7 +165,31 @@ df_concat = pd.concat([df1, df2], axis=1)     # Theo cột
 ```
 ## **Bài tập Thực hành**
 ### Bài tập cơ bản
+#### **Exercise 101: Loading Data Stored in a JSON File**
 
+```python
+ import pandas as pd #  import the pandas library
+
+
+ # Create a new DataFrame called user_info and read the user_info.json
+ user_info = pd.read_json("user_info.json")
+
+ # checking the first five values in the DataFrame
+  user_info.head()
+
+# Are there any missing values in any of the columns?
+# What are the data types of all the columns?
+
+ user_info.info()
+
+# How many rows and columns are present in the dataset?
+
+ user_info.shape
+```
+#### **Exercise 102: Loading Data from Multiple Sources**
+#### **Exercise 103: Combining DataFrames and Handling**
+#### **Exercise 104: Applying Data Transformations**
+#### **Activity 101: Addressing Data Spilling**
 ### Bài tập tổng hợp
 #### **Bài tập 1: Làm sạch dữ liệu khách hàng**
 Cho file customers.csv với cấu trúc sau:
@@ -281,8 +305,8 @@ Yêu cầu:
 # - Chú ý xử lý missing values phù hợp với từng trường
 # - Sử dụng groupby() cho các phân tích theo nhóm
 ```
-# Tổng kết và Best Practices
-Quy trình làm sạch dữ liệu chuẩn:
+## Tổng kết và Best Practices
+1. Quy trình làm sạch dữ liệu chuẩn:
 
 - Khám phá dữ liệu: Sử dụng .info(), .describe(), .head()
 - Kiểm tra chất lượng: Missing values, duplicates, outliers
@@ -291,7 +315,7 @@ Quy trình làm sạch dữ liệu chuẩn:
 - Kết hợp dữ liệu: Merge, join, concatenate
 - Validation: Kiểm tra logic và consistency
 
-Lưu ý quan trọng:
+2. Lưu ý quan trọng:
 
 - Luôn backup dữ liệu gốc trước khi làm sạch
 - Ghi chép lại các bước xử lý để có thể reproduce
