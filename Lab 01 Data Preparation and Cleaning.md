@@ -1,1 +1,301 @@
-# Clean Data với Python Pandas
+# Lab01 - Data Preparation and Cleaning
+## **Mục tiêu học tập**
+Sau khi hoàn thành bài học này, học viên sẽ có khả năng:
+- Đọc và import dữ liệu từ các định dạng file khác nhau (CSV, JSON) vào DataFrame
+- Thực hiện các thao tác slicing, aggregation và filtering trên DataFrame
+- Kết hợp các DataFrame, xử lý dữ liệu thiếu và làm sạch dữ liệu từ nhiều nguồn khác nhau
+## **Lý thuyết**
+### Phần 1: Đọc và Import Dữ liệu
+1. **Cài đặt và Import thư viện**
+```python
+import pandas as pd
+import numpy as np
+import json
+```
+2. **Đọc dữ liệu từ file CSV**
+```python
+# Đọc file CSV cơ bản
+df_csv = pd.read_csv('data.csv')
+
+# Đọc CSV với các tùy chọn nâng cao
+df_csv = pd.read_csv('data.csv', 
+                     sep=',',           # Ký tự phân cách
+                     encoding='utf-8',  # Encoding
+                     index_col=0,       # Cột làm index
+                     na_values=['N/A', 'NULL', ''])  # Giá trị coi là NaN
+```
+3. **Đọc dữ liệu từ file JSON**
+```python
+# Đọc JSON đơn giản
+df_json = pd.read_json('data.json')
+
+# Đọc JSON với cấu trúc phức tạp
+with open('complex_data.json', 'r', encoding='utf-8') as file:
+    json_data = json.load(file)
+    df_json = pd.json_normalize(json_data)
+
+# Đọc JSON từ API
+df_api = pd.read_json('https://api.example.com/data')
+```
+4. **Khám phá dữ liệu ban đầu**
+```python
+# Xem thông tin cơ bản về DataFrame
+print(df.info())
+print(df.head())
+print(df.describe())
+print(df.shape)
+print(df.columns.tolist())
+```
+### Phần 2: Slicing, Aggregation và Filtering
+1. **Slicing (Cắt lát dữ liệu)**
+```python
+# Chọn cột
+df['column_name']                    # Một cột
+df[['col1', 'col2']]                # Nhiều cột
+
+# Chọn hàng
+df.loc[0]                           # Hàng theo label
+df.iloc[0]                          # Hàng theo vị trí
+df.loc[0:5]                         # Slice theo label
+df.iloc[0:5]                        # Slice theo vị trí
+
+# Chọn cả hàng và cột
+df.loc[0:5, 'col1':'col3']          # Slice hàng và cột
+df.iloc[0:5, 0:3]                   # Slice theo vị trí
+```
+2. **Filtering (Lọc dữ liệu)**
+```python
+# Filtering cơ bản
+df[df['age'] > 25]                  # Điều kiện đơn
+df[df['name'].str.contains('John')] # Chứa chuỗi
+df[df['date'] > '2023-01-01']       # Điều kiện ngày
+
+# Filtering với nhiều điều kiện
+df[(df['age'] > 25) & (df['salary'] > 50000)]  # AND
+df[(df['city'] == 'Hanoi') | (df['city'] == 'HCMC')]  # OR
+
+# Filtering với isin()
+df[df['category'].isin(['A', 'B', 'C'])]
+
+# Filtering null values
+df[df['column'].notna()]            # Không null
+df[df['column'].isna()]             # Là null
+```
+3. **Aggregation (Tổng hợp dữ liệu)**
+```python
+# Aggregation cơ bản
+df['salary'].sum()                  # Tổng
+df['age'].mean()                    # Trung bình
+df['score'].max()                   # Giá trị lớn nhất
+df['score'].min()                   # Giá trị nhỏ nhất
+df['category'].count()              # Đếm
+
+# Group by và aggregation
+df.groupby('department')['salary'].mean()
+df.groupby(['department', 'level']).agg({
+    'salary': ['mean', 'sum'],
+    'age': 'mean',
+    'score': ['min', 'max']
+})
+
+# Pivot table
+df.pivot_table(values='salary', 
+               index='department', 
+               columns='level', 
+               aggfunc='mean')
+```
+### **Phần 3: Làm sạch và Kết hợp Dữ liệu**
+1. **Xử lý Missing Values (Dữ liệu thiếu)**
+```python
+# Kiểm tra missing values
+df.isnull().sum()                   # Đếm null theo cột
+df.isnull().sum().sum()             # Tổng số null
+df.info()                           # Thông tin tổng quan
+
+# Xử lý missing values
+df.dropna()                         # Xóa hàng có null
+df.dropna(axis=1)                   # Xóa cột có null
+df.dropna(subset=['important_col']) # Xóa null ở cột cụ thể
+
+# Điền missing values
+df.fillna(0)                        # Điền bằng 0
+df.fillna(df.mean())               # Điền bằng mean
+df.fillna(method='ffill')          # Forward fill
+df.fillna(method='bfill')          # Backward fill
+
+# Điền theo nhóm
+df['salary'].fillna(df.groupby('department')['salary'].transform('mean'))
+```
+2. **Xử lý Duplicate Values (Dữ liệu trùng lặp)**
+```python
+# Kiểm tra và xử lý duplicate
+df.duplicated().sum()               # Đếm số hàng trùng
+df.drop_duplicates()                # Xóa trùng lặp
+df.drop_duplicates(subset=['name', 'email'])  # Xóa trùng theo cột
+```
+3. **Data Type Conversion (Chuyển đổi kiểu dữ liệu)**
+```python
+# Chuyển đổi kiểu dữ liệu
+df['date'] = pd.to_datetime(df['date'])
+df['category'] = df['category'].astype('category')
+df['price'] = pd.to_numeric(df['price'], errors='coerce')
+```
+4. **String Cleaning (Làm sạch chuỗi)**
+```python
+# Làm sạch text data
+df['name'] = df['name'].str.strip()           # Xóa khoảng trắng
+df['name'] = df['name'].str.upper()           # Chuyển hoa
+df['name'] = df['name'].str.lower()           # Chuyển thường
+df['phone'] = df['phone'].str.replace('-', '') # Thay thế ký tự
+```
+5. **Joining DataFrames (Kết hợp DataFrame)**
+```python
+# Merge DataFrames
+df_merged = pd.merge(df1, df2, on='id', how='inner')  # Inner join
+df_merged = pd.merge(df1, df2, on='id', how='left')   # Left join
+df_merged = pd.merge(df1, df2, on='id', how='right')  # Right join
+df_merged = pd.merge(df1, df2, on='id', how='outer')  # Outer join
+
+# Merge với key khác nhau
+df_merged = pd.merge(df1, df2, left_on='customer_id', right_on='id')
+
+# Concatenate DataFrames
+df_concat = pd.concat([df1, df2], axis=0)     # Theo hàng
+df_concat = pd.concat([df1, df2], axis=1)     # Theo cột
+```
+## **Bài tập Thực hành**
+### Bài tập cơ bản
+
+### Bài tập tổng hợp
+#### **Bài tập 1: Làm sạch dữ liệu khách hàng**
+Cho file customers.csv với cấu trúc sau:
+
+- *customer_id, name, email, phone, age, city, registration_date*
+
+Yêu cầu:
+
+Đọc dữ liệu từ file CSV
+- Kiểm tra và xử lý missing values
+- Chuẩn hóa định dạng email và phone
+- Xóa các bản ghi trùng lặp
+- Chuyển đổi registration_date sang datetime
+
+```python
+# Template giải
+import pandas as pd
+
+# 1. Đọc dữ liệu
+df = pd.read_csv('customers.csv')
+
+# 2. Kiểm tra missing values
+print(df.isnull().sum())
+
+# 3. Xử lý missing values
+# Điền age bằng median
+df['age'].fillna(df['age'].median(), inplace=True)
+# Xóa hàng thiếu email (quan trọng)
+df.dropna(subset=['email'], inplace=True)
+
+# 4. Chuẩn hóa dữ liệu
+df['email'] = df['email'].str.lower().str.strip()
+df['phone'] = df['phone'].str.replace(r'[^0-9]', '', regex=True)
+df['name'] = df['name'].str.title().str.strip()
+
+# 5. Xóa trùng lặp
+df.drop_duplicates(subset=['email'], inplace=True)
+
+# 6. Chuyển đổi kiểu dữ liệu
+df['registration_date'] = pd.to_datetime(df['registration_date'])
+
+print("Dữ liệu sau khi làm sạch:")
+print(df.info())
+```
+#### **Bài tập 2: Phân tích dữ liệu bán hàng**
+Cho 2 file:
+
+- *sales.csv: order_id, customer_id, product_id, quantity, order_date*
+- *products.json: product_id, product_name, category, price*
+
+Yêu cầu:
+
+- Đọc dữ liệu từ cả 2 file
+- Kết hợp dữ liệu từ 2 nguồn
+- Tính tổng doanh thu theo category
+- Tìm top 5 sản phẩm bán chạy nhất
+- Phân tích xu hướng bán hàng theo tháng
+
+```python
+# Template giải
+import pandas as pd
+import json
+
+# 1. Đọc dữ liệu
+sales_df = pd.read_csv('sales.csv')
+with open('products.json', 'r') as f:
+    products_data = json.load(f)
+products_df = pd.DataFrame(products_data)
+
+# 2. Kết hợp dữ liệu
+merged_df = pd.merge(sales_df, products_df, on='product_id', how='inner')
+
+# Tính revenue
+merged_df['revenue'] = merged_df['quantity'] * merged_df['price']
+
+# 3. Tổng doanh thu theo category
+revenue_by_category = merged_df.groupby('category')['revenue'].sum().sort_values(ascending=False)
+print("Doanh thu theo category:")
+print(revenue_by_category)
+
+# 4. Top 5 sản phẩm bán chạy
+top_products = merged_df.groupby('product_name')['quantity'].sum().sort_values(ascending=False).head(5)
+print("\nTop 5 sản phẩm bán chạy:")
+print(top_products)
+
+# 5. Xu hướng theo tháng
+merged_df['order_date'] = pd.to_datetime(merged_df['order_date'])
+merged_df['month'] = merged_df['order_date'].dt.to_period('M')
+monthly_trend = merged_df.groupby('month')['revenue'].sum()
+print("\nXu hướng doanh thu theo tháng:")
+print(monthly_trend)
+```
+#### **Bài tập 3: Xử lý dữ liệu từ nhiều nguồn**
+Scenario: Bạn có dữ liệu nhân viên từ 3 nguồn:
+
+- *employees_hr.csv: employee_id, name, department, hire_date*
+- *salaries.json: employee_id, base_salary, bonus*
+- *performance.csv: employee_id, performance_score, last_review_date*
+
+Yêu cầu:
+
+- Đọc và làm sạch dữ liệu từ cả 3 nguồn
+- Kết hợp tất cả dữ liệu thành một DataFrame duy nhất
+- Xử lý missing values một cách phù hợp
+- Tính tổng lương (base + bonus) cho mỗi nhân viên
+- Phân tích mức lương trung bình theo department
+- Tìm nhân viên có performance cao nhất trong mỗi department
+  ướng dẫn:
+```python
+# Template giải (học viên tự hoàn thành)
+# Gợi ý:
+# - Sử dụng pd.merge() để kết hợp multiple DataFrames
+# - Chú ý xử lý missing values phù hợp với từng trường
+# - Sử dụng groupby() cho các phân tích theo nhóm
+```
+# Tổng kết và Best Practices
+Quy trình làm sạch dữ liệu chuẩn:
+
+- Khám phá dữ liệu: Sử dụng .info(), .describe(), .head()
+- Kiểm tra chất lượng: Missing values, duplicates, outliers
+- Chuẩn hóa: Data types, string formatting, date parsing
+- Xử lý missing data: Drop, fill, interpolate
+- Kết hợp dữ liệu: Merge, join, concatenate
+- Validation: Kiểm tra logic và consistency
+
+Lưu ý quan trọng:
+
+- Luôn backup dữ liệu gốc trước khi làm sạch
+- Ghi chép lại các bước xử lý để có thể reproduce
+- Ghi chép lại các bước xử lý để có thể reproduce
+- Kiểm tra kết quả sau mỗi bước xử lý
+- Hiểu domain knowledge để xử lý missing values đúng cách
+- Sử dụng .copy() khi cần tạo bản sao DataFrame
