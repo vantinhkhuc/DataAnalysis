@@ -235,39 +235,28 @@ sales.info()
 ```
 
 #### **Exercise 2.03: Visualizing Data With pandas**
-You will combine the DataFrame containing the time spent by the users with the other DataFrame containing the cost of acquisition of the user. You will merge both these DataFrames to get an idea of user behavior. 
+In this exercise, you'll be revisiting the sales.csv file you worked on in _Exercise 2.01, Exploring the Attributes in Sales Data_. This time, you'll need to visualize the sales data to answer the following two questions:
+1.	Which mode of order generates the most revenue?
+2.	How have the following parameters varied over four years: Revenue, Planned revenue, and Gross profit?
+You will make use of bar plots and box plots to explore the distribution of the Revenue column.
+ 
 _Perform the following steps to achieve the aim of this exercise:_
 
 Code:
 
 ```python
-# 1.	Import the pandas modules that you will be using in this exercise:
+# 1.	Import the pandas library using the import command as follows:
 import pandas as pd
 
-# 2.	Load the CSV files into the DataFrames df1 and df2:
-df1 =pd.read_csv("timeSpent.csv")
-df2 =pd.read_csv("cost.csv")
+# 2.	Create a new panda DataFrame named sales and load the sales.csv file into it. Examine if your data is properly loaded by checking the first few values in the DataFrame by using the head() command:
+sales = pd.read_csv("sales.csv")
+sales.head()
 
-# 3.	Examine the first few rows of the first DataFrame using the head() function:
-df1.head()
+# 3.	Group the Revenue by Order method type and create a bar plot:
+sales.groupby('Order method type').sum().plot(kind = 'bar', y = 'Revenue', color='gray')
 
-# 4. Next, look at the first few rows of the second dataset:
-df2.head()
-
-# 5. Do a left join of df1 with df2 and store the output in a DataFrame, df. Use a left join as we are only interested in users who are spending time on the website. Specify the joining key as "users":
-df = df1.merge(df2, on="users", how="left")
-df.head()
-
-# 6. You'll observe some missing values (NaN) in the preceding output. These types of scenarios are very common as you may fail to capture some details pertaining to the users. This can be attributed to the fact that some users visited the website organically and hence, the cost of acquisition is zero. 
-# These missing values can be replaced with the value 0. Use the following code:
-df=df.fillna(0)
-df.head()
-
-# Now, the DataFrame has no missing values and you can compute the average cost of acquisition along with the average time spent. To compute the average value, you will be using the built-in function describe, which gives the statistics of the numerical columns in the DataFrame. Run the following command:
-df.describe()
-
-# Based on the traffic you want to attract for the forthcoming holiday season, you can now compute the marketing budget using the following formula:
-Marketing Budget = Number of users * Cost of Acquisition 
+# 4.	Now group the columns by year and create boxplots to get an idea on a relative scale:
+sales.groupby('Year')[['Revenue', 'Planned revenue', 'Gross profit']].plot(kind= 'box', color='gray')
 
 ```
 #### **Activity 201: Analyzing Advertisements **
