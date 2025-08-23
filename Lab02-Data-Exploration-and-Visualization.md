@@ -167,41 +167,157 @@ df_concat = pd.concat([df1, df2], axis=1)     # Theo cột
 ## **Bài tập Thực hành**
 ### Bài tập cơ bản
 #### **Exercise 2.01: Exploring the Attributes in Sales Data**
+You and your team are creating a marketing campaign for a client. All they've handed you is a file called sales.csv, which as they explained, contains the company's historical sales records. Apart from that, you know nothing about this dataset. 
+Using this data, you'll need to derive insights that will be used to create a comprehensive marketing campaign. Not all insights may be useful to the business, but since you will be presenting your findings to various teams first, an insight that's useful for one team may not matter much for the other team. So, your approach would be to gather as many actionable insights as possible and present those to the stakeholders. 
+
 
 ```python
- import pandas as pd #  import the pandas library
+# 1.	Open a new Jupyter Notebook to implement this exercise. Save the file as Exercise2-01.ipnyb.
+#     In a new Jupyter Notebook cell, import the pandas library as follows
+import pandas as pd
 
+2.	Create a new pandas DataFrame named sales and read the sales.csv file into it.
+#     Examine if your data is properly loaded by checking the first few values in
+#     the DataFrame by using the head() command:
+sales = pd.read_csv('sales.csv') sales.head()
 
- # Create a new DataFrame called user_info and read the user_info.json
- user_info = pd.read_json("user_info.json")
+#     Examine the columns of the DataFrame using the following code:
+sales.columns
 
- # checking the first five values in the DataFrame
-  user_info.head()
+# 4. Use the info function to print the datatypes of columns of sales DataFrame using the following code:
+sales.info()
 
-# Are there any missing values in any of the columns?
-# What are the data types of all the columns?
+# 5.	To check the time frame of the data, use the unique function on the Year column:
+sales['Year'].unique()
 
- user_info.info()
+# 6.	Use the unique function again to find out the types of products that the company is selling:
+sales['Product line'].unique()
 
-# How many rows and columns are present in the dataset?
+# 7.	Now, check the Product type column:
+sales['Product type'].unique()
 
- user_info.shape
+# 8.	Check the Product column to find the unique categories present in it:
+sales['Product'].unique()
+
+# 9.	Now, check the Order method type column to find out the ways through which the customer can place an order:
+sales['Order method type'].unique()
+
+# 10. Use the same function again on the Retailer country column to find out the countries where the client has a presence:
+sales['Retailer country'].unique()
+
+# 11. Now that you have analyzed the categorical values, get a quick summary of the numerical fields using the describe function:
+sales.describe()
+
+# 12. Analyze the spread of the categorical columns in the data using the  value_counts() function. This would shed light on how the data is distributed. Start with the Year column:
+sales['Year'].value_counts()
+
+# 13. Use the same function on the Product line column:
+sales['Product line'].value_counts()
+
+# 14. Now, check for the Product type column:
+sales['Product type'].value_counts()
+
+# 15. Now, find out the most popular order method using the following code:
+sales['Order method type'].value_counts()
+
+# 16. Finally, check for the Retailer country column along with their respective counts:
+sales['Retailer country'].value_counts()
+
+# 17. Get insights into country-wide statistics now. Group attributes such as Revenue, Planned revenue, Product cost, Quantity, and Gross profit by their countries, and sum their corresponding values. Use the following code:
+sales.groupby('Retailer country')[['Revenue',\                                    'Planned revenue',\
+                                   'Product cost',\
+                                   'Quantity',\
+                                   'Gross profit']].sum()
+
+# 18. Now find out the country whose product performance was affected the worst when sales dipped. Use the following code to group data by Retailer country:
+sales.dropna().groupby('Retailer country')\                       [['Revenue',\
+                        'Planned revenue',\
+                        'Product cost',\
+                        'Quantity',\
+                        'Unit cost',\
+                        'Unit price',\
+                        'Gross profit',\                         'Unit sale price']].min()
+
+# 19. Similarly, generate statistics for other categorical variables, such as Year, Product line, Product type, and Product. Use the following code for the Year variable:
+sales.groupby('Year')[['Revenue',\                        'Planned revenue',\
+                       'Product cost',\
+                       'Quantity',\
+                       'Unit cost',\
+                       'Unit price',\
+                       'Gross profit',\
+                       'Unit sale price']].sum()
+
+# 20. Use the following code for the Product line variable:
+sales.groupby('Product line')[['Revenue',\                                'Planned revenue',\
+                               'Product cost',\
+                               'Quantity',\
+                               'Unit cost',\
+                               'Unit price',\
+                               'Gross profit',\
+                               'Unit sale price']].sum()
+
+# 21. Now, find out which order method contributes to the maximum revenue:
+sales.groupby('Order method type')[['Revenue',\                                     'Planned revenue',\
+                                    'Product cost',\
+                                    'Quantity',\
+                                    'Gross profit']].sum()
+
 ```
 #### **Exercise 2.02: Calculating Conversion Ratios for Website Ads.**
-Loading Data from data.csv
+You are the owner of a website that randomly shows advertisements A or B to users each time a page is loaded. The performance of these advertisements is captured in a simple file called conversion_rates.csv. The file contains two columns: converted and group. If an advertisement succeeds in getting a user to click on it, the converted field gets the value 1, otherwise, it gets 0 by default; the group field denotes which ad was clicked – A or B. 
+As you can see, comparing the performance of these two ads is not that easy when the data is stored in this format. Use the skills you've learned so far, store this data in a data frame and modify it to show, in one table, information about:
+1.	The number of views ads in each group got.
+2.	The number of ads converted in each group.
+3.	The conversion ratio for each group.
+
+Code:
 
 ```python
- import pandas as pd
+# 1.	Import the pandas library using the import command, as follows:
+import pandas as pd
 
- # Create a new DataFrame called campaign_data.
- campaign_data = pd.read_csv("data.csv")
+# 2.	Create a new pandas DataFrame named data and read the  conversion_rates.csv file into it.
+#     Examine if your data is properly loaded by checking the first few values in the DataFrame
+#     by using the head() command:
+data = pd.read_csv('conversion_rates.csv')
+data.head()
 
- # Examine the first five rows of the DataFrame
-  campaign_data.head()
+# 3. Group the data by the group column and count the number of conversions. 
+#    Store the result in a DataFrame named converted_df:
+converted_df = data.groupby('group').sum() converted_df
+
+# 4. We would like to find out how many people have viewed the advertisement.
+#    For that use the groupby function to group the data and the count() function
+#    to count the number of times each advertisement was displayed.
+#    Store the result in a DataFrame viewed_df. Also, make sure you change the column name from
+#     converted to viewed:
+viewed_df = data.groupby('group').count().rename({'converted':'viewed'},axis = 'columns')
+viewed_df
+
+# 5. Combine the converted_df and viewed_df datasets in a new DataFrame, named stats using the following commands:
+stats = converted_df.merge(viewed_df, on = 'group') stats
+
+# 6. Create a new column called conversion_ratio that displays the ratio of converted ads to
+#     the number of views the ads received:
+stats['conversion_ratio'] = stats['converted'] / stats['viewed']
+stats
+
+# 7. Create a DataFrame df where group A's conversion ratio is accessed as df['A'] ['conversion_ratio'].
+#    Use the stack function for this operation:
+df = stats.stack()
+df
+
+# 8.	Check the conversion ratio of group A using the following code:
+df['A']['conversion_ratio']
+
+# 9.	To bring back the data to its original form we can reverse the rows with the columns in
+#    the stats DataFrame with the unstack() function twice:
+stats.unstack().unstack()
 
 ```
 
-To use the header parameter to make sure that the entries in the first row are read as column names. The header = 1 parameter reads the first row as the header:
+To use the header parameter to make sure that the entries in the first row are read as column names. 
+The header = 1 parameter reads the first row as the header:
 
 ```python
 campaign_data = pd.read_csv("data.csv", header = 1)
@@ -248,7 +364,8 @@ Code:
 # 1.	Import the pandas library using the import command as follows:
 import pandas as pd
 
-# 2.	Create a new panda DataFrame named sales and load the sales.csv file into it. Examine if your data is properly loaded by checking the first few values in the DataFrame by using the head() command:
+# 2.	Create a new panda DataFrame named sales and load the sales.csv file into it.
+#     Examine if your data is properly loaded by checking the first few values in the DataFrame by using the head() command:
 sales = pd.read_csv("sales.csv")
 sales.head()
 
@@ -260,7 +377,8 @@ sales.groupby('Year')[['Revenue', 'Planned revenue', 'Gross profit']].plot(kind=
 
 ```
 #### **Activity 201: Analyzing Advertisements **
-Your company has collated data on the advertisement views through various mediums in a file called Advertising.csv. The advert campaign ran through radio, TV, web, and newspaper and you need to mine the data to answer the following questions:
+Your company has collated data on the advertisement views through various mediums in a file called Advertising.csv. 
+The advert campaign ran through radio, TV, web, and newspaper and you need to mine the data to answer the following questions:
 1.	What are the unique values present in the Products column? 
 2.	How many data points belong to each category in the Products column?
 3.	What are the total views across each category in the Products column?
