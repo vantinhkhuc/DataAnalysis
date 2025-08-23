@@ -202,13 +202,16 @@ sales['Product'].unique()
 # 9.	Now, check the Order method type column to find out the ways through which the customer can place an order:
 sales['Order method type'].unique()
 
-# 10. Use the same function again on the Retailer country column to find out the countries where the client has a presence:
+# 10. Use the same function again on the Retailer country column to find out
+#     the countries where the client has a presence:
 sales['Retailer country'].unique()
 
-# 11. Now that you have analyzed the categorical values, get a quick summary of the numerical fields using the describe function:
+# 11. Now that you have analyzed the categorical values, get a quick summary of
+#     the numerical fields using the describe function:
 sales.describe()
 
-# 12. Analyze the spread of the categorical columns in the data using the  value_counts() function. This would shed light on how the data is distributed. Start with the Year column:
+# 12. Analyze the spread of the categorical columns in the data using the  value_counts() function.
+#     This would shed light on how the data is distributed. Start with the Year column:
 sales['Year'].value_counts()
 
 # 13. Use the same function on the Product line column:
@@ -223,43 +226,27 @@ sales['Order method type'].value_counts()
 # 16. Finally, check for the Retailer country column along with their respective counts:
 sales['Retailer country'].value_counts()
 
-# 17. Get insights into country-wide statistics now. Group attributes such as Revenue, Planned revenue, Product cost, Quantity, and Gross profit by their countries, and sum their corresponding values. Use the following code:
-sales.groupby('Retailer country')[['Revenue',\                                    'Planned revenue',\
-                                   'Product cost',\
-                                   'Quantity',\
-                                   'Gross profit']].sum()
+# 17. Get insights into country-wide statistics now. Group attributes such as Revenue,
+#     Planned revenue, Product cost, Quantity, and Gross profit by their countries,
+#     and sum their corresponding values. Use the following code:
+sales.groupby('Retailer country')[['Revenue','Planned revenue', 'Product cost', 'Quantity', 'Gross profit']].sum()
 
-# 18. Now find out the country whose product performance was affected the worst when sales dipped. Use the following code to group data by Retailer country:
-sales.dropna().groupby('Retailer country')\                       [['Revenue',\
-                        'Planned revenue',\
-                        'Product cost',\
-                        'Quantity',\
-                        'Unit cost',\
-                        'Unit price',\
-                        'Gross profit',\                         'Unit sale price']].min()
+# 18. Now find out the country whose product performance was affected the worst when sales dipped.
+#     Use the following code to group data by Retailer country:
+sales.dropna().groupby('Retailer country')[['Revenue', 'Planned revenue', Product cost', 'Quantity',
+                        'Unit cost', 'Unit price', 'Gross profit', 'Unit sale price']].min()
 
-# 19. Similarly, generate statistics for other categorical variables, such as Year, Product line, Product type, and Product. Use the following code for the Year variable:
-sales.groupby('Year')[['Revenue',\                        'Planned revenue',\
-                       'Product cost',\
-                       'Quantity',\
-                       'Unit cost',\
-                       'Unit price',\
-                       'Gross profit',\
-                       'Unit sale price']].sum()
+# 19. Similarly, generate statistics for other categorical variables, such as Year,
+#     Product line, Product type, and Product. Use the following code for the Year variable:
+sales.groupby('Year')[['Revenue', 'Planned revenue', 'Product cost', Quantity', 'Unit cost',
+                       'Unit price', 'Gross profit', 'Unit sale price']].sum()
 
 # 20. Use the following code for the Product line variable:
-sales.groupby('Product line')[['Revenue',\                                'Planned revenue',\
-                               'Product cost',\
-                               'Quantity',\
-                               'Unit cost',\
-                               'Unit price',\
-                               'Gross profit',\
-                               'Unit sale price']].sum()
+sales.groupby('Product line')[['Revenue', 'Planned revenue', 'Product cost', 'Quantity', 'Unit cost', 
+                               'Unit price', 'Gross profit', 'Unit sale price']].sum()
 
 # 21. Now, find out which order method contributes to the maximum revenue:
-sales.groupby('Order method type')[['Revenue',\                                     'Planned revenue',\
-                                    'Product cost',\
-                                    'Quantity',\
+sales.groupby('Order method type')[['Revenue', 'Planned revenue', 'Product cost', 'Quantity',
                                     'Gross profit']].sum()
 
 ```
