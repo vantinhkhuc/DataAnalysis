@@ -187,9 +187,134 @@ df_concat = pd.concat([df1, df2], axis=1)     # Theo cột
  user_info.shape
 ```
 #### **Exercise 102: Loading Data from Multiple Sources**
+Loading Data from data.csv
+
+```python
+ import pandas as pd
+
+ # Create a new DataFrame called campaign_data.
+ campaign_data = pd.read_csv("data.csv")
+
+ # Examine the first five rows of the DataFrame
+  campaign_data.head()
+
+```
+
+To use the header parameter to make sure that the entries in the first row are read as column names. The header = 1 parameter reads the first row as the header:
+
+```python
+campaign_data = pd.read_csv("data.csv", header = 1)
+
+ campaign_data.head()
+```
+
+Examine the last five rows using the tail() function
+
+```python
+campaign_data.tail()
+Loading Data from sales.csv
+```
+
+Create a new DataFrame called sales.
+
+ ```python
+sales = pd.read_csv("sales.csv")
+```
+
+Look at the first five rows of the sales DataFrame
+
+```python
+sales.head()
+```
+
+To check for null values and examine the data types of the columns
+
+```python
+sales.info()
+```
+
 #### **Exercise 103: Combining DataFrames and Handling**
+You will combine the DataFrame containing the time spent by the users with the other DataFrame containing the cost of acquisition of the user. You will merge both these DataFrames to get an idea of user behavior. 
+_Perform the following steps to achieve the aim of this exercise:_
+
+Code:
+
+```python
+# 1.	Import the pandas modules that you will be using in this exercise:
+import pandas as pd
+
+# 2.	Load the CSV files into the DataFrames df1 and df2:
+df1 =pd.read_csv("timeSpent.csv")
+df2 =pd.read_csv("cost.csv")
+
+# 3.	Examine the first few rows of the first DataFrame using the head() function:
+df1.head()
+
+# 4. Next, look at the first few rows of the second dataset:
+df2.head()
+
+# 5. Do a left join of df1 with df2 and store the output in a DataFrame, df. Use a left join as we are only interested in users who are spending time on the website. Specify the joining key as "users":
+df = df1.merge(df2, on="users", how="left")
+df.head()
+
+# 6. You'll observe some missing values (NaN) in the preceding output. These types of scenarios are very common as you may fail to capture some details pertaining to the users. This can be attributed to the fact that some users visited the website organically and hence, the cost of acquisition is zero. 
+# These missing values can be replaced with the value 0. Use the following code:
+df=df.fillna(0)
+df.head()
+
+# Now, the DataFrame has no missing values and you can compute the average cost of acquisition along with the average time spent. To compute the average value, you will be using the built-in function describe, which gives the statistics of the numerical columns in the DataFrame. Run the following command:
+df.describe()
+
+# Based on the traffic you want to attract for the forthcoming holiday season, you can now compute the marketing budget using the following formula:
+Marketing Budget = Number of users * Cost of Acquisition 
+
+```
 #### **Exercise 104: Applying Data Transformations**
+_You will use the user_info.json file:_
+-	What is the average age of the users?
+-	Which is the favorite fruit of the users?
+-	Do you have more female customers?
+-	How many of the users are active?
+-	
+**Code:**
+
+```python
+#1.	Import the pandas module using the following command:
+import pandas as pd
+
+#2.	Read the user_info.json file into a pandas DataFrame, user_info, using the following command:
+user_info = pd.read_json('user_info.json')
+
+#3.	Now, examine whether your data is properly loaded by checking the first few values in the DataFrame. Do this using the head() command:
+user_info.head()
+
+#4. Now, look at the attributes and the data inside them using the following command:
+user_info.info()
+
+5. Now, let's start answering the questions:
+# What is the average age of the users? To find the average age, use the following code:
+user_info['age'].mean()
+
+# Which is the favorite fruit among the users? To answer this question, you can use the groupby function on the favoriteFruit column and get a count of users with the following code:
+user_info.groupby('favoriteFruit')['_id'].count()
+
+# Do you have more female customers? To answer this question, you need to count the number of male and female users. You can find this count with the help of the groupby function. Use the following code:
+user_info.groupby('gender')['_id'].count()
+
+# How many of the users are active? Similar to the preceding questions, you can use the groupby function on the isActive column to find out the answer.
+# Use the following code:
+user_info.groupby('isActive')['_id'].count()
+
+```
 #### **Activity 101: Addressing Data Spilling**
+You will start by loading **sales.csv**, which contains some historical sales data about different customer purchases in stores in the past few years. As you may recall, the data loaded in the DataFrame was not correct as the values of some columns were getting populated wrongly in other columns. The goal of this activity is to clean the DataFrame and make it into a usable form. 
+You need to read the files into pandas DataFrames and prepare the output so that it can be used for further analysis. _Follow the steps given here:_
+1.	Open a new Jupyter notebook and import the **pandas** module.
+2.	Load the data from **sales.csv** into a separate DataFrame, named **sales**, and look at the first few rows of the generated DataFrame.
+3.	Analyze the data type of the fields.
+4.	Look at the first column. If the value in the column matches the expected values, move on to the next column or otherwise fix it with the correct value.
+5.	Once you have fixed the first column, examine the other columns one by one and try to ascertain whether the values are right. 
+
 ### Bài tập tổng hợp
 #### **Bài tập 1: Làm sạch dữ liệu khách hàng**
 Cho file customers.csv với cấu trúc sau:
