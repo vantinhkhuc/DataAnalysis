@@ -1,5 +1,6 @@
 # **Data Exploration and Visualization**
-# Lab01 - Data Preparation and Cleaning
+# Lab02 - Data Exploration and Visualization
+
 ## **Mục tiêu học tập**
 Sau khi hoàn thành bài học này, học viên sẽ có khả năng:
 - Đọc và import dữ liệu từ các định dạng file khác nhau (CSV, JSON) vào DataFrame
