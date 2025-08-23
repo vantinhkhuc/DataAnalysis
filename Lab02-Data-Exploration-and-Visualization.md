@@ -1,5 +1,4 @@
-# **Data Exploration and Visualization**
-# Lab02 - Data Exploration and Visualization
+# Lab02 - **Data Exploration and Visualization**
 
 ## **Mục tiêu học tập**
 Sau khi hoàn thành bài học này, học viên sẽ có khả năng:
