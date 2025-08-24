@@ -799,7 +799,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-### 4.2 Trực quan hóa với Seaborn cơ bản
+#### 4.2 Trực quan hóa với Seaborn cơ bản
 
 ```python
 # Thiết lập style cho seaborn
