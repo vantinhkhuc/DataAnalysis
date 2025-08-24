@@ -219,10 +219,10 @@ The advert campaign ran through radio, TV, web, and newspaper and you need to mi
 Follow the following steps to achieve the aim of this activity:
 1.	Open a new Jupyter Notebook and load pandas and the visualization libraries that you will need.
 2.	Load the data into a pandas DataFrame named ads and look at the first few rows. Your DataFrame should look as follows:
- ![Figure 2.63: The first few rows of Advertising.csv](Lab02/images/Activity2-02.jpg)
+ ![Figure 2.63: The first few rows of Advertising.csv](images/Activity2-02.jpg)
 3.	Understand the distribution of numerical variables in the dataset using the describe function. 
 4.	Plot the relationship between the variables in the dataset with the help of pair plots. You can use the hue parameter as Products. The hue parameter determines which column can be used for color encoding. Using Products as a hue parameter will show the different products in various shades of gray.
- ![Figure 2.64: The first few rows of Advertising.csv](Lab02/images/Activity2-01.jpg)
+ ![Figure 2.64: The first few rows of Advertising.csv](images/Activity2-01.jpg)
 
 ### Bài tập tổng hợp
 
