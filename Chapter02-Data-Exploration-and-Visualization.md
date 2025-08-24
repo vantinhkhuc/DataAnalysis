@@ -1,4 +1,4 @@
-# Lab02 - **Data Exploration and Visualization**
+# Chapter02 - **Data Exploration and Visualization**
 
 ## **Mục tiêu học tập**
 
