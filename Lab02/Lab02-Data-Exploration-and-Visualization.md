@@ -21,7 +21,7 @@ Using this data, you'll need to derive insights that will be used to create a co
 #     In a new Jupyter Notebook cell, import the pandas library as follows
 import pandas as pd
 
-2.	Create a new pandas DataFrame named sales and read the sales.csv file into it.
+# 2.	Create a new pandas DataFrame named sales and read the sales.csv file into it.
 #     Examine if your data is properly loaded by checking the first few values in
 #     the DataFrame by using the head() command:
 sales = pd.read_csv('sales.csv') sales.head()
