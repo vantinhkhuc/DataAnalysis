@@ -1,4 +1,4 @@
-# Lab01 - Data Preparation and Cleaning
+# Chapter 01 - Data Preparation and Cleaning
 ## **Mục tiêu học tập**
 Sau khi hoàn thành bài học này, học viên sẽ có khả năng:
 - Đọc và import dữ liệu từ các định dạng file khác nhau (CSV, JSON) vào DataFrame
@@ -163,7 +163,6 @@ df_merged = pd.merge(df1, df2, left_on='customer_id', right_on='id')
 df_concat = pd.concat([df1, df2], axis=0)     # Theo hàng
 df_concat = pd.concat([df1, df2], axis=1)     # Theo cột
 ```
-## **Bài tập Thực hành**
 ### Bài tập cơ bản
 #### **Exercise 101: Loading Data Stored in a JSON File**
 
@@ -315,121 +314,6 @@ You need to read the files into pandas DataFrames and prepare the output so that
 4.	Look at the first column. If the value in the column matches the expected values, move on to the next column or otherwise fix it with the correct value.
 5.	Once you have fixed the first column, examine the other columns one by one and try to ascertain whether the values are right. 
 
-### Bài tập tổng hợp
-#### **Bài tập 1: Làm sạch dữ liệu khách hàng**
-Cho file customers.csv với cấu trúc sau:
-
-- *customer_id, name, email, phone, age, city, registration_date*
-
-Yêu cầu:
-
-Đọc dữ liệu từ file CSV
-- Kiểm tra và xử lý missing values
-- Chuẩn hóa định dạng email và phone
-- Xóa các bản ghi trùng lặp
-- Chuyển đổi registration_date sang datetime
-
-```python
-# Template giải
-import pandas as pd
-
-# 1. Đọc dữ liệu
-df = pd.read_csv('customers.csv')
-
-# 2. Kiểm tra missing values
-print(df.isnull().sum())
-
-# 3. Xử lý missing values
-# Điền age bằng median
-df['age'].fillna(df['age'].median(), inplace=True)
-# Xóa hàng thiếu email (quan trọng)
-df.dropna(subset=['email'], inplace=True)
-
-# 4. Chuẩn hóa dữ liệu
-df['email'] = df['email'].str.lower().str.strip()
-df['phone'] = df['phone'].str.replace(r'[^0-9]', '', regex=True)
-df['name'] = df['name'].str.title().str.strip()
-
-# 5. Xóa trùng lặp
-df.drop_duplicates(subset=['email'], inplace=True)
-
-# 6. Chuyển đổi kiểu dữ liệu
-df['registration_date'] = pd.to_datetime(df['registration_date'])
-
-print("Dữ liệu sau khi làm sạch:")
-print(df.info())
-```
-#### **Bài tập 2: Phân tích dữ liệu bán hàng**
-Cho 2 file:
-
-- *sales.csv: order_id, customer_id, product_id, quantity, order_date*
-- *products.json: product_id, product_name, category, price*
-
-Yêu cầu:
-
-- Đọc dữ liệu từ cả 2 file
-- Kết hợp dữ liệu từ 2 nguồn
-- Tính tổng doanh thu theo category
-- Tìm top 5 sản phẩm bán chạy nhất
-- Phân tích xu hướng bán hàng theo tháng
-
-```python
-# Template giải
-import pandas as pd
-import json
-
-# 1. Đọc dữ liệu
-sales_df = pd.read_csv('sales.csv')
-with open('products.json', 'r') as f:
-    products_data = json.load(f)
-products_df = pd.DataFrame(products_data)
-
-# 2. Kết hợp dữ liệu
-merged_df = pd.merge(sales_df, products_df, on='product_id', how='inner')
-
-# Tính revenue
-merged_df['revenue'] = merged_df['quantity'] * merged_df['price']
-
-# 3. Tổng doanh thu theo category
-revenue_by_category = merged_df.groupby('category')['revenue'].sum().sort_values(ascending=False)
-print("Doanh thu theo category:")
-print(revenue_by_category)
-
-# 4. Top 5 sản phẩm bán chạy
-top_products = merged_df.groupby('product_name')['quantity'].sum().sort_values(ascending=False).head(5)
-print("\nTop 5 sản phẩm bán chạy:")
-print(top_products)
-
-# 5. Xu hướng theo tháng
-merged_df['order_date'] = pd.to_datetime(merged_df['order_date'])
-merged_df['month'] = merged_df['order_date'].dt.to_period('M')
-monthly_trend = merged_df.groupby('month')['revenue'].sum()
-print("\nXu hướng doanh thu theo tháng:")
-print(monthly_trend)
-```
-#### **Bài tập 3: Xử lý dữ liệu từ nhiều nguồn**
-Scenario: Bạn có dữ liệu nhân viên từ 3 nguồn:
-
-- *employees_hr.csv: employee_id, name, department, hire_date*
-- *salaries.json: employee_id, base_salary, bonus*
-- *performance.csv: employee_id, performance_score, last_review_date*
-
-Yêu cầu:
-
-- Đọc và làm sạch dữ liệu từ cả 3 nguồn
-- Kết hợp tất cả dữ liệu thành một DataFrame duy nhất
-- Xử lý missing values một cách phù hợp
-- Tính tổng lương (base + bonus) cho mỗi nhân viên
-- Phân tích mức lương trung bình theo department
-- Tìm nhân viên có performance cao nhất trong mỗi department
-  ướng dẫn:
-```python
-# Template giải (học viên tự hoàn thành)
-# Gợi ý:
-# - Sử dụng pd.merge() để kết hợp multiple DataFrames
-# - Chú ý xử lý missing values phù hợp với từng trường
-# - Sử dụng groupby() cho các phân tích theo nhóm
-```
 ## Tổng kết và Best Practices
 1. Quy trình làm sạch dữ liệu chuẩn:
 
