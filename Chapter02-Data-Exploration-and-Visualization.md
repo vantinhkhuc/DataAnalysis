@@ -974,7 +974,7 @@ axes[1,1].tick_params(axis='x', rotation=45)
 plt.tight_layout()
 plt.show()
 ```
-### _**4.4 Biểu đồ nâng cao với Matplotlib và Seaborn**_
+#### _**4.4 Biểu đồ nâng cao với Matplotlib và Seaborn**_
 
 ```python
 # 1. Advanced Matplotlib Visualizations
