@@ -8,157 +8,198 @@ Sau khi hoàn thành bài học này, học viên sẽ có khả năng:
 ## **Bài tập Thực hành**
 ### Bài tập cơ bản
 #### **Exercise 301: Mall Customer Segmentation – Understanding the Data**
+You are a data scientist at a leading consulting company and among their newest clients is a popular chain of malls spread across many countries. The mall wishes to gain a better understanding of its customers to re-design their existing offerings and marketing communications to improve sales in a geographical area. The data about the customers is available in the **Mall_Customers.csv** file. 
 
-```python
- import pandas as pd #  import the pandas library
-
-
- # Create a new DataFrame called user_info and read the user_info.json
- user_info = pd.read_json("user_info.json")
-
- # checking the first five values in the DataFrame
-  user_info.head()
-
-# Are there any missing values in any of the columns?
-# What are the data types of all the columns?
-
- user_info.info()
-
-# How many rows and columns are present in the dataset?
-
- user_info.shape
-```
-#### **Exercise 302: Traditional Segmentation of Mall Customers**
-Loading Data from data.csv
-
-```python
- import pandas as pd
-
- # Create a new DataFrame called campaign_data.
- campaign_data = pd.read_csv("data.csv")
-
- # Examine the first five rows of the DataFrame
-  campaign_data.head()
-
-```
-
-To use the header parameter to make sure that the entries in the first row are read as column names. The header = 1 parameter reads the first row as the header:
-
-```python
-campaign_data = pd.read_csv("data.csv", header = 1)
-
- campaign_data.head()
-```
-
-Examine the last five rows using the tail() function
-
-```python
-campaign_data.tail()
-Loading Data from sales.csv
-```
-
-Create a new DataFrame called sales.
-
- ```python
-sales = pd.read_csv("sales.csv")
-```
-
-Look at the first five rows of the sales DataFrame
-
-```python
-sales.head()
-```
-
-To check for null values and examine the data types of the columns
-
-```python
-sales.info()
-```
-
-#### **Exercise 303: Standardizing Customer Data**
-You will combine the DataFrame containing the time spent by the users with the other DataFrame containing the cost of acquisition of the user. You will merge both these DataFrames to get an idea of user behavior. 
-_Perform the following steps to achieve the aim of this exercise:_
-
-Code:
-
-```python
-# 1.	Import the pandas modules that you will be using in this exercise:
-import pandas as pd
-
-# 2.	Load the CSV files into the DataFrames df1 and df2:
-df1 =pd.read_csv("timeSpent.csv")
-df2 =pd.read_csv("cost.csv")
-
-# 3.	Examine the first few rows of the first DataFrame using the head() function:
-df1.head()
-
-# 4. Next, look at the first few rows of the second dataset:
-df2.head()
-
-# 5. Do a left join of df1 with df2 and store the output in a DataFrame, df. Use a left join as we are only interested in users who are spending time on the website. Specify the joining key as "users":
-df = df1.merge(df2, on="users", how="left")
-df.head()
-
-# 6. You'll observe some missing values (NaN) in the preceding output. These types of scenarios are very common as you may fail to capture some details pertaining to the users. This can be attributed to the fact that some users visited the website organically and hence, the cost of acquisition is zero. 
-# These missing values can be replaced with the value 0. Use the following code:
-df=df.fillna(0)
-df.head()
-
-# Now, the DataFrame has no missing values and you can compute the average cost of acquisition along with the average time spent. To compute the average value, you will be using the built-in function describe, which gives the statistics of the numerical columns in the DataFrame. Run the following command:
-df.describe()
-
-# Based on the traffic you want to attract for the forthcoming holiday season, you can now compute the marketing budget using the following formula:
-Marketing Budget = Number of users * Cost of Acquisition 
-
-```
-### **Exercise 304: Calculating the Distance between Customers**
-_You will use the user_info.json file:_
--	What is the average age of the users?
--	Which is the favorite fruit of the users?
--	Do you have more female customers?
--	How many of the users are active?
--	
 **Code:**
 
 ```python
-#1.	Import the pandas module using the following command:
-import pandas as pd
+# 1.	Import numpy, pandas, and pyplot from matplotlib and seaborn using the following code:
+import numpy as np, pandas as pd
+import matplotlib.pyplot as plt, seaborn as sns %matplotlib inline
+# 2.	Using the read_csv method from pandas, import the  
+Mall_Customers.csv file into a pandas DataFrame named data0 and print the first five rows:
+data0 = pd.read_csv("Mall_Customers.csv") data0.head()
 
-#2.	Read the user_info.json file into a pandas DataFrame, user_info, using the following command:
-user_info = pd.read_json('user_info.json')
+# 3. Use the info method of the DataFrame to print information about it:
+data0.info()
 
-#3.	Now, examine whether your data is properly loaded by checking the first few values in the DataFrame. Do this using the head() command:
-user_info.head()
+# 4. For convenience, rename the Annual Income (k$) and  Spending Score (1-100) columns to
+#    Income and Spend_score respectively, and print the top five records using the following code:
+data0.rename({'Annual Income (k$)':'Income', \               'Spending Score (1-100)':'Spend_score'}, axis=1, \              inplace=True) data0.head()
 
-#4. Now, look at the attributes and the data inside them using the following command:
-user_info.info()
+# 5. To get a high-level understanding of the customer data, print out the descriptive summary of the numerical fields in the data using the DataFrame's describe method:
+data0.describe()
 
-5. Now, let's start answering the questions:
-# What is the average age of the users? To find the average age, use the following code:
-user_info['age'].mean()
+```
+#### **Exercise 302: Traditional Segmentation of Mall Customers**
+The mall wants to segment its customers and plans to use the derived segments to improve its marketing campaigns. The business team has a belief that segmenting based on income levels is relevant for their offerings. You are asked to use a traditional, rule-based approach to define customer segments. 
 
-# Which is the favorite fruit among the users? To answer this question, you can use the groupby function on the favoriteFruit column and get a count of users with the following code:
-user_info.groupby('favoriteFruit')['_id'].count()
+In this exercise, you will perform your first customer segmentation using the income of the customer, employing a traditional rule-based approach to define customer segments. You will plot the distribution for the Income variable and assign groups to customers based on where you see the values lying: 
 
-# Do you have more female customers? To answer this question, you need to count the number of male and female users. You can find this count with the help of the groupby function. Use the following code:
-user_info.groupby('gender')['_id'].count()
+**Code:**
 
-# How many of the users are active? Similar to the preceding questions, you can use the groupby function on the isActive column to find out the answer.
-# Use the following code:
-user_info.groupby('isActive')['_id'].count()
+```python
+# 1. Plot a histogram of the Income column using the DataFrame's plot method using the following code:
+data0.Income.plot.hist(color='gray') plt.xlabel('Income') plt.show()
+
+# 2.	Create a new column, Cluster, to have the Low Income,  
+Moderate Income, and High earners values for customers with incomes in the ranges < 50, 50–90, and >= 90 respectively using the following code:
+data0['Cluster'] = np.where(data0.Income >= 90, 'High earners', \                             np.where(data0.Income < 50, \                             'Low Income', 'Moderate Income'))
+# 3.	To check the number of customers in each cluster and confirm whether the values for the Income column in the clusters are in the correct range, get a descriptive summary of Income for these groups using the following command:
+data0.groupby('Cluster')['Income'].describe()
+
+```
+
+#### **Exercise 303: Standardizing Customer Data**
+In this exercise, you will further our segmentation exercise by performing the important step of ensuring that all the variables get similar importance in the exercise, just as the business requires. You will standardize the mall customer data using z-scoring, employing **StandardScaler** from scikit-learn. Continue in the same notebook used for the exercises so far. Note that this exercise works on the modified data from _Exercise 3.02, Traditional Segmentation of Mall Customers_. Make sure you complete all the previous exercises before beginning this exercise:
+
+**Code:**
+
+```python
+# 1.	Import the StandardScaler method from sklearn and create an instance of StandardScaler using the following code:
+from sklearn.preprocessing import StandardScaler scaler = StandardScaler()
+2.	Create a list named cols_to_scale to hold the names of the columns you wish to scale, namely, Age, Income, and Spend_score. Also, make a copy of the DataFrame (to retain original values) and name it data_scaled. You will be scaling columns on the copied dataset:
+cols_to_scale = ['Age', 'Income', 'Spend_score'] data_scaled = data0.copy()
+3.	Using the fit_transform method of the scaler, apply the transformation to the chosen columns:
+data_scaled[cols_to_scale] = scaler.fit_transform\
+                             (data0[cols_to_scale])
+4.	To verify that this worked, print a descriptive summary of these modified columns:
+data_scaled[cols_to_scale].describe() 
+ 
+
+```
+#### **Exercise 304: Calculating the Distance between Customers**
+In this exercise, you will calculate the Euclidean distance between three customers. The goal of the exercise is to be able to calculate the similarity between customers. A similarity calculation is a key step in customer segmentation. After standardizing the Income and Spend_score fields for the first three customers as in the following table (Figure 3.14), you will calculate the distance using the cdist method from scipy.
+
+![Figure 3.14: Income and spend scores of three customers](images/Figure-3.14.jpg)
+**Code:**
+
+```python
+# 1. From the dataset (data_scaled created in Exercise 3.03, Standardizing Customer Data), extract the top three records with the Income and Spend_score fields into a dataset named cust3 and print the dataset, using the following code:
+sel_cols = ['Income', 'Spend_score'] cust3 = data_scaled[sel_cols].head(3) cust3
+
+# 2.	Next, import the cdist method from scipy.spatial.distance using the following code: 
+from scipy.spatial.distance import cdist
+ 
+3.	The cdist function can be used to calculate the distance between each pair of the two collections of inputs. To calculate the distance between the customers in cust3, provide the cust3 dataset as both data inputs to cdist, specifying euclidean as the metric, using the following code snippet:
+cdist(cust3, cust3, metric='euclidean'
+
+# Verify that 1.6305 is indeed the Euclidean distance between customer 1 and customer 2, by manually calculating it using the following code:
+np.sqrt((-1.739+1.739)**2 + (-0.4348-1.1957)**2)
 
 ```
 #### **Exercise 305: K-Means Clustering on Mall Customers**
+In this exercise, you will use machine learning to discover natural groups in the mall customers. You will perform k-means clustering on the mall customer data that was standardized in the previous exercise. You will use only the Income and  Spend_score columns. Continue using the same Jupyter notebook from the previous exercises. Perform clustering using the scikit-learn package and visualize the clusters: 
+
+**Code:**
+
+```python
+# 1. Create a list called cluster_cols containing the Income and  
+Spend_score columns, which will be used for clustering. Print the first three rows of the dataset, limited to these columns to ensure that you are filtering the data correctly:
+cluster_cols = ['Income', 'Spend_score'] data_scaled[cluster_cols].head(3)
+
+#2. Visualize the data using a scatter plot with Income and Spend_score on the x and y axes respectively with the following code:
+data_scaled.plot.scatter(x='Income', y='Spend_score', \                          color='gray') plt.show()
+
+# 3.	Import KMeans from sklearn.cluster. Create an instance of the KMeans model specifying 5 clusters (n_clusters) and 42 for random_state:
+from sklearn.cluster import KMeans model = KMeans(n_clusters=5, random_state=42)
+
+# 4.	Next, fit the model on the data using the columns in cluster_cols for the purpose. Using the predict method of the k-means model, assign the cluster for each customer to the 'Cluster' variable. Print the first three records of the data_scaled dataset:
+model.fit(data_scaled[cluster_cols]) data_scaled['Cluster'] = model.predict(data_scaled[cluster_cols]) data_scaled.head(3)
+
+# 5. Now you need to visualize it to see the points assigned to each cluster. Plot each cluster with a marker using the following code. You will subset the dataset for each cluster and use a dictionary to specify the marker for the cluster:
+markers = ['x', '*', '.', '|', '_']
+for clust in range(5):
+    temp = data_scaled[data_scaled.Cluster == clust]     plt.scatter(temp.Income, temp.Spend_score, \                 marker=markers[clust], \                 color = 'gray',\
+                label="Cluster "+str(clust)) plt.xlabel('Income') plt.ylabel('Spend_score') plt.legend() plt.show()
+
+```
 #### **Activity 301: Bank Customer Segmentation for Loan Campaign**
+Banks often have marketing campaigns for their individual products. Therabank is an established bank that offers personal loans as a product. Most of Therabank's customers have deposits, which is a liability for the bank and not profitable. Loans are profitable for the bank. Therefore, getting more customers to opt for a personal loan makes the equation more profitable. The task at hand is to create customer segments to maximize the effectiveness of their personal loan campaign. 
+The bank has data for customers including demographics, some financial information, and how these customers responded to a previous campaign (see Figure 3.21). Some key columns are described here:
+•	Experience: The work experience of the customer in years
+•	Income: The estimated annual income of the customer (thousands of US dollars)
+•	CCAvg: The average spending on credit cards per month (thousands of US dollars)
+•	Mortgage: The value of the customer's house mortgage (if any)
+•	Age: The age (in years) of the customer
+
+![Figure 3.21: First few records of the Therabank dataset](images/Figure-3.21.jpg)
+
+Your goal is to create customer segments for the marketing campaign. You will also identify which of these segments have the highest propensity to respond to the campaign – information that will greatly help optimize future campaigns.
+Note that while the previous campaign's response is available to you, if you use it as a criterion/feature for segmentation, you will not be able to segment other customers for whom the previous campaign was never run, thereby severely limiting the number of customers you can target. You will, therefore, exclude the feature (previous campaign response) for clustering, but you can use it to evaluate how your clusters overall would respond to the campaign. Execute the following steps in a fresh Jupyter notebook to complete the activity:
+
 #### **Exercise 306: Dealing with High-Dimensional Data**
+In this exercise, you will use machine learning to discover natural groups in the mall customers. You will perform k-means clustering on the mall customer data that was standardized in the previous exercise. You will use only the Income and  Spend_score columns. Continue using the same Jupyter notebook from the previous exercises. Perform clustering using the scikit-learn package and visualize the clusters: 
+
+1.	Import the necessary libraries for data processing, visualization, and clustering.
+2.	Load the data into a pandas DataFrame and display the top five rows. Using the info method, get an understanding of the columns and their types.
+3.	Perform standard scaling on the Income and CCAvg columns to create new Income_scaled and CCAvg_scaled columns. You will be using these two variables for customer segmentation. Get a descriptive summary of the processed columns to verify that the scaling has been applied correctly.
+4.	Perform k-means clustering, specifying 3 clusters using Income and CCAvg as the features. Specify random_state as 42 (an arbitrary choice) to ensure the consistency of the results. Create a new column, Cluster, containing the predicted cluster from the model.
+5.	Visualize the clusters by using different markers for the clusters on a scatter plot between Income and CCAvg. The output should be as follows:
+
+![Figure 3.22: Clusters on a scatter plot](images/Figure-3.22.jpg)
+
+6.	To understand the clusters, print the average values of Income and CCAvg for the three clusters. 
+7.	Perform a visual comparison of the clusters using the standardized values for Income and CCAvg. You should get the following plot:
+
+![Figure 3.23: Clusters on a scatter plot](images/Figure-3.23.jpg)
+
+8.	To understand the clusters better using other relevant features, print the average values against the clusters for the Age, Mortgage, Family, CreditCard, Online, and Personal Loan features. Check which cluster has the highest propensity for taking a personal loan.
+9.	Based on your understanding of the clusters, assign descriptive labels to the clusters.
+
+#### **Exercise 3.06: Dealing with High-Dimensional Data**
+In this exercise, you will perform clustering on the mall customers dataset using the age, income, and spend score. The goal is to find natural clusters in the data based on these three criteria and analyze the customer segments to identify their differentiating characteristics, providing the business with some valuable insight into the nature of its customers. This time though, visualization will not be easy. You will need to use PCA to reduce the data to two dimensions to visualize the clusters: 
+
+**Code:**
+
+```python
+# 1. Create a list, cluster_cols, containing the Age, Income, and Spend_score columns, which will be used for clustering. Print the first three rows of the dataset for these columns:
+cluster_cols = ['Age', 'Income', 'Spend_score'] data_scaled[cluster_cols].head(3)
+
+# 2.	Perform k-means clustering, specifying 4 clusters using the scaled features. 
+Specify random_state as 42. Assign the clusters to the Cluster column:
+model = KMeans(n_clusters=4, random_state=42) model.fit(data_scaled[cluster_cols])
+data_scaled['Cluster'] = model.predict(data_scaled[cluster_cols])
+3.	Using PCA on the scaled columns, create two new columns, pc1 and pc2, containing the data for PC1 and PC2 respectively:
+from sklearn import decomposition
+pca = decomposition.PCA(n_components=2) pca_res = pca.fit_transform(data_scaled[cluster_cols])
+data_scaled['pc1'] = pca_res[:,0] data_scaled['pc2'] = pca_res[:,1]
+4.	Visualize the clusters by using different markers and colors for the clusters on a scatter plot between pc1 and pc2 using the following code:
+markers = ['x', '*', 'o','|']
+for clust in range(4):
+    temp = data_scaled[data_scaled.Cluster == clust]     plt.scatter(temp.pc1, temp.pc2, marker=markers[clust], \                 label="Cluster "+str(clust), \                 color='gray') plt.xlabel('PC1') plt.ylabel('PC2') plt.show()
+
+# 5. To understand the clusters, print the average values of the original features used for clustering against the four clusters:
+data0['Cluster'] = data_scaled.Cluster
+data0.groupby('Cluster')[['Age', 'Income', 'Spend_score']].mean()
+
+# 6. Next, visualize this information using bar plots. Check which features are the most differentiated for the clusters using the following code:
+data0.groupby('Cluster')[['Age', 'Income', \                           'Spend_score']].mean() \      .plot.bar(color=['lightgray', 'darkgray', 'black']) plt.show()
+
+# 7. Based on your understanding of the clusters, assign descriptive labels to the clusters.
+One way to describe the clusters is as follows: 
+Cluster 0: Middle-aged penny pinchers (high income, low spend)
+Cluster 1: Young high rollers (younger age, high income, high spend)
+Cluster 2: Young aspirers (low income, high spend)
+Cluster 3: Old average Joes (average income, average spend)
+
+```
 #### **Activity 302: Bank Customer Segmentation with Multiple**
-You will start by loading **sales.csv**, which contains some historical sales data about different customer purchases in stores in the past few years. As you may recall, the data loaded in the DataFrame was not correct as the values of some columns were getting populated wrongly in other columns. The goal of this activity is to clean the DataFrame and make it into a usable form. 
-You need to read the files into pandas DataFrames and prepare the output so that it can be used for further analysis. _Follow the steps given here:_
-1.	Open a new Jupyter notebook and import the **pandas** module.
-2.	Load the data from **sales.csv** into a separate DataFrame, named **sales**, and look at the first few rows of the generated DataFrame.
-3.	Analyze the data type of the fields.
-4.	Look at the first column. If the value in the column matches the expected values, move on to the next column or otherwise fix it with the correct value.
-5.	Once you have fixed the first column, examine the other columns one by one and try to ascertain whether the values are right. 
+In this activity, you will be revisiting the Therabank problem statement. You'll need to create customer segments to maximize the effectiveness of their personal loan campaign. You will accomplish this by finding the natural customer types in the data and discovering the features that differentiate them. Then, you'll identify the customer segments that have the highest propensity to take a loan. 
+In Activity 3.01, Bank Customer Segmentation for Loan Campaign, you employed just two features of the customer. In this activity, you will employ additional features, namely, Age, Experience, and Mortgage. As you are dealing with high-dimensional data, you will use PCA for visualizing the clusters. You will understand the customer segments obtained and provide them with business-friendly labels. As a part of your evaluation and understanding of the segments, you will also check the historical response rates for the obtained segments. 
+
+_Execute the following steps to complete the activity:_
+1.	Create a copy of the dataset named bank_scaled, and perform standard scaling of the Income, CCAvg, Age, Experience, and Mortgage columns.
+2.	Get a descriptive summary of the processed columns to verify that the scaling has been applied correctly.
+3.	Perform k-means clustering, specifying 3 clusters using the scaled features. Specify random_state as 42.
+4.	Using PCA on the scaled columns, create two new columns, pc1 and pc2, containing the data for PC1 and PC2 respectively.
+5.	Visualize the clusters by using different markers for the clusters on a scatter plot between pc1 and pc2. The plot should appear as in the following figure: 
+ 
+![Figure 3.30: Clusters on a scatter plot](images/Figure-3.30.jpg)
+
+6.	To understand the clusters, print the average values of the features used for clustering against the three clusters. Check which features are the most differentiated for the clusters.
+7.	To understand the clusters better using other relevant features, print the average values against the clusters for the Age, Mortgage, Family, CreditCard, Online, and Personal Loan features and check which cluster has the highest propensity for taking a personal loan.
+8.	Based on your understanding of the clusters, assign descriptive labels to the clusters.
 
 ## Bài tập tổng hợp
 ### **Bài tập 1: Làm sạch dữ liệu khách hàng**
