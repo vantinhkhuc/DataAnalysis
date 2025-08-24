@@ -25,9 +25,11 @@ data0.info()
 
 # 4. For convenience, rename the Annual Income (k$) and  Spending Score (1-100) columns to
 #    Income and Spend_score respectively, and print the top five records using the following code:
-data0.rename({'Annual Income (k$)':'Income', \               'Spending Score (1-100)':'Spend_score'}, axis=1, \              inplace=True) data0.head()
+data0.rename({'Annual Income (k$)':'Income', 'Spending Score (1-100)':'Spend_score'}, axis=1, inplace=True)
+data0.head()
 
-# 5. To get a high-level understanding of the customer data, print out the descriptive summary of the numerical fields in the data using the DataFrame's describe method:
+# 5. To get a high-level understanding of the customer data, print out the descriptive summary of
+#    the numerical fields in the data using the DataFrame's describe method:
 data0.describe()
 
 ```
@@ -43,9 +45,14 @@ In this exercise, you will perform your first customer segmentation using the in
 data0.Income.plot.hist(color='gray') plt.xlabel('Income') plt.show()
 
 # 2.	Create a new column, Cluster, to have the Low Income,  
-Moderate Income, and High earners values for customers with incomes in the ranges < 50, 50–90, and >= 90 respectively using the following code:
-data0['Cluster'] = np.where(data0.Income >= 90, 'High earners', \                             np.where(data0.Income < 50, \                             'Low Income', 'Moderate Income'))
-# 3.	To check the number of customers in each cluster and confirm whether the values for the Income column in the clusters are in the correct range, get a descriptive summary of Income for these groups using the following command:
+#    Moderate Income, and High earners values for customers with incomes in the ranges < 50, 50–90,
+#    and >= 90 respectively using the following code:
+data0['Cluster'] = np.where(data0.Income >= 90, 'High earners',
+np.where(data0.Income < 50, 'Low Income', 'Moderate Income'))
+
+# 3.	To check the number of customers in each cluster and confirm whether the values for
+#    the Income column in the clusters are in the correct range, get a descriptive summary of
+#    Income for these groups using the following command:
 data0.groupby('Cluster')['Income'].describe()
 
 ```
@@ -57,16 +64,21 @@ In this exercise, you will further our segmentation exercise by performing the i
 
 ```python
 # 1.	Import the StandardScaler method from sklearn and create an instance of StandardScaler using the following code:
-from sklearn.preprocessing import StandardScaler scaler = StandardScaler()
-2.	Create a list named cols_to_scale to hold the names of the columns you wish to scale, namely, Age, Income, and Spend_score. Also, make a copy of the DataFrame (to retain original values) and name it data_scaled. You will be scaling columns on the copied dataset:
-cols_to_scale = ['Age', 'Income', 'Spend_score'] data_scaled = data0.copy()
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+
+2.	Create a list named cols_to_scale to hold the names of the columns you wish to scale,
+#    namely, Age, Income, and Spend_score. Also, make a copy of the DataFrame
+#    (to retain original values) and name it data_scaled. You will be scaling columns on the copied dataset:
+cols_to_scale = ['Age', 'Income', 'Spend_score']
+data_scaled = data0.copy()
+
 3.	Using the fit_transform method of the scaler, apply the transformation to the chosen columns:
-data_scaled[cols_to_scale] = scaler.fit_transform\
-                             (data0[cols_to_scale])
+data_scaled[cols_to_scale] = scaler.fit_transform(data0[cols_to_scale])
+
 4.	To verify that this worked, print a descriptive summary of these modified columns:
 data_scaled[cols_to_scale].describe() 
  
-
 ```
 #### **Exercise 304: Calculating the Distance between Customers**
 In this exercise, you will calculate the Euclidean distance between three customers. The goal of the exercise is to be able to calculate the similarity between customers. A similarity calculation is a key step in customer segmentation. After standardizing the Income and Spend_score fields for the first three customers as in the following table (Figure 3.14), you will calculate the distance using the cdist method from scipy.
@@ -75,16 +87,24 @@ In this exercise, you will calculate the Euclidean distance between three custom
 **Code:**
 
 ```python
-# 1. From the dataset (data_scaled created in Exercise 3.03, Standardizing Customer Data), extract the top three records with the Income and Spend_score fields into a dataset named cust3 and print the dataset, using the following code:
-sel_cols = ['Income', 'Spend_score'] cust3 = data_scaled[sel_cols].head(3) cust3
+# 1. From the dataset (data_scaled created in Exercise 3.03, Standardizing Customer Data),
+#    extract the top three records with the Income and Spend_score fields into
+#    a dataset named cust3 and print the dataset, using the following code:
+sel_cols = ['Income', 'Spend_score']
+cust3 = data_scaled[sel_cols].head(3)
+cust3
 
 # 2.	Next, import the cdist method from scipy.spatial.distance using the following code: 
 from scipy.spatial.distance import cdist
  
-3.	The cdist function can be used to calculate the distance between each pair of the two collections of inputs. To calculate the distance between the customers in cust3, provide the cust3 dataset as both data inputs to cdist, specifying euclidean as the metric, using the following code snippet:
-cdist(cust3, cust3, metric='euclidean'
+3.	The cdist function can be used to calculate the distance between
+#    each pair of the two collections of inputs. To calculate the distance between
+#    the customers in cust3, provide the cust3 dataset as both data inputs to cdist,
+#    specifying euclidean as the metric, using the following code snippet:
+cdist(cust3, cust3, metric='euclidean')
 
-# Verify that 1.6305 is indeed the Euclidean distance between customer 1 and customer 2, by manually calculating it using the following code:
+# Verify that 1.6305 is indeed the Euclidean distance between customer 1 and customer 2,
+#    by manually calculating it using the following code:
 np.sqrt((-1.739+1.739)**2 + (-0.4348-1.1957)**2)
 
 ```
@@ -95,23 +115,41 @@ In this exercise, you will use machine learning to discover natural groups in th
 
 ```python
 # 1. Create a list called cluster_cols containing the Income and  
-Spend_score columns, which will be used for clustering. Print the first three rows of the dataset, limited to these columns to ensure that you are filtering the data correctly:
-cluster_cols = ['Income', 'Spend_score'] data_scaled[cluster_cols].head(3)
+#    Spend_score columns, which will be used for clustering.
+#    Print the first three rows of the dataset, limited to these columns
+#    to ensure that you are filtering the data correctly:
+cluster_cols = ['Income', 'Spend_score']
+data_scaled[cluster_cols].head(3)
 
-#2. Visualize the data using a scatter plot with Income and Spend_score on the x and y axes respectively with the following code:
-data_scaled.plot.scatter(x='Income', y='Spend_score', \                          color='gray') plt.show()
+#2. Visualize the data using a scatter plot with Income and
+#    Spend_score on the x and y axes respectively with the following code:
+data_scaled.plot.scatter(x='Income', y='Spend_score', color='gray')
+plt.show()
 
-# 3.	Import KMeans from sklearn.cluster. Create an instance of the KMeans model specifying 5 clusters (n_clusters) and 42 for random_state:
-from sklearn.cluster import KMeans model = KMeans(n_clusters=5, random_state=42)
+# 3.	Import KMeans from sklearn.cluster. Create an instance of
+#    the KMeans model specifying 5 clusters (n_clusters) and 42 for random_state:
+from sklearn.cluster import KMeans
+model = KMeans(n_clusters=5, random_state=42)
 
-# 4.	Next, fit the model on the data using the columns in cluster_cols for the purpose. Using the predict method of the k-means model, assign the cluster for each customer to the 'Cluster' variable. Print the first three records of the data_scaled dataset:
-model.fit(data_scaled[cluster_cols]) data_scaled['Cluster'] = model.predict(data_scaled[cluster_cols]) data_scaled.head(3)
+# 4.	Next, fit the model on the data using the columns in cluster_cols for the purpose.
+#    Using the predict method of the k-means model, assign the cluster for
+#    each customer to the 'Cluster' variable. Print the first three records of the data_scaled dataset:
+model.fit(data_scaled[cluster_cols])
+data_scaled['Cluster'] = model.predict(data_scaled[cluster_cols])
+data_scaled.head(3)
 
-# 5. Now you need to visualize it to see the points assigned to each cluster. Plot each cluster with a marker using the following code. You will subset the dataset for each cluster and use a dictionary to specify the marker for the cluster:
+# 5. Now you need to visualize it to see the points assigned to each cluster.
+#    Plot each cluster with a marker using the following code.
+#    You will subset the dataset for each cluster and use a dictionary to specify the marker for the cluster:
 markers = ['x', '*', '.', '|', '_']
 for clust in range(5):
-    temp = data_scaled[data_scaled.Cluster == clust]     plt.scatter(temp.Income, temp.Spend_score, \                 marker=markers[clust], \                 color = 'gray',\
-                label="Cluster "+str(clust)) plt.xlabel('Income') plt.ylabel('Spend_score') plt.legend() plt.show()
+     temp = data_scaled[data_scaled.Cluster == clust]
+     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], color = 'gray',
+                label="Cluster "+str(clust))
+plt.xlabel('Income')
+plt.ylabel('Spend_score')
+plt.legend()
+plt.show()
 
 ```
 #### **Activity 301: Bank Customer Segmentation for Loan Campaign**
@@ -153,28 +191,48 @@ In this exercise, you will perform clustering on the mall customers dataset usin
 **Code:**
 
 ```python
-# 1. Create a list, cluster_cols, containing the Age, Income, and Spend_score columns, which will be used for clustering. Print the first three rows of the dataset for these columns:
-cluster_cols = ['Age', 'Income', 'Spend_score'] data_scaled[cluster_cols].head(3)
+# 1. Create a list, cluster_cols, containing the Age, Income, and Spend_score columns,
+#    which will be used for clustering. Print the first three rows of the dataset for these columns:
+cluster_cols = ['Age', 'Income', 'Spend_score']
+data_scaled[cluster_cols].head(3)
 
 # 2.	Perform k-means clustering, specifying 4 clusters using the scaled features. 
-Specify random_state as 42. Assign the clusters to the Cluster column:
-model = KMeans(n_clusters=4, random_state=42) model.fit(data_scaled[cluster_cols])
+#    Specify random_state as 42. Assign the clusters to the Cluster column:
+model = KMeans(n_clusters=4, random_state=42)
+model.fit(data_scaled[cluster_cols])
 data_scaled['Cluster'] = model.predict(data_scaled[cluster_cols])
-3.	Using PCA on the scaled columns, create two new columns, pc1 and pc2, containing the data for PC1 and PC2 respectively:
+
+3.	Using PCA on the scaled columns, create two new columns, pc1 and pc2,
+#   containing the data for PC1 and PC2 respectively:
 from sklearn import decomposition
-pca = decomposition.PCA(n_components=2) pca_res = pca.fit_transform(data_scaled[cluster_cols])
-data_scaled['pc1'] = pca_res[:,0] data_scaled['pc2'] = pca_res[:,1]
-4.	Visualize the clusters by using different markers and colors for the clusters on a scatter plot between pc1 and pc2 using the following code:
+
+pca = decomposition.PCA(n_components=2)
+pca_res = pca.fit_transform(data_scaled[cluster_cols])
+
+data_scaled['pc1'] = pca_res[:,0]
+data_scaled['pc2'] = pca_res[:,1]
+
+4.	Visualize the clusters by using different markers and colors for
+#    the clusters on a scatter plot between pc1 and pc2 using the following code:
 markers = ['x', '*', 'o','|']
 for clust in range(4):
-    temp = data_scaled[data_scaled.Cluster == clust]     plt.scatter(temp.pc1, temp.pc2, marker=markers[clust], \                 label="Cluster "+str(clust), \                 color='gray') plt.xlabel('PC1') plt.ylabel('PC2') plt.show()
+     temp = data_scaled[data_scaled.Cluster == clust]
+     plt.scatter(temp.pc1, temp.pc2, marker=markers[clust], label="Cluster "+str(clust), color='gray')
+ plt.xlabel('PC1')
+plt.ylabel('PC2')
+plt.show()
 
-# 5. To understand the clusters, print the average values of the original features used for clustering against the four clusters:
+# 5. To understand the clusters, print the average values of
+#    the original features used for clustering against the four clusters:
 data0['Cluster'] = data_scaled.Cluster
 data0.groupby('Cluster')[['Age', 'Income', 'Spend_score']].mean()
 
-# 6. Next, visualize this information using bar plots. Check which features are the most differentiated for the clusters using the following code:
-data0.groupby('Cluster')[['Age', 'Income', \                           'Spend_score']].mean() \      .plot.bar(color=['lightgray', 'darkgray', 'black']) plt.show()
+# 6. Next, visualize this information using bar plots.
+#    Check which features are the most differentiated for the clusters using the following code:
+data0.groupby('Cluster')[['Age', 'Income', 'Spend_score']].mean().plot.bar(
+color=['lightgray', 'darkgray', 'black'])
+
+plt.show()
 
 # 7. Based on your understanding of the clusters, assign descriptive labels to the clusters.
 One way to describe the clusters is as follows: 
