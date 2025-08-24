@@ -68,8 +68,8 @@ print("\n5. Tên các cột:")
 print(df.columns.tolist())
 ```
 
-#### **1.4 Khám phá dữ liệu bị thiếu và dữ liệu trùng lặp**
-
+#### _**1.4 Khám phá dữ liệu bị thiếu và dữ liệu trùng lặp**
+_
 ```python
 # Kiểm tra dữ liệu bị thiếu
 print("Dữ liệu bị thiếu:")
@@ -91,7 +91,7 @@ print("Sau khi thêm dữ liệu thiếu:")
 print(df.isnull().sum())
 ```
 
-#### **1.5 Làm sạch và biến đổi dữ liệu**
+#### _**1.5 Làm sạch và biến đổi dữ liệu**_
 
 ```python
 # Xử lý dữ liệu thiếu
@@ -165,7 +165,7 @@ print("\n10 dòng đầu, 3 cột đầu:")
 print(first_10_rows_3_cols)
 ```
 
-#### **1.7 Reshaping the Data (Biến đổi cấu trúc dữ liệu)**
+#### _**1.7 Reshaping the Data (Biến đổi cấu trúc dữ liệu)**_
 
 ```python
 # Pivot - Chuyển từ long format sang wide format
@@ -349,7 +349,7 @@ print("\nThống kê theo phòng ban và hiệu suất:")
 print(multi_group_stats.head(10))
 ```
 
-#### **2.4 Phân tích correlation**
+#### _**2.4 Phân tích correlation**_
 
 ```python
 # Ma trận correlation
@@ -557,7 +557,7 @@ print("\nPivot table với nhiều metrics:")
 print(pivot_multi.round(2))
 ```
 
-#### **3.2 Pivot Tables nâng cao**
+#### _**3.2 Pivot Tables nâng cao**_
 
 ```python
 # Pivot table với subtotals
@@ -581,7 +581,7 @@ print("\nCross-tabulation (% theo hàng):")
 print(cross_tab.round(1))
 ```
 
-#### **3.3 Phân tích so sánh**
+#### _**3.3 Phân tích so sánh**_
 
 ```python
 from scipy import stats
@@ -799,6 +799,41 @@ plt.tight_layout()
 plt.show()
 ```
 
+### 4.2 Trực quan hóa với Seaborn cơ bản
+
+```python
+# Thiết lập style cho seaborn
+sns.set_style("whitegrid")
+sns.set_palette("husl")
+
+# 1. Boxplot
+plt.figure(figsize=(12, 8))
+plt.subplot(2, 2, 1)
+sns.boxplot(data=df_filled, x='department', y='salary')
+plt.title('Phân bố lương theo phòng ban')
+plt.xticks(rotation=45)
+
+# 2. Violin plot
+plt.subplot(2, 2, 2)
+sns.violinplot(data=df_filled, x='performance_score', y='salary')
+plt.title('Phân bố lương theo hiệu suất')
+
+# 3. Heatmap correlation
+plt.subplot(2, 2, 3)
+correlation_matrix = df_filled[numeric_cols].corr()
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', center=0, fmt='.2f')
+plt.title('Ma trận correlation')
+
+# 4. Count plot
+plt.subplot(2, 2, 4)
+sns.countplot(data=df_filled, x='department', hue='performance_score')
+plt.title('Số lượng nhân viên theo phòng ban và hiệu suất')
+plt.xticks(rotation=45)
+
+plt.tight_layout()
+plt.show()
+```
+
 #### **4.2 Trực quan hóa với Seaborn**
 
 ```python
@@ -940,45 +975,7 @@ axes[1,1].tick_params(axis='x', rotation=45)
 plt.tight_layout()
 plt.show()
 ```
-
-
-
-### 4.2 Trực quan hóa với Seaborn
-
-```python
-# Thiết lập style cho seaborn
-sns.set_style("whitegrid")
-sns.set_palette("husl")
-
-# 1. Boxplot
-plt.figure(figsize=(12, 8))
-plt.subplot(2, 2, 1)
-sns.boxplot(data=df_filled, x='department', y='salary')
-plt.title('Phân bố lương theo phòng ban')
-plt.xticks(rotation=45)
-
-# 2. Violin plot
-plt.subplot(2, 2, 2)
-sns.violinplot(data=df_filled, x='performance_score', y='salary')
-plt.title('Phân bố lương theo hiệu suất')
-
-# 3. Heatmap correlation
-plt.subplot(2, 2, 3)
-correlation_matrix = df_filled[numeric_cols].corr()
-sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', center=0, fmt='.2f')
-plt.title('Ma trận correlation')
-
-# 4. Count plot
-plt.subplot(2, 2, 4)
-sns.countplot(data=df_filled, x='department', hue='performance_score')
-plt.title('Số lượng nhân viên theo phòng ban và hiệu suất')
-plt.xticks(rotation=45)
-
-plt.tight_layout()
-plt.show()
-```
-
-### 4.3 Biểu đồ nâng cao với Matplotlib và Seaborn
+### _**4.4 Biểu đồ nâng cao với Matplotlib và Seaborn**_
 
 ```python
 # 1. Advanced Matplotlib Visualizations
@@ -1266,9 +1263,9 @@ print("   - Ridge plots and violin plots")
 print("   - Interactive-style layouts")
 ```
 
-## Phần 5: Các Vấn đề Nâng cao
+### _**Phần 5: Các Vấn đề Nâng cao**_
 
-### 5.1 Xử lý Outliers
+#### _5.1 Xử lý Outliers_
 
 ```python
 def detect_outliers_iqr(df, column):
@@ -1316,7 +1313,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-### 5.2 Phân tích Clustering
+#### _5.2 Phân tích Clustering_
 
 ```python
 from sklearn.cluster import KMeans
@@ -1387,7 +1384,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-### 5.3 Time Series Analysis (với dữ liệu giả định)
+#### _5.3 Time Series Analysis (với dữ liệu giả định)_
 
 ```python
 # Tạo dữ liệu time series giả định
@@ -1451,7 +1448,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-### 5.4 Advanced Statistical Analysis
+#### _5.4 Advanced Statistical Analysis_
 
 ```python
 from scipy.stats import chi2_contingency, pearsonr
@@ -1719,9 +1716,8 @@ Follow the following steps to achieve the aim of this activity:
  ![Figure 2.64: The first few rows of Advertising.csv](Lab02/images/Activity2-01.jpg)
 
 ### Bài tập tổng hợp
-## Phần 6: Bài tập Ứng dụng
 
-### Bài tập 1: Phân tích dữ liệu bán hàng
+#### Bài tập 1: Phân tích dữ liệu bán hàng
 
 **Đề bài:** Cho dataset về doanh số bán hàng của một cửa hàng, hãy thực hiện phân tích toàn diện.
 
@@ -1970,7 +1966,7 @@ print(f"   - Ngày: {best_day}")
 print(f"   - Doanh thu TB: {best_day_revenue:,.0f}")
 ```
 
-### Bài tập 2: Phân tích dữ liệu khách sạn
+#### Bài tập 2: Phân tích dữ liệu khách sạn
 
 **Đề bài:** Phân tích dữ liệu đặt phòng khách sạn để tối ưu hóa doanh thu.
 
@@ -2022,7 +2018,7 @@ print(hotel_df.head())
    - Prediction models
    - Recommendation engine
 
-### Bài tập 3: Phân tích dữ liệu tài chính
+#### Bài tập 3: Phân tích dữ liệu tài chính
 
 **Đề bài:** Phân tích portfolio đầu tư và rủi ro.
 
@@ -2075,30 +2071,6 @@ print(stock_df.head())
    - Monte Carlo simulation
    - Stress testing
    - Portfolio rebalancing
-
-### Hướng dẫn chấm và đánh giá
-
-**Tiêu chí đánh giá:**
-
-1. **Kỹ thuật (40%):**
-   - Sử dụng đúng các hàm và phương pháp
-   - Code clean và có comment
-   - Xử lý exception và edge cases
-
-2. **Phân tích (30%):**
-   - Insights có ý nghĩa và chính xác
-   - Sử dụng đúng statistical tests
-   - Kết luận logic và có căn cứ
-
-3. **Trực quan hóa (20%):**
-   - Biểu đồ phù hợp với dữ liệu
-   - Aesthetic và dễ hiểu
-   - Đa dạng trong cách trình bày
-
-4. **Báo cáo (10%):**
-   - Cấu trúc rõ ràng
-   - Trình bày professional
-   - Recommendations khả thi
 
 ## Tài liệu tham khảo và học thêm
 
