@@ -37,8 +37,8 @@
 - Tiêu chí đánh giá
 
 ## Điểm nổi bật:
-✅ Thực hành: Code examples đầy đủ có thể chạy ngay
-✅ Ứng dụng: Bài tập với dữ liệu thực tế từ nhiều lĩnh vực
-✅ Nâng cao: Kỹ thuật machine learning và statistical analysis
-✅ Trực quan: Nhiều loại biểu đồ với cả Matplotlib và Seaborn
-✅ Đánh giá: Rubric chi tiết cho việc chấm điểm
++ ✅ Thực hành: Code examples đầy đủ có thể chạy ngay
++ ✅ Ứng dụng: Bài tập với dữ liệu thực tế từ nhiều lĩnh vực
++ ✅ Nâng cao: Kỹ thuật machine learning và statistical analysis
++ ✅ Trực quan: Nhiều loại biểu đồ với cả Matplotlib và Seaborn
++ ✅ Đánh giá: Rubric chi tiết cho việc chấm điểm
