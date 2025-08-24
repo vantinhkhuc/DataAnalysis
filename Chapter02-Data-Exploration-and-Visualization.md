@@ -68,8 +68,7 @@ print("\n5. Tên các cột:")
 print(df.columns.tolist())
 ```
 
-#### _**1.4 Khám phá dữ liệu bị thiếu và dữ liệu trùng lặp**
-_
+#### _**1.4 Khám phá dữ liệu bị thiếu và dữ liệu trùng lặp**_
 ```python
 # Kiểm tra dữ liệu bị thiếu
 print("Dữ liệu bị thiếu:")
@@ -799,7 +798,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-### 4.2 Trực quan hóa với Seaborn cơ bản
+#### 4.2 Trực quan hóa với Seaborn cơ bản
 
 ```python
 # Thiết lập style cho seaborn
