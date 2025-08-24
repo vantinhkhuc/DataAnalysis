@@ -163,8 +163,8 @@ df_merged = pd.merge(df1, df2, left_on='customer_id', right_on='id')
 df_concat = pd.concat([df1, df2], axis=0)     # Theo hàng
 df_concat = pd.concat([df1, df2], axis=1)     # Theo cột
 ```
-### Bài tập cơ bản
-#### **Exercise 101: Loading Data Stored in a JSON File**
+## Bài tập cơ bản
+### **Exercise 101: Loading Data Stored in a JSON File**
 
 ```python
  import pandas as pd #  import the pandas library
@@ -185,7 +185,7 @@ df_concat = pd.concat([df1, df2], axis=1)     # Theo cột
 
  user_info.shape
 ```
-#### **Exercise 102: Loading Data from Multiple Sources**
+### **Exercise 102: Loading Data from Multiple Sources**
 Loading Data from data.csv
 
 ```python
@@ -232,7 +232,7 @@ To check for null values and examine the data types of the columns
 sales.info()
 ```
 
-#### **Exercise 103: Combining DataFrames and Handling**
+### **Exercise 103: Combining DataFrames and Handling**
 You will combine the DataFrame containing the time spent by the users with the other DataFrame containing the cost of acquisition of the user. You will merge both these DataFrames to get an idea of user behavior. 
 _Perform the following steps to achieve the aim of this exercise:_
 
@@ -268,7 +268,7 @@ df.describe()
 Marketing Budget = Number of users * Cost of Acquisition 
 
 ```
-#### **Exercise 104: Applying Data Transformations**
+### **Exercise 104: Applying Data Transformations**
 _You will use the user_info.json file:_
 -	What is the average age of the users?
 -	Which is the favorite fruit of the users?
@@ -305,7 +305,7 @@ user_info.groupby('gender')['_id'].count()
 user_info.groupby('isActive')['_id'].count()
 
 ```
-#### **Activity 101: Addressing Data Spilling**
+### **Activity 101: Addressing Data Spilling**
 You will start by loading **sales.csv**, which contains some historical sales data about different customer purchases in stores in the past few years. As you may recall, the data loaded in the DataFrame was not correct as the values of some columns were getting populated wrongly in other columns. The goal of this activity is to clean the DataFrame and make it into a usable form. 
 You need to read the files into pandas DataFrames and prepare the output so that it can be used for further analysis. _Follow the steps given here:_
 1.	Open a new Jupyter notebook and import the **pandas** module.
