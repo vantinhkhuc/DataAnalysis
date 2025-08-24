@@ -63,7 +63,8 @@ In this exercise, you will further our segmentation exercise by performing the i
 **Code:**
 
 ```python
-# 1.	Import the StandardScaler method from sklearn and create an instance of StandardScaler using the following code:
+# 1.	Import the StandardScaler method from sklearn and create an instance of
+#    StandardScaler using the following code:
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 
