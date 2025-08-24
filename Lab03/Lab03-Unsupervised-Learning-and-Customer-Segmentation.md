@@ -68,16 +68,16 @@ In this exercise, you will further our segmentation exercise by performing the i
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 
-2.	Create a list named cols_to_scale to hold the names of the columns you wish to scale,
+# 2.	Create a list named cols_to_scale to hold the names of the columns you wish to scale,
 #    namely, Age, Income, and Spend_score. Also, make a copy of the DataFrame
 #    (to retain original values) and name it data_scaled. You will be scaling columns on the copied dataset:
 cols_to_scale = ['Age', 'Income', 'Spend_score']
 data_scaled = data0.copy()
 
-3.	Using the fit_transform method of the scaler, apply the transformation to the chosen columns:
+# 3.	Using the fit_transform method of the scaler, apply the transformation to the chosen columns:
 data_scaled[cols_to_scale] = scaler.fit_transform(data0[cols_to_scale])
 
-4.	To verify that this worked, print a descriptive summary of these modified columns:
+# 4.	To verify that this worked, print a descriptive summary of these modified columns:
 data_scaled[cols_to_scale].describe() 
  
 ```
@@ -98,7 +98,7 @@ cust3
 # 2.	Next, import the cdist method from scipy.spatial.distance using the following code: 
 from scipy.spatial.distance import cdist
  
-3.	The cdist function can be used to calculate the distance between
+# 3.	The cdist function can be used to calculate the distance between
 #    each pair of the two collections of inputs. To calculate the distance between
 #    the customers in cust3, provide the cust3 dataset as both data inputs to cdist,
 #    specifying euclidean as the metric, using the following code snippet:
@@ -203,7 +203,7 @@ model = KMeans(n_clusters=4, random_state=42)
 model.fit(data_scaled[cluster_cols])
 data_scaled['Cluster'] = model.predict(data_scaled[cluster_cols])
 
-3.	Using PCA on the scaled columns, create two new columns, pc1 and pc2,
+# 3.	Using PCA on the scaled columns, create two new columns, pc1 and pc2,
 #   containing the data for PC1 and PC2 respectively:
 from sklearn import decomposition
 
@@ -213,7 +213,7 @@ pca_res = pca.fit_transform(data_scaled[cluster_cols])
 data_scaled['pc1'] = pca_res[:,0]
 data_scaled['pc2'] = pca_res[:,1]
 
-4.	Visualize the clusters by using different markers and colors for
+# 4.	Visualize the clusters by using different markers and colors for
 #    the clusters on a scatter plot between pc1 and pc2 using the following code:
 markers = ['x', '*', 'o','|']
 for clust in range(4):
