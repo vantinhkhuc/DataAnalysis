@@ -1698,7 +1698,7 @@ sales.groupby('Order method type').sum().plot(kind = 'bar', y = 'Revenue', color
 sales.groupby('Year')[['Revenue', 'Planned revenue', 'Gross profit']].plot(kind= 'box', color='gray')
 
 ```
-#### **Activity 201: Analyzing Advertisements **
+#### **Activity 201: Analyzing Advertisements**
 Your company has collated data on the advertisement views through various mediums in a file called Advertising.csv. 
 The advert campaign ran through radio, TV, web, and newspaper and you need to mine the data to answer the following questions:
 1.	What are the unique values present in the Products column? 
