@@ -19,8 +19,9 @@ You are a data scientist at a leading consulting company and among their newest 
 # 1.	Import numpy, pandas, and pyplot from matplotlib and seaborn using the following code:
 import numpy as np, pandas as pd
 import matplotlib.pyplot as plt, seaborn as sns %matplotlib inline
+
 # 2.	Using the read_csv method from pandas, import the  
-Mall_Customers.csv file into a pandas DataFrame named data0 and print the first five rows:
+#    Mall_Customers.csv file into a pandas DataFrame named data0 and print the first five rows:
 data0 = pd.read_csv("Mall_Customers.csv") data0.head()
 
 # 3. Use the info method of the DataFrame to print information about it:
@@ -45,13 +46,14 @@ In this exercise, you will perform your first customer segmentation using the in
 
 ```python
 # 1. Plot a histogram of the Income column using the DataFrame's plot method using the following code:
-data0.Income.plot.hist(color='gray') plt.xlabel('Income') plt.show()
+data0.Income.plot.hist(color='gray')
+plt.xlabel('Income') plt.show()
 
 # 2.	Create a new column, Cluster, to have the Low Income,  
 #    Moderate Income, and High earners values for customers with incomes in the ranges < 50, 50–90,
 #    and >= 90 respectively using the following code:
 data0['Cluster'] = np.where(data0.Income >= 90, 'High earners',
-np.where(data0.Income < 50, 'Low Income', 'Moderate Income'))
+                            np.where(data0.Income < 50, 'Low Income', 'Moderate Income'))
 
 # 3.	To check the number of customers in each cluster and confirm whether the values for
 #    the Income column in the clusters are in the correct range, get a descriptive summary of
