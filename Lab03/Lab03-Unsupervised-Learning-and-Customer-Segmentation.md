@@ -266,9 +266,9 @@ _Execute the following steps to complete the activity:_
 7.	To understand the clusters better using other relevant features, print the average values against the clusters for the Age, Mortgage, Family, CreditCard, Online, and Personal Loan features and check which cluster has the highest propensity for taking a personal loan.
 8.	Based on your understanding of the clusters, assign descriptive labels to the clusters.
 
-## Bài tập tổng hợp
+
 ---
-## Bài Tập Ứng Dụng
+## Bài tập tổng hợp
 
 ### Bài Tập 1: Phân khúc khách hàng E-commerce
 
