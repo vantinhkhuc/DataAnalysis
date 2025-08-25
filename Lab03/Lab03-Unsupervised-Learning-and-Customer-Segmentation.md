@@ -90,6 +90,7 @@ data_scaled[cols_to_scale].describe()
 In this exercise, you will calculate the Euclidean distance between three customers. The goal of the exercise is to be able to calculate the similarity between customers. A similarity calculation is a key step in customer segmentation. After standardizing the Income and Spend_score fields for the first three customers as in the following table (Figure 3.14), you will calculate the distance using the cdist method from scipy.
 
 ![Figure 3.14: Income and spend scores of three customers](images/Figure-3.14.jpg)
+
 **Code:**
 
 ```python
@@ -241,11 +242,11 @@ color=['lightgray', 'darkgray', 'black'])
 plt.show()
 
 # 7. Based on your understanding of the clusters, assign descriptive labels to the clusters.
-One way to describe the clusters is as follows: 
-Cluster 0: Middle-aged penny pinchers (high income, low spend)
-Cluster 1: Young high rollers (younger age, high income, high spend)
-Cluster 2: Young aspirers (low income, high spend)
-Cluster 3: Old average Joes (average income, average spend)
+#    One way to describe the clusters is as follows: 
+#    Cluster 0: Middle-aged penny pinchers (high income, low spend)
+#    Cluster 1: Young high rollers (younger age, high income, high spend)
+#    Cluster 2: Young aspirers (low income, high spend)
+#    Cluster 3: Old average Joes (average income, average spend)
 
 ```
 #### **Activity 302: Bank Customer Segmentation with Multiple**
