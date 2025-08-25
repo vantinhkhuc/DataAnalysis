@@ -261,135 +261,681 @@ _Execute the following steps to complete the activity:_
 8.	Based on your understanding of the clusters, assign descriptive labels to the clusters.
 
 ## Bài tập tổng hợp
-### **Bài tập 1: Làm sạch dữ liệu khách hàng**
-Cho file customers.csv với cấu trúc sau:
+---
+## Bài Tập Ứng Dụng
 
-- *customer_id, name, email, phone, age, city, registration_date*
+### Bài Tập 1: Phân khúc khách hàng E-commerce
 
-Yêu cầu:
+**Mô tả**: Bạn là Data Analyst của một công ty thương mại điện tử. Công ty cung cấp cho bạn dữ liệu về hành vi mua sắm của khách hàng và yêu cầu phân khúc để tối ưu hóa chiến lược marketing.
 
-Đọc dữ liệu từ file CSV
-- Kiểm tra và xử lý missing values
-- Chuẩn hóa định dạng email và phone
-- Xóa các bản ghi trùng lặp
-- Chuyển đổi registration_date sang datetime
+**Dữ liệu**: 
+- CustomerID: ID khách hàng
+- Age: Tuổi
+- Annual_Income: Thu nhập hàng năm (USD)
+- Spending_Score: Điểm chi tiêu (1-100)
+- Purchase_Amount: Tổng giá trị đơn hàng
+- Days_Since_Last_Purchase: Số ngày từ lần mua cuối
+- Number_of_Purchases: Tổng số lần mua hàng
 
 ```python
-# Template giải
+def create_ecommerce_dataset():
+    """
+    Tạo dataset mô phỏng dữ liệu e-commerce
+    """
+    np.random.seed(123)
+    n_customers = 2000
+    
+    # Tạo 4 nhóm khách hàng khác biệt
+    data = []
+    
+    # Nhóm 1: High Value Customers (15%)
+    n_hvc = int(n_customers * 0.15)
+    hvc_data = {
+        'Age': np.random.normal(40, 8, n_hvc),
+        'Annual_Income': np.random.normal(90000, 20000, n_hvc),
+        'Spending_Score': np.random.normal(85, 10, n_hvc),
+        'Purchase_Amount': np.random.normal(5000, 1000, n_hvc),
+        'Days_Since_Last_Purchase': np.random.normal(15, 5, n_hvc),
+        'Number_of_Purchases': np.random.normal(25, 5, n_hvc)
+    }
+    
+    # Nhóm 2: Regular Customers (40%)
+    n_rc = int(n_customers * 0.4)
+    rc_data = {
+        'Age': np.random.normal(35, 10, n_rc),
+        'Annual_Income': np.random.normal(55000, 15000, n_rc),
+        'Spending_Score': np.random.normal(55, 15, n_rc),
+        'Purchase_Amount': np.random.normal(2500, 800, n_rc),
+        'Days_Since_Last_Purchase': np.random.normal(30, 10, n_rc),
+        'Number_of_Purchases': np.random.normal(12, 4, n_rc)
+    }
+    
+    # Nhóm 3: Price Sensitive Customers (30%)
+    n_psc = int(n_customers * 0.3)
+    psc_data = {
+        'Age': np.random.normal(45, 12, n_psc),
+        'Annual_Income': np.random.normal(35000, 10000, n_psc),
+        'Spending_Score': np.random.normal(30, 12, n_psc),
+        'Purchase_Amount': np.random.normal(800, 300, n_psc),
+        'Days_Since_Last_Purchase': np.random.normal(60, 20, n_psc),
+        'Number_of_Purchases': np.random.normal(6, 2, n_psc)
+    }
+    
+    # Nhóm 4: Inactive Customers (15%)
+    n_ic = n_customers - n_hvc - n_rc - n_psc
+    ic_data = {
+        'Age': np.random.normal(50, 15, n_ic),
+        'Annual_Income': np.random.normal(45000, 12000, n_ic),
+        'Spending_Score': np.random.normal(20, 8, n_ic),
+        'Purchase_Amount': np.random.normal(500, 200, n_ic),
+        'Days_Since_Last_Purchase': np.random.normal(120, 30, n_ic),
+        'Number_of_Purchases': np.random.normal(2, 1, n_ic)
+    }
+    
+    # Kết hợp tất cả dữ liệu
+    all_data = {}
+    for key in hvc_data.keys():
+        all_data[key] = np.concatenate([
+            hvc_data[key], rc_data[key], psc_data[key], ic_data[key]
+        ])
+    
+    df = pd.DataFrame(all_data)
+    df['CustomerID'] = range(1, len(df) + 1)
+    
+    # Đảm bảo giá trị hợp lệ
+    df['Age'] = np.clip(df['Age'], 18, 80)
+    df['Annual_Income'] = np.abs(df['Annual_Income'])
+    df['Spending_Score'] = np.clip(df['Spending_Score'], 1, 100)
+    df['Purchase_Amount'] = np.abs(df['Purchase_Amount'])
+    df['Days_Since_Last_Purchase'] = np.abs(df['Days_Since_Last_Purchase'])
+    df['Number_of_Purchases'] = np.abs(df['Number_of_Purchases'])
+    
+    return df
+
+# Yêu cầu bài tập
+def exercise_1_requirements():
+    """
+    Yêu cầu chi tiết cho bài tập 1
+    """
+    print("""
+    BÀI TẬP 1: PHÂN KHÚC KHÁCH HÀNG E-COMMERCE
+    ==========================================
+    
+    NHIỆM VỤ:
+    1. Tải và khám phá dữ liệu
+    2. Tiền xử lý dữ liệu (xử lý outliers, standardization)
+    3. Thực hiện EDA (Exploratory Data Analysis)
+    4. Tìm số cụm tối ưu bằng cả Elbow Method và Silhouette Score
+    5. Áp dụng K-means clustering
+    6. Phân tích và diễn giải kết quả
+    7. Tạo customer personas cho từng segment
+    8. Đề xuất chiến lược marketing cho từng nhóm
+    
+    KẾT QUẢ MONG MUỐN:
+    - Report chi tiết về đặc điểm từng segment
+    - Visualization hấp dẫn
+    - Actionable insights cho business
+    - Code có comment đầy đủ
+    
+    TIÊU CHÍ ĐÁNH GIÁ:
+    - Chất lượng phân tích dữ liệu (25%)
+    - Tính đúng đắn của clustering (25%)
+    - Chất lượng visualization (20%)
+    - Business insights (20%)
+    - Code quality (10%)
+    """)
+
+# Template code cho học viên
+exercise_1_template = '''
+# BÀI TẬP 1: E-COMMERCE CUSTOMER SEGMENTATION
+# ==========================================
+
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
 
-# 1. Đọc dữ liệu
-df = pd.read_csv('customers.csv')
+# Bước 1: Tạo dữ liệu
+df_ecommerce = create_ecommerce_dataset()
 
-# 2. Kiểm tra missing values
-print(df.isnull().sum())
+# Bước 2: EDA - Khám phá dữ liệu
+# TODO: Thực hiện EDA chi tiết
+print("=== KHÁM PHÁ DỮ LIỆU ===")
+# Your code here
 
-# 3. Xử lý missing values
-# Điền age bằng median
-df['age'].fillna(df['age'].median(), inplace=True)
-# Xóa hàng thiếu email (quan trọng)
-df.dropna(subset=['email'], inplace=True)
+# Bước 3: Tiền xử lý
+# TODO: Xử lý outliers và chuẩn hóa dữ liệu
+features = ['Age', 'Annual_Income', 'Spending_Score', 'Purchase_Amount', 
+           'Days_Since_Last_Purchase', 'Number_of_Purchases']
+# Your code here
 
-# 4. Chuẩn hóa dữ liệu
-df['email'] = df['email'].str.lower().str.strip()
-df['phone'] = df['phone'].str.replace(r'[^0-9]', '', regex=True)
-df['name'] = df['name'].str.title().str.strip()
+# Bước 4: Tìm K tối ưu
+# TODO: Implement Elbow Method và Silhouette Analysis
+# Your code here
 
-# 5. Xóa trùng lặp
-df.drop_duplicates(subset=['email'], inplace=True)
+# Bước 5: Clustering
+# TODO: Áp dụng K-means với K tối ưu
+# Your code here
 
-# 6. Chuyển đổi kiểu dữ liệu
-df['registration_date'] = pd.to_datetime(df['registration_date'])
+# Bước 6: Phân tích kết quả
+# TODO: Tạo cluster profiles và visualization
+# Your code here
 
-print("Dữ liệu sau khi làm sạch:")
-print(df.info())
+# Bước 7: Business Insights
+# TODO: Đưa ra insights và recommendations
+# Your code here
+'''
 ```
-### **Bài tập 2: Phân tích dữ liệu bán hàng**
-Cho 2 file:
 
-- *sales.csv: order_id, customer_id, product_id, quantity, order_date*
-- *products.json: product_id, product_name, category, price*
+### Bài Tập 2: Phân khúc khách hàng ngân hàng với RFM Analysis
 
-Yêu cầu:
-
-- Đọc dữ liệu từ cả 2 file
-- Kết hợp dữ liệu từ 2 nguồn
-- Tính tổng doanh thu theo category
-- Tìm top 5 sản phẩm bán chạy nhất
-- Phân tích xu hướng bán hàng theo tháng
+**Mô tả**: Bạn làm việc cho một ngân hàng và được yêu cầu phân tích hành vi giao dịch của khách hàng để phát triển các sản phẩm tài chính phù hợp.
 
 ```python
-# Template giải
+def create_banking_dataset():
+    """
+    Tạo dataset mô phỏng dữ liệu ngân hàng
+    """
+    np.random.seed(456)
+    n_customers = 1500
+    
+    # Tạo transaction data
+    customers = []
+    
+    for customer_id in range(1, n_customers + 1):
+        # Random customer characteristics
+        age = np.random.randint(25, 70)
+        account_balance = np.random.lognormal(8, 1.5)  # Log-normal distribution
+        
+        # Generate transaction patterns based on customer type
+        if np.random.random() < 0.2:  # 20% high-value customers
+            n_transactions = np.random.randint(50, 200)
+            avg_transaction = np.random.normal(5000, 2000)
+            recency = np.random.randint(1, 7)
+        elif np.random.random() < 0.5:  # 30% regular customers  
+            n_transactions = np.random.randint(20, 80)
+            avg_transaction = np.random.normal(1500, 800)
+            recency = np.random.randint(3, 15)
+        else:  # 50% low-activity customers
+            n_transactions = np.random.randint(5, 30)
+            avg_transaction = np.random.normal(500, 300)
+            recency = np.random.randint(10, 60)
+        
+        # Ensure positive values
+        avg_transaction = max(100, avg_transaction)
+        total_transaction_value = n_transactions * avg_transaction
+        
+        customers.append({
+            'CustomerID': customer_id,
+            'Age': age,
+            'Account_Balance': max(0, account_balance),
+            'Total_Transaction_Value': total_transaction_value,
+            'Transaction_Frequency': n_transactions,
+            'Avg_Transaction_Amount': avg_transaction,
+            'Days_Since_Last_Transaction': recency,
+            'Credit_Score': np.random.randint(300, 850),
+            'Number_of_Products': np.random.randint(1, 8)
+        })
+    
+    return pd.DataFrame(customers)
+
+def create_rfm_features_banking(df):
+    """
+    Tạo RFM features cho dữ liệu ngân hàng
+    """
+    df_rfm = df.copy()
+    
+    # R - Recency (Days since last transaction)
+    df_rfm['Recency'] = df_rfm['Days_Since_Last_Transaction']
+    
+    # F - Frequency (Number of transactions)
+    df_rfm['Frequency'] = df_rfm['Transaction_Frequency']
+    
+    # M - Monetary (Total transaction value)
+    df_rfm['Monetary'] = df_rfm['Total_Transaction_Value']
+    
+    # Additional banking-specific features
+    df_rfm['CLV'] = df_rfm['Monetary'] / df_rfm['Age']  # Customer Lifetime Value proxy
+    df_rfm['Engagement_Score'] = (df_rfm['Frequency'] * df_rfm['Number_of_Products']) / df_rfm['Recency']
+    
+    return df_rfm
+
+def exercise_2_requirements():
+    """
+    Yêu cầu chi tiết cho bài tập 2
+    """
+    print("""
+    BÀI TẬP 2: PHÂN KHÚC KHÁCH HÀNG NGÂN HÀNG VỚI RFM
+    ===============================================
+    
+    BỐI CẢNH:
+    Bạn là Data Analyst tại một ngân hàng. Ngân hàng muốn:
+    - Xác định khách hàng VIP để tập trung chăm sóc
+    - Phát hiện khách hàng có nguy cơ churn
+    - Phát triển sản phẩm tài chính phù hợp từng segment
+    
+    NHIỆM VỤ:
+    1. Tạo RFM features từ dữ liệu giao dịch
+    2. Thực hiện RFM analysis truyền thống (quintile scoring)
+    3. Áp dụng K-means clustering trên RFM data
+    4. So sánh kết quả giữa 2 phương pháp
+    5. Tạo customer journey mapping
+    6. Đề xuất chiến lược retention và cross-selling
+    7. Tính toán potential revenue impact
+    
+    FEATURES CHÍNH:
+    - Recency: Số ngày từ giao dịch cuối
+    - Frequency: Tần suất giao dịch
+    - Monetary: Tổng giá trị giao dịch
+    - Account_Balance: Số dư tài khoản
+    - Credit_Score: Điểm tín dụng
+    - Number_of_Products: Số sản phẩm đang sử dụng
+    
+    DELIVERABLES:
+    - RFM segments với business interpretation
+    - Customer personas chi tiết
+    - Action plan cho từng segment
+    - ROI estimation cho các chiến lược đề xuất
+    """)
+
+# Template code
+exercise_2_template = '''
+# BÀI TẬP 2: BANKING CUSTOMER SEGMENTATION WITH RFM
+# ==============================================
+
+# Bước 1: Tạo và khám phá dữ liệu banking
+df_banking = create_banking_dataset()
+
+# Bước 2: Tạo RFM features
+df_rfm = create_rfm_features_banking(df_banking)
+
+# Bước 3: Traditional RFM Analysis
+def traditional_rfm_analysis(df):
+    """
+    TODO: Implement traditional RFM scoring
+    - Chia mỗi RFM thành 5 quintiles (1-5)
+    - Tạo RFM score (ví dụ: 555 = top customer)
+    - Phân loại customers thành segments
+    """
+    # Your code here
+    pass
+
+# Bước 4: K-means RFM Clustering
+def kmeans_rfm_clustering(df):
+    """
+    TODO: Áp dụng K-means trên RFM features
+    - Standardize RFM features
+    - Find optimal K
+    - Perform clustering
+    """
+    # Your code here
+    pass
+
+# Bước 5: So sánh 2 phương pháp
+def compare_methods(df):
+    """
+    TODO: So sánh traditional RFM vs K-means
+    - Visualization comparison
+    - Silhouette analysis
+    - Business interpretation
+    """
+    # Your code here
+    pass
+
+# Bước 6: Business Strategy
+def develop_strategies(df):
+    """
+    TODO: Phát triển chiến lược cho từng segment
+    - Customer personas
+    - Product recommendations
+    - Marketing strategies
+    - Churn prevention plans
+    """
+    # Your code here
+    pass
+'''
+```
+
+### Bài Tập 3: Multi-dimensional Customer Segmentation cho Retail Chain
+
+**Mô tả**: Bạn là Head of Analytics cho một chuỗi bán lẻ lớn với nhiều cửa hàng trên toàn quốc. Công ty muốn thực hiện segmentation phức tạp kết hợp nhiều chiều dữ liệu.
+
+```python
+def create_retail_chain_dataset():
+    """
+    Tạo dataset phức tạp cho retail chain
+    """
+    np.random.seed(789)
+    n_customers = 3000
+    
+    # Define store locations và seasonal patterns
+    store_locations = ['North', 'South', 'East', 'West', 'Central']
+    seasons = ['Spring', 'Summer', 'Fall', 'Winter']
+    product_categories = ['Electronics', 'Clothing', 'Home', 'Sports', 'Beauty']
+    
+    customers = []
+    
+    for customer_id in range(1, n_customers + 1):
+        # Demographic info
+        age = np.random.randint(18, 80)
+        gender = np.random.choice(['M', 'F'])
+        location = np.random.choice(store_locations)
+        
+        # Shopping behavior varies by demographics và location
+        if age < 30:  # Young customers
+            digital_engagement = np.random.normal(0.8, 0.1)
+            price_sensitivity = np.random.normal(0.7, 0.1)
+            brand_loyalty = np.random.normal(0.4, 0.1)
+        elif age < 50:  # Middle-aged customers
+            digital_engagement = np.random.normal(0.6, 0.15)
+            price_sensitivity = np.random.normal(0.5, 0.15)
+            brand_loyalty = np.random.normal(0.6, 0.1)
+        else:  # Older customers
+            digital_engagement = np.random.normal(0.3, 0.1)
+            price_sensitivity = np.random.normal(0.4, 0.1)
+            brand_loyalty = np.random.normal(0.8, 0.1)
+        
+        # Seasonal shopping patterns
+        seasonal_spending = {}
+        base_spending = np.random.lognormal(6, 1)
+        
+        for season in seasons:
+            if season == 'Winter':  # Holiday season
+                seasonal_multiplier = np.random.normal(1.5, 0.3)
+            elif season == 'Summer':  # Vacation season
+                seasonal_multiplier = np.random.normal(1.2, 0.2)
+            else:
+                seasonal_multiplier = np.random.normal(1.0, 0.1)
+            
+            seasonal_spending[season] = max(0, base_spending * seasonal_multiplier)
+        
+        # Product preferences
+        preferred_categories = np.random.choice(product_categories, 
+                                              size=np.random.randint(1, 4), 
+                                              replace=False)
+        
+        # Transaction patterns
+        avg_basket_size = np.random.normal(3, 1)
+        visit_frequency = np.random.normal(15, 5)  # visits per month
+        online_vs_offline_ratio = digital_engagement + np.random.normal(0, 0.1)
+        
+        # Engagement metrics
+        email_open_rate = digital_engagement * np.random.normal(1, 0.2)
+        social_media_engagement = digital_engagement * np.random.normal(1, 0.3)
+        loyalty_program_usage = brand_loyalty * np.random.normal(1, 0.2)
+        
+        # Ensure values are in valid ranges
+        for var in [digital_engagement, price_sensitivity, brand_loyalty, 
+                   online_vs_offline_ratio, email_open_rate, 
+                   social_media_engagement, loyalty_program_usage]:
+            var = max(0, min(1, var))
+        
+        customers.append({
+            'CustomerID': customer_id,
+            'Age': age,
+            'Gender': gender,
+            'Location': location,
+            'Annual_Spending': sum(seasonal_spending.values()),
+            'Spring_Spending': seasonal_spending['Spring'],
+            'Summer_Spending': seasonal_spending['Summer'],
+            'Fall_Spending': seasonal_spending['Fall'],
+            'Winter_Spending': seasonal_spending['Winter'],
+            'Avg_Basket_Size': max(1, avg_basket_size),
+            'Visit_Frequency': max(1, visit_frequency),
+            'Online_Offline_Ratio': max(0, min(1, online_vs_offline_ratio)),
+            'Email_Open_Rate': max(0, min(1, email_open_rate)),
+            'Social_Media_Engagement': max(0, min(1, social_media_engagement)),
+            'Loyalty_Program_Usage': max(0, min(1, loyalty_program_usage)),
+            'Price_Sensitivity': max(0, min(1, price_sensitivity)),
+            'Brand_Loyalty': max(0, min(1, brand_loyalty)),
+            'Preferred_Categories': ','.join(preferred_categories),
+            'Digital_Engagement': max(0, min(1, digital_engagement))
+        })
+    
+    return pd.DataFrame(customers)
+
+def exercise_3_requirements():
+    """
+    Yêu cầu chi tiết cho bài tập 3
+    """
+    print("""
+    BÀI TẬP 3: MULTI-DIMENSIONAL CUSTOMER SEGMENTATION
+    ===============================================
+    
+    BỐI CẢNH:
+    Chuỗi bán lẻ QuickMart có 50 cửa hàng trên toàn quốc với:
+    - 3 triệu khách hàng active
+    - 5 categories sản phẩm chính  
+    - Cả online và offline channels
+    - Loyalty program với 60% participation rate
+    
+    THÁCH THỨC KINH DOANH:
+    - Competition từ e-commerce giants
+    - Changing consumer behavior post-COVID
+    - Need for personalized experience
+    - Inventory optimization across locations
+    
+    NHIỆM VỤ NÂNG CAO:
+    1. Feature Engineering:
+       - Tạo seasonal indices
+       - Channel preference scores
+       - Category affinity metrics
+       - Geographic clustering
+    
+    2. Advanced Clustering:
+       - Thử multiple algorithms (K-means, Hierarchical, DBSCAN)
+       - Ensemble clustering methods
+       - Stability analysis across time periods
+    
+    3. Multi-level Segmentation:
+       - Macro segments (behavioral)
+       - Micro segments (demographic + geographic)
+       - Temporal segments (seasonal patterns)
+    
+    4. Validation và Business Impact:
+       - A/B test design for segment validation
+       - Revenue impact modeling
+       - Customer satisfaction prediction
+    
+    5. Advanced Analytics:
+       - Customer journey mapping
+       - Next-best-action recommendations
+       - Churn prediction by segment
+       - LTV calculation
+    
+    EXPECTED OUTPUTS:
+    - Comprehensive segmentation strategy
+    - Interactive dashboard design
+    - Implementation roadmap
+    - Success metrics framework
+    """)
+
+# Template code cho bài tập phức tạp
+exercise_3_template = '''
+# BÀI TẬP 3: MULTI-DIMENSIONAL CUSTOMER SEGMENTATION
+# ===============================================
+
 import pandas as pd
-import json
+import numpy as np
+from sklearn.cluster import KMeans, AgglomerativeClustering, DBSCAN
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.decomposition import PCA
+from sklearn.metrics import silhouette_score, calinski_harabasz_score
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# 1. Đọc dữ liệu
-sales_df = pd.read_csv('sales.csv')
-with open('products.json', 'r') as f:
-    products_data = json.load(f)
-products_df = pd.DataFrame(products_data)
+# Load data
+df_retail = create_retail_chain_dataset()
 
-# 2. Kết hợp dữ liệu
-merged_df = pd.merge(sales_df, products_df, on='product_id', how='inner')
+# PHASE 1: ADVANCED FEATURE ENGINEERING
+# =====================================
 
-# Tính revenue
-merged_df['revenue'] = merged_df['quantity'] * merged_df['price']
+def create_advanced_features(df):
+    """
+    TODO: Tạo features nâng cao
+    
+    1. Seasonal Features:
+       - Seasonal spending variation
+       - Peak season indicator
+       - Spending consistency index
+    
+    2. Behavioral Features:
+       - Channel preference score
+       - Engagement composite score
+       - Purchase pattern regularity
+    
+    3. Value Features:
+       - Customer lifetime value estimate
+       - Profitability score
+       - Growth potential index
+    """
+    # Your advanced feature engineering here
+    pass
 
-# 3. Tổng doanh thu theo category
-revenue_by_category = merged_df.groupby('category')['revenue'].sum().sort_values(ascending=False)
-print("Doanh thu theo category:")
-print(revenue_by_category)
+def geographic_analysis(df):
+    """
+    TODO: Phân tích địa lý
+    - Regional spending patterns
+    - Location-based clustering
+    - Market penetration analysis
+    """
+    # Your code here
+    pass
 
-# 4. Top 5 sản phẩm bán chạy
-top_products = merged_df.groupby('product_name')['quantity'].sum().sort_values(ascending=False).head(5)
-print("\nTop 5 sản phẩm bán chạy:")
-print(top_products)
+# PHASE 2: ENSEMBLE CLUSTERING APPROACH
+# ==================================
 
-# 5. Xu hướng theo tháng
-merged_df['order_date'] = pd.to_datetime(merged_df['order_date'])
-merged_df['month'] = merged_df['order_date'].dt.to_period('M')
-monthly_trend = merged_df.groupby('month')['revenue'].sum()
-print("\nXu hướng doanh thu theo tháng:")
-print(monthly_trend)
+def ensemble_clustering(df, features):
+    """
+    TODO: Implement ensemble clustering
+    - Multiple algorithms comparison
+    - Consensus clustering
+    - Stability analysis
+    """
+    # Your code here
+    pass
+
+def hierarchical_clustering_analysis(df, features):
+    """
+    TODO: Hierarchical clustering với dendrogram
+    - Determine optimal number of clusters
+    - Analyze cluster hierarchy
+    - Compare with K-means results
+    """
+    # Your code here
+    pass
+
+# PHASE 3: MULTI-LEVEL SEGMENTATION
+# ==============================
+
+def macro_segmentation(df):
+    """
+    TODO: Macro-level behavioral segments
+    - High-level customer archetypes
+    - Cross-segment analysis
+    - Segment migration patterns
+    """
+    # Your code here
+    pass
+
+def micro_segmentation(df):
+    """
+    TODO: Micro-level segments within macro segments
+    - Demographic refinement
+    - Geographic sub-segments
+    - Product preference clusters
+    """
+    # Your code here
+    pass
+
+# PHASE 4: BUSINESS IMPACT ANALYSIS
+# ==============================
+
+def calculate_segment_value(df):
+    """
+    TODO: Tính toán giá trị của từng segment
+    - Revenue contribution
+    - Profitability analysis
+    - Growth potential
+    """
+    # Your code here
+    pass
+
+def develop_action_plans(df):
+    """
+    TODO: Phát triển action plans
+    - Personalization strategies
+    - Channel optimization
+    - Product recommendations
+    - Retention programs
+    """
+    # Your code here
+    pass
+
+# PHASE 5: ADVANCED VISUALIZATION
+# ============================
+
+def create_interactive_dashboard():
+    """
+    TODO: Tạo interactive dashboard concept
+    - Segment overview
+    - Drill-down capabilities  
+    - Real-time updates
+    """
+    # Your dashboard design here
+    pass
+
+def segment_journey_mapping(df):
+    """
+    TODO: Customer journey mapping by segment
+    - Touchpoint analysis
+    - Conversion funnels
+    - Experience optimization opportunities
+    """
+    # Your code here
+    pass
+
+# RUN COMPLETE ANALYSIS
+# ===================
+if __name__ == "__main__":
+    print("Starting Multi-Dimensional Customer Segmentation Analysis...")
+    
+    # Execute all phases
+    # Phase 1: Feature Engineering
+    # Phase 2: Ensemble Clustering  
+    # Phase 3: Multi-level Segmentation
+    # Phase 4: Business Impact Analysis
+    # Phase 5: Visualization and Reporting
+'''
 ```
-#### **Bài tập 3: Xử lý dữ liệu từ nhiều nguồn**
-Scenario: Bạn có dữ liệu nhân viên từ 3 nguồn:
+## Hướng dẫn chấm điểm và đánh giá
 
-- *employees_hr.csv: employee_id, name, department, hire_date*
-- *salaries.json: employee_id, base_salary, bonus*
-- *performance.csv: employee_id, performance_score, last_review_date*
+### Rubric cho các bài tập:
 
-Yêu cầu:
+**Bài Tập 1 (Cơ bản)**:
+- Code functionality (40%)
+- Data analysis quality (30%) 
+- Business insights (20%)
+- Presentation (10%)
 
-- Đọc và làm sạch dữ liệu từ cả 3 nguồn
-- Kết hợp tất cả dữ liệu thành một DataFrame duy nhất
-- Xử lý missing values một cách phù hợp
-- Tính tổng lương (base + bonus) cho mỗi nhân viên
-- Phân tích mức lương trung bình theo department
-- Tìm nhân viên có performance cao nhất trong mỗi department
-  ướng dẫn:
-```python
-# Template giải (học viên tự hoàn thành)
-# Gợi ý:
-# - Sử dụng pd.merge() để kết hợp multiple DataFrames
-# - Chú ý xử lý missing values phù hợp với từng trường
-# - Sử dụng groupby() cho các phân tích theo nhóm
-```
-## Tổng kết và Best Practices
-1. Quy trình làm sạch dữ liệu chuẩn:
+**Bài Tập 2 (Trung bình)**:
+- Technical implementation (35%)
+- RFM analysis depth (25%)
+- Method comparison (20%) 
+- Strategic recommendations (20%)
 
-- Khám phá dữ liệu: Sử dụng .info(), .describe(), .head()
-- Kiểm tra chất lượng: Missing values, duplicates, outliers
-- Chuẩn hóa: Data types, string formatting, date parsing
-- Xử lý missing data: Drop, fill, interpolate
-- Kết hợp dữ liệu: Merge, join, concatenate
-- Validation: Kiểm tra logic và consistency
+**Bài Tập 3 (Nâng cao)**:
+- Advanced techniques usage (30%)
+- Feature engineering creativity (25%)
+- Business impact analysis (25%)
+- Innovation and insights (20%)
 
-2. Lưu ý quan trọng:
-
-- Luôn backup dữ liệu gốc trước khi làm sạch
-- Ghi chép lại các bước xử lý để có thể reproduce
-- Ghi chép lại các bước xử lý để có thể reproduce
-- Kiểm tra kết quả sau mỗi bước xử lý
-- Hiểu domain knowledge để xử lý missing values đúng cách
-- Sử dụng .copy() khi cần tạo bản sao DataFrame
+### Tiêu chí đánh giá chung:
+- **Xuất sắc (90-100%)**: Vượt expectation, có insights độc đáo
+- **Tốt (80-89%)**: Hoàn thành tốt tất cả requirements  
+- **Khá (70-79%)**: Hoàn thành cơ bản với một số thiếu sót
+- **Trung bình (60-69%)**: Hoàn thành một phần, thiếu insights
+- **Yếu (<60%)
