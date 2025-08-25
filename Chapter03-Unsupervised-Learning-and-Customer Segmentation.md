@@ -1,4 +1,4 @@
-# Bài Giảng: Unsupervised Learning và Customer Segmentation
+# Chapter 03: Unsupervised Learning and Customer Segmentation
 
 ## Mục tiêu học tập
 Sau khi hoàn thành bài học này, học viên sẽ có thể:
