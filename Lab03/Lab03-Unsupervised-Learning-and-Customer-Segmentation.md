@@ -1,10 +1,13 @@
 # Lab 03 Unsupervised Learning and Customer Segmentation
 
 ## **Mục tiêu học tập**
-Sau khi hoàn thành bài học này, học viên sẽ có khả năng:
-- Đọc và import dữ liệu từ các định dạng file khác nhau (CSV, JSON) vào DataFrame
-- Thực hiện các thao tác slicing, aggregation và filtering trên DataFrame
-- Kết hợp các DataFrame, xử lý dữ liệu thiếu và làm sạch dữ liệu từ nhiều nguồn khác nhau
+Sau khi hoàn thành bài học này, học viên sẽ có thể:
+- Hiểu rõ nhu cầu và tầm quan trọng của customer segmentation
+- Nắm vững thuật toán K-means và ứng dụng trong phân khúc khách hàng
+- Thực hiện phân tích thống kê mô tả và tổng hợp dữ liệu
+- Sử dụng các công cụ Python để thực hiện segmentation
+- Phân tích và diễn giải kết quả phân khúc khách hàng
+- Áp dụng các kỹ thuật nâng cao trong customer segmentation
 ## **Bài tập Thực hành**
 ### Bài tập cơ bản
 #### **Exercise 301: Mall Customer Segmentation – Understanding the Data**
