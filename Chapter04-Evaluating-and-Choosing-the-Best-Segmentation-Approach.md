@@ -1,4 +1,4 @@
-# Chapter04 Evaluating and Choosing the Best Segmentation-Approach
+# Chapter04 Evaluating and Choosing the Best Segmentation Approach
 
 ## Mục tiêu học tập
 Sau khi hoàn thành bài học này, học viên sẽ có thể:
