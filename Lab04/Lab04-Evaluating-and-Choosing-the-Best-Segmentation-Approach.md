@@ -10,83 +10,121 @@ Sau khi hoàn thành bài học này, học viên sẽ có thể:
 - Áp dụng các kỹ thuật nâng cao trong customer segmentation
 ## **Bài tập Thực hành**
 ### Bài tập cơ bản
-#### **Exercise 301: Mall Customer Segmentation – Understanding the Data**
-You are a data scientist at a leading consulting company and among their newest clients is a popular chain of malls spread across many countries. The mall wishes to gain a better understanding of its customers to re-design their existing offerings and marketing communications to improve sales in a geographical area. The data about the customers is available in the **Mall_Customers.csv** file. 
+#### **Exercise 4.01: Data Staging and Visualization**
+You will be revisiting the business problem you worked on in _Chapter 3, Unsupervised Learning and Customer Segmentation_. You are a data scientist at a leading consulting company and its new client is a popular chain of malls spread across many countries. The mall wishes to re-design its existing offers and marketing communications to improve sales in one of its key markets. An understanding of their customers is critical for this objective, and for that, good customer segmentation is needed. 
+
+The goal of this exercise is to load the data and perform basic clean-up so that you can use it conveniently for further tasks. Also, you will visualize the data to understand better how the customers are distributed on two key attributes –  **Income and Spend_score.** You will be using these fields later to perform clustering. 
+ 
 
 **Code:**
 
 ```python
-# 1.	Import numpy, pandas, and pyplot from matplotlib and seaborn using the following code:
+# 1. In a fresh Jupyter notebook, import pandas, numpy, matplotlib and seaborn libraries and
+#    load the mall customer data from the file  Mall_Customers.csv into a DataFrame (mall0)
+#    and print the top five records, using the code below. 
 import numpy as np, pandas as pd
-import matplotlib.pyplot as plt, seaborn as sns %matplotlib inline
+import matplotlib.pyplot as plt, seaborn as sns
+mall0 = pd.read_csv("Mall_Customers.csv")
+mall0.head()
 
-# 2.	Using the read_csv method from pandas, import the  
-#    Mall_Customers.csv file into a pandas DataFrame named data0 and print the first five rows:
-data0 = pd.read_csv("Mall_Customers.csv") data0.head()
+# 2. Rename the columns 'Annual Income (k$)' and  
+#    'Spending Score (1-100)' to 'Income' and 'Spend_score' respectively.
+#    Print the top five records of the dataset to confirm that the change was completed.
+mall0.rename({'Annual Income (k$)':'Income',  'Spending Score (1-100)':'Spend_score'},
+             axis=1, inplace=True)
+mall0.head()
 
-# 3. Use the info method of the DataFrame to print information about it:
-data0.info()
-
-# 4. For convenience, rename the Annual Income (k$) and  Spending Score (1-100) columns to
-#    Income and Spend_score respectively, and print the top five records using the following code:
-data0.rename({'Annual Income (k$)':'Income', 'Spending Score (1-100)':'Spend_score'}, axis=1, inplace=True)
-data0.head()
-
-# 5. To get a high-level understanding of the customer data, print out the descriptive summary of
-#    the numerical fields in the data using the DataFrame's describe method:
-data0.describe()
+# 3. Plot a scatterplot of the Income and Spend_score fields using the following code.
+#    You will be performing clustering later using these two features as the criteria.
+mall0.plot.scatter(x='Income', y='Spend_score', color='gray')
+plt.show()
 
 ```
-#### **Exercise 302: Traditional Segmentation of Mall Customers**
-The mall wants to segment its customers and plans to use the derived segments to improve its marketing campaigns. The business team has a belief that segmenting based on income levels is relevant for their offerings. You are asked to use a traditional, rule-based approach to define customer segments. 
-
-In this exercise, you will perform your first customer segmentation using the income of the customer, employing a traditional rule-based approach to define customer segments. You will plot the distribution for the Income variable and assign groups to customers based on where you see the values lying: 
+#### **Exercise 4.02: Choosing the Number of Clusters Based on Visual Inspection**
+The goal of the exercise is to further refine the customer segmentation approach by using visual inspection to decide on the optimal number of clusters. You will try different numbers of clusters (ranging from two to six) and use visual inspection to evaluate the results and choose the right number of clusters. Continue in the Jupyter notebook from _Exercise 4.01, Data Staging and Visualization and perform_ the following steps.
 
 **Code:**
 
 ```python
-# 1. Plot a histogram of the Income column using the DataFrame's plot method using the following code:
-data0.Income.plot.hist(color='gray')
-plt.xlabel('Income') plt.show()
-
-# 2.	Create a new column, Cluster, to have the Low Income,  
-#    Moderate Income, and High earners values for customers with incomes in the ranges < 50, 50–90,
-#    and >= 90 respectively using the following code:
-data0['Cluster'] = np.where(data0.Income >= 90, 'High earners',
-                            np.where(data0.Income < 50, 'Low Income', 'Moderate Income'))
-
-# 3.	To check the number of customers in each cluster and confirm whether the values for
-#    the Income column in the clusters are in the correct range, get a descriptive summary of
-#    Income for these groups using the following command:
-data0.groupby('Cluster')['Income'].describe()
-
-```
-
-#### **Exercise 303: Standardizing Customer Data**
-In this exercise, you will further our segmentation exercise by performing the important step of ensuring that all the variables get similar importance in the exercise, just as the business requires. You will standardize the mall customer data using z-scoring, employing **StandardScaler** from scikit-learn. Continue in the same notebook used for the exercises so far. Note that this exercise works on the modified data from _Exercise 3.02, Traditional Segmentation of Mall Customers_. Make sure you complete all the previous exercises before beginning this exercise:
-
-**Code:**
-
-```python
-# 1.	Import the StandardScaler method from sklearn and create an instance of
-#    StandardScaler using the following code:
+# 1.	Standardize the columns Age, Income and Spend_score, using the StandardScaler from sklearn,
+#    after copying the information into new dataset named mall_scaled, using the following code: 
+mall_scaled = mall0.copy()
+cols_to_scale = ['Age', 'Income', 'Spend_score']
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
+mall_scaled[cols_to_scale] = scaler.fit_transform(mall_scaled[cols_to_scale])
 
-# 2.	Create a list named cols_to_scale to hold the names of the columns you wish to scale,
-#    namely, Age, Income, and Spend_score. Also, make a copy of the DataFrame
-#    (to retain original values) and name it data_scaled. You will be scaling columns on the copied dataset:
-cols_to_scale = ['Age', 'Income', 'Spend_score']
-data_scaled = data0.copy()
+# 2.	Import the Kmeans module from the sklearn package. Create a list, 
+#    'cluster_cols' that stores the names of the fields (Income and  Spend_score)
+#    and define the colors and shapes that you will use for each cluster
+#    (since you will be visualizing up to seven clusters in all, define seven different shapes), as follows: 
+from sklearn.cluster import KMeans
+cluster_cols = ['Income', 'Spend_score']
+markers = ['x', '*', '.', '|', '_', '1', '2']
 
-# 3.	Using the fit_transform method of the scaler, apply the transformation to the chosen columns:
-data_scaled[cols_to_scale] = scaler.fit_transform(data0[cols_to_scale])
+#    When plotting the obtained clusters, items in the clusters will be represented by
+#    the symbols in the list in order. 'x' will represent the first cluster (Cluster 0).
+#    For the final clustering with 7 clusters, all the shapes in the list will be used and
+#    Cluster 6 will be represented by the marker '2' (called the 'tickup').
 
-# 4.	To verify that this worked, print a descriptive summary of these modified columns:
-data_scaled[cols_to_scale].describe() 
+# 3. Then, using a for loop, cluster the data using a different number of clusters,
+#    ranging from two to seven, and visualize the resulting plots obtained in a subplot.
+#    Use a separate for loop to plot each cluster in each subplot,
+#    so we can use different shapes for each cluster. Use the following snippet:
+plt.figure(figsize=[12,8])
+for n in range(2,8):
+    model = KMeans(n_clusters=n, random_state=42)
+    mall_scaled['Cluster']= model.fit_predict(mall_scaled[cluster_cols])
+
+    plt.subplot(2,3, n-1)
+    for clust in range(n):
+        temp = mall_scaled[mall_scaled.Cluster == clust]
+        plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust],
+                    label="Cluster "+str(clust), color='gray')
+        plt.title("N clusters: "+str(n))
+        plt.xlabel('Income')
+        plt.ylabel('Spend_score')
+        plt.legend()
+plt.show()
+
+```
+
+#### **Exercise 4.03: Determining the Number of Clusters Using the Elbow Method**
+In this exercise, you will use the elbow method to identify the optimal number of clusters. The goal is to improve upon the mall customer segmentation approach by using a principled method to determine the number of clusters so that all involved stakeholders, including business teams, gain more confidence in the soundness of the approach and the resulting clusters. Try the range 2 – 10 for the number of clusters using the age and income data. Continue in the same Jupyter notebook you have been using for the exercises so far. 
+
+**Code:**
+
+```python
+# 1.	On the scaled mall customer data (mall_scaled), using the columns 'Income' and 'Spend_score',
+#    create three clusters using the KMeans algorithm:
+K = 3
+model = KMeans(n_clusters=K, random_state=42)
+model.fit(mall_scaled[cluster_cols])
+
+# 2.	Once the model is fit, the SSE/inertia is available very conveniently in
+#    the 'inertia_' attribute of the model object.
+#    Print out the SSE/ inertia for the model with 3 clusters using the following code:
+print(model.inertia_)
+
+# 3.	Next, fit multiple KMeans models with the number of clusters
+#    ranging from 2 to 10 and store the inertia values for the different models in a list. 
+X = mall_scaled[cluster_cols]
+inertia_scores = []
+for K in range(2,11):
+    inertia = KMeans(n_clusters=K, random_state=42).fit(X).inertia_
+    inertia_scores.append(inertia)
+
+
+# 4.	Create the SSE/inertia plot as a line plot with the following code. 
+plt.figure(figsize=[7,5])
+plt.plot(range(2,11), inertia_scores, color='gray')
+plt.title("SSE/Inertia vs. number of clusters")
+plt.xlabel("Number of clusters: K")
+plt.ylabel('SSE/Inertia')
+plt.show()
  
 ```
-#### **Exercise 304: Calculating the Distance between Customers**
+#### **Activity 4.01: Optimizing a Luxury Clothing Brand's Marketing Campaign Using Clustering**
 In this exercise, you will calculate the Euclidean distance between three customers. The goal of the exercise is to be able to calculate the similarity between customers. A similarity calculation is a key step in customer segmentation. After standardizing the Income and Spend_score fields for the first three customers as in the following table (Figure 3.14), you will calculate the distance using the cdist method from scipy.
 
 ![Figure 3.14: Income and spend scores of three customers](images/Figure-3.14.jpg)
