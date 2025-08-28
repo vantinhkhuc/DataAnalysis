@@ -326,113 +326,71 @@ plt.show()
 
 ---
 
-#### **Activity 301: Bank Customer Segmentation for Loan Campaign**
-Banks often have marketing campaigns for their individual products. Therabank is an established bank that offers personal loans as a product. Most of Therabank's customers have deposits, which is a liability for the bank and not profitable. Loans are profitable for the bank. Therefore, getting more customers to opt for a personal loan makes the equation more profitable. The task at hand is to create customer segments to maximize the effectiveness of their personal loan campaign. 
-The bank has data for customers including demographics, some financial information, and how these customers responded to a previous campaign (see Figure 3.21). Some key columns are described here:
-•	Experience: The work experience of the customer in years
-•	Income: The estimated annual income of the customer (thousands of US dollars)
-•	CCAvg: The average spending on credit cards per month (thousands of US dollars)
-•	Mortgage: The value of the customer's house mortgage (if any)
-•	Age: The age (in years) of the customer
-
-![Figure 3.21: First few records of the Therabank dataset](images/Figure-3.21.jpg)
-
-Your goal is to create customer segments for the marketing campaign. You will also identify which of these segments have the highest propensity to respond to the campaign – information that will greatly help optimize future campaigns.
-Note that while the previous campaign's response is available to you, if you use it as a criterion/feature for segmentation, you will not be able to segment other customers for whom the previous campaign was never run, thereby severely limiting the number of customers you can target. You will, therefore, exclude the feature (previous campaign response) for clustering, but you can use it to evaluate how your clusters overall would respond to the campaign. Execute the following steps in a fresh Jupyter notebook to complete the activity:
-
-#### **Exercise 306: Dealing with High-Dimensional Data**
-In this exercise, you will use machine learning to discover natural groups in the mall customers. You will perform k-means clustering on the mall customer data that was standardized in the previous exercise. You will use only the Income and  Spend_score columns. Continue using the same Jupyter notebook from the previous exercises. Perform clustering using the scikit-learn package and visualize the clusters: 
-
-1.	Import the necessary libraries for data processing, visualization, and clustering.
-2.	Load the data into a pandas DataFrame and display the top five rows. Using the info method, get an understanding of the columns and their types.
-3.	Perform standard scaling on the Income and CCAvg columns to create new Income_scaled and CCAvg_scaled columns. You will be using these two variables for customer segmentation. Get a descriptive summary of the processed columns to verify that the scaling has been applied correctly.
-4.	Perform k-means clustering, specifying 3 clusters using Income and CCAvg as the features. Specify random_state as 42 (an arbitrary choice) to ensure the consistency of the results. Create a new column, Cluster, containing the predicted cluster from the model.
-5.	Visualize the clusters by using different markers for the clusters on a scatter plot between Income and CCAvg. The output should be as follows:
-
-![Figure 3.22: Clusters on a scatter plot](images/Figure-3.22.jpg)
-
-6.	To understand the clusters, print the average values of Income and CCAvg for the three clusters. 
-7.	Perform a visual comparison of the clusters using the standardized values for Income and CCAvg. You should get the following plot:
-
-![Figure 3.23: Clusters on a scatter plot](images/Figure-3.23.jpg)
-
-8.	To understand the clusters better using other relevant features, print the average values against the clusters for the Age, Mortgage, Family, CreditCard, Online, and Personal Loan features. Check which cluster has the highest propensity for taking a personal loan.
-9.	Based on your understanding of the clusters, assign descriptive labels to the clusters.
-
-#### **Exercise 3.06: Dealing with High-Dimensional Data**
-In this exercise, you will perform clustering on the mall customers dataset using the age, income, and spend score. The goal is to find natural clusters in the data based on these three criteria and analyze the customer segments to identify their differentiating characteristics, providing the business with some valuable insight into the nature of its customers. This time though, visualization will not be easy. You will need to use PCA to reduce the data to two dimensions to visualize the clusters: 
+#### **Exercise 4.07: Using a Train-Test Split to Evaluate Clustering Performance**
+In this exercise, you will use a train-test split approach to evaluate the performance of the clustering. The goal of the exercise is to ensure reliable and robust customers segments from the mall customers. You will need to separate the data into train and test sets first. Then, you will fit a K-means model with a sub-optimal number of clusters. If the clusters are good, the silhouette score should be consistent between the train and test data. Continue in the same Jupyter notebook used so far for all the preceding exercises. 
 
 **Code:**
 
 ```python
-# 1. Create a list, cluster_cols, containing the Age, Income, and Spend_score columns,
-#    which will be used for clustering. Print the first three rows of the dataset for these columns:
-cluster_cols = ['Age', 'Income', 'Spend_score']
-data_scaled[cluster_cols].head(3)
+# 1. Import the train_test_split function from sklearn and perform the split on the mall customer data.
+#    Specify the train size as 0.75 and  a random_state of 42. Print the shapes of the resulting datasets.
+from sklearn.model_selection import train_test_split
+df_train, df_test = train_test_split(mall0, train_size=0.75, random_state=42)
 
-# 2.	Perform k-means clustering, specifying 4 clusters using the scaled features. 
-#    Specify random_state as 42. Assign the clusters to the Cluster column:
-model = KMeans(n_clusters=4, random_state=42)
-model.fit(data_scaled[cluster_cols])
-data_scaled['Cluster'] = model.predict(data_scaled[cluster_cols])
+#    Specifying a train_size of 0.75 assigns 75% of the records to the train set and
+#    the remaining to the test set. Using random_state ensures that the results are reproducible.
+print(df_train.shape)
+print(df_test.shape)
 
-# 3.	Using PCA on the scaled columns, create two new columns, pc1 and pc2,
-#   containing the data for PC1 and PC2 respectively:
-from sklearn import decomposition
+# 2.	Fit a Kmeans mode with 6 clusters on the train data. Calculate the average silhouette score.
+#    Ignore the warnings (if any) resulting from this step.
+model = KMeans(n_clusters=6, random_state=42)
+df_train['Cluster'] = model.fit_predict(df_train[cluster_cols])
+silhouette_avg = silhouette_score(df_train[cluster_cols], df_train['Cluster'])
+print(silhouette_avg)
 
-pca = decomposition.PCA(n_components=2)
-pca_res = pca.fit_transform(data_scaled[cluster_cols])
+# 3.	Using the predict method of the model, predict the clusters for the test data.
+#    Then, calculate the average silhouette score for the test data using the following code.
+#    Ignore warnings, if any, from the code. 
+df_test['Cluster'] = model.predict(df_test[cluster_cols])
+silhouette_avg = silhouette_score(df_test[cluster_cols],df_test['Cluster'])
+print(silhouette_avg)
 
-data_scaled['pc1'] = pca_res[:,0]
-data_scaled['pc2'] = pca_res[:,1]
-
-# 4.	Visualize the clusters by using different markers and colors for
-#    the clusters on a scatter plot between pc1 and pc2 using the following code:
-markers = ['x', '*', 'o','|']
-for clust in range(4):
-     temp = data_scaled[data_scaled.Cluster == clust]
-     plt.scatter(temp.pc1, temp.pc2, marker=markers[clust], label="Cluster "+str(clust), color='gray')
- plt.xlabel('PC1')
-plt.ylabel('PC2')
+# 4.	Visualize the predicted clusters on the test data using a scatter plot,
+#    marking the different clusters.
+for clust in range(df_test.Cluster.nunique()):
+     temp = df_test[df_test.Cluster == clust]
+     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], color='gray')
+plt.xlabel("Income")
+plt.ylabel("Spend_score")
 plt.show()
-
-# 5. To understand the clusters, print the average values of
-#    the original features used for clustering against the four clusters:
-data0['Cluster'] = data_scaled.Cluster
-data0.groupby('Cluster')[['Age', 'Income', 'Spend_score']].mean()
-
-# 6. Next, visualize this information using bar plots.
-#    Check which features are the most differentiated for the clusters using the following code:
-data0.groupby('Cluster')[['Age', 'Income', 'Spend_score']].mean().plot.bar(
-color=['lightgray', 'darkgray', 'black'])
-
-plt.show()
-
-# 7. Based on your understanding of the clusters, assign descriptive labels to the clusters.
-#    One way to describe the clusters is as follows: 
-#    Cluster 0: Middle-aged penny pinchers (high income, low spend)
-#    Cluster 1: Young high rollers (younger age, high income, high spend)
-#    Cluster 2: Young aspirers (low income, high spend)
-#    Cluster 3: Old average Joes (average income, average spend)
 
 ```
-#### **Activity 302: Bank Customer Segmentation with Multiple**
-In this activity, you will be revisiting the Therabank problem statement. You'll need to create customer segments to maximize the effectiveness of their personal loan campaign. You will accomplish this by finding the natural customer types in the data and discovering the features that differentiate them. Then, you'll identify the customer segments that have the highest propensity to take a loan. 
-In Activity 3.01, Bank Customer Segmentation for Loan Campaign, you employed just two features of the customer. In this activity, you will employ additional features, namely, Age, Experience, and Mortgage. As you are dealing with high-dimensional data, you will use PCA for visualizing the clusters. You will understand the customer segments obtained and provide them with business-friendly labels. As a part of your evaluation and understanding of the segments, you will also check the historical response rates for the obtained segments. 
+---
 
-_Execute the following steps to complete the activity:_
-1.	Create a copy of the dataset named bank_scaled, and perform standard scaling of the Income, CCAvg, Age, Experience, and Mortgage columns.
-2.	Get a descriptive summary of the processed columns to verify that the scaling has been applied correctly.
-3.	Perform k-means clustering, specifying 3 clusters using the scaled features. Specify random_state as 42.
-4.	Using PCA on the scaled columns, create two new columns, pc1 and pc2, containing the data for PC1 and PC2 respectively.
-5.	Visualize the clusters by using different markers for the clusters on a scatter plot between pc1 and pc2. The plot should appear as in the following figure: 
- 
-![Figure 3.30: Clusters on a scatter plot](images/Figure-3.30.jpg)
+#### **Activity 4.02: Evaluating Clustering on Customer Data**
+You are a data science manager in the marketing division at a major multinational alcoholic beverage company. Over the past year, the marketing team launched 32 initiatives to increase its sales. Your team has acquired data that tells you which customers have responded to which of the 32 marketing initiatives recently (this data is present within the **customer_offers.csv** file). The business goal is to improve future marketing campaigns by targeting them precisely, so they can provide offers customized to groups that tend to respond to similar offers. The solution is to build customer segments based on the responses of the customers to past initiatives. 
 
-6.	To understand the clusters, print the average values of the features used for clustering against the three clusters. Check which features are the most differentiated for the clusters.
-7.	To understand the clusters better using other relevant features, print the average values against the clusters for the Age, Mortgage, Family, CreditCard, Online, and Personal Loan features and check which cluster has the highest propensity for taking a personal loan.
-8.	Based on your understanding of the clusters, assign descriptive labels to the clusters.
+In this activity, you will employ a thorough approach to clustering by trying multiple clustering techniques. Additionally, you will employ statistical approaches to cluster evaluation to ensure your results are reliable and robust. Using the cluster evaluation techniques, you will also tune the hyperparameters, as applicable, for the clustering algorithms. Start in a new Jupyter notebook for the activity.
+Execute the following steps to complete this activity:
+1.	Import the necessary libraries for data handling, clustering, and visualization. Import data from **customer_offers.csv** into a pandas DataFrame. 
+2.	Print the top five rows of the DataFrame, which should look like the table below.
 
+![Figure 4.21: First five records of the customer_offers data](images/Figure-4.21.jpg)
+
+3.	Divide the dataset into train and test sets by using the **train_test_split** method from scikit-learn. Specify **random_state** as 100 for consistency.
+4.	Perform k-means on the data. Identify the optimal number of clusters by using the silhouette score approach on the train data by plotting the score for the different number of clusters, varying from **2** through **10**. The plot for silhouette scores should be as follows:
+
+![Figure 4.22: Silhouette scores for different number of clusters](images/Figure-4.22.jpg)
+
+5.	Perform K means using k found in the previous step. Print out the **silhouette score** on the test set.
+6.	Perform mean-shift clustering on the data, using the **estimate_bandwidth** method with a quantile value of **0.1** to estimate the bandwidth. Print out the silhouette score from the model on the test set.
+7.	Perform k-modes on the data. Identify the optimal number of clusters by using the silhouette score approach on the train data by plotting the score for the different number of clusters, varying from **3** through **10**. You should get the following output.
+
+![Figure 4.23: Silhouette scores for different K for K-modes](images/Figure-4.23.jpg)
+
+8.	Using K found in the previous step, perform K-modes on the data. Print out the silhouette score on the test set.
+9.	Which of the three techniques gives you the best result? What is the final number of clusters you will go with? 
 
 ---
 ## Bài tập tổng hợp
