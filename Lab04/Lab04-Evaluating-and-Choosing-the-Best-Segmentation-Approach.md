@@ -125,78 +125,218 @@ plt.show()
  
 ```
 #### **Activity 4.01: Optimizing a Luxury Clothing Brand's Marketing Campaign Using Clustering**
-In this exercise, you will calculate the Euclidean distance between three customers. The goal of the exercise is to be able to calculate the similarity between customers. A similarity calculation is a key step in customer segmentation. After standardizing the Income and Spend_score fields for the first three customers as in the following table (Figure 3.14), you will calculate the distance using the cdist method from scipy.
+You are working at a company that sells luxury clothing. Their sales team has collected data on customer age, income, their annual spend at the business, and the number of days since their last purchase. The company wants to start targeted marketing campaigns but doesn't know how many different types of customers they have. If they understood the number of different segments, it would help design the campaign better by helping define the channels to use, the messaging to employ, and more. 
+Your goal is to perform customer segmentation for the company which will help them optimize their campaigns. To make your approach robust and more reliable to business, you need to arrive at the right number of segments by using the visualization approach as well as the elbow method with the sum of squared errors. 
 
-![Figure 3.14: Income and spend scores of three customers](images/Figure-3.14.jpg)
+_Execute the following steps to complete the activity:_
 
+1.	Import the libraries required for DataFrame handling and plotting (pandas, numpy, matplotlib). Read in the data from the file  
+'Clothing_Customers.csv' into a DataFrame and print the top 5 rows to understand it better.
+2.	Standardize all the columns in the data. You will be using all four columns for the segmentation. 
+3.	Visualize the data to get a good understanding of it. Since you are dealing with four dimensions, use PCA to reduce to two dimensions before plotting. The resulting plot should be as follows.
+
+![Figure 4.8: Scatterplot of the dimensionality reduced data](images/Figure-4.8.jpg)
+
+4. Visualize clustering with two through seven clusters. You should get the following plot.
+
+ ![Figure 4.9: Resulting clusters for different number of specified clusters](images/Figure-4.9.jpg)  
+
+Choosing clusters using elbow method - create a plot of the sum of squared errors and look for an elbow. Vary the number of clusters from 2 to 11. You should get the following plot.
+
+ ![Figure 4.10: SSE plot for different values of k](images/Figure-4.10.jpg)  
+
+5. Do both the methods agree on the optimal number of clusters? Looking at the results from both, and based on your business understanding, what is the number of clusters you would choose? Explain your decision.
+
+   
 **Code:**
 
 ```python
-# 1. From the dataset (data_scaled created in Exercise 3.03, Standardizing Customer Data),
-#    extract the top three records with the Income and Spend_score fields into
-#    a dataset named cust3 and print the dataset, using the following code:
-sel_cols = ['Income', 'Spend_score']
-cust3 = data_scaled[sel_cols].head(3)
-cust3
 
-# 2.	Next, import the cdist method from scipy.spatial.distance using the following code: 
-from scipy.spatial.distance import cdist
- 
-# 3.	The cdist function can be used to calculate the distance between
-#    each pair of the two collections of inputs. To calculate the distance between
-#    the customers in cust3, provide the cust3 dataset as both data inputs to cdist,
-#    specifying euclidean as the metric, using the following code snippet:
-cdist(cust3, cust3, metric='euclidean')
-
-# Verify that 1.6305 is indeed the Euclidean distance between customer 1 and customer 2,
-#    by manually calculating it using the following code:
-np.sqrt((-1.739+1.739)**2 + (-0.4348-1.1957)**2)
 
 ```
-#### **Exercise 305: K-Means Clustering on Mall Customers**
-In this exercise, you will use machine learning to discover natural groups in the mall customers. You will perform k-means clustering on the mall customer data that was standardized in the previous exercise. You will use only the Income and  Spend_score columns. Continue using the same Jupyter notebook from the previous exercises. Perform clustering using the scikit-learn package and visualize the clusters: 
+
+---
+
+#### **Exercise 4.04: Mean-Shift Clustering on Mall Customers**
+In this exercise, you will cluster mall customers using the mean-shift algorithm. You will employ the columns Income and Spend_score as criteria. You will first manually specify the bandwidth parameter. Then, you will estimate the bandwidth parameter using the estimate_bandwidth method and see how it varies with the choice of quantile. Continue in the Jupyter notebook from Exercise 4.03, Determining the Number of Clusters Using the Elbow Method and perform the following steps. 
 
 **Code:**
 
 ```python
-# 1. Create a list called cluster_cols containing the Income and  
-#    Spend_score columns, which will be used for clustering.
-#    Print the first three rows of the dataset, limited to these columns
-#    to ensure that you are filtering the data correctly:
-cluster_cols = ['Income', 'Spend_score']
-data_scaled[cluster_cols].head(3)
+# 1.	Import MeanShift and estimate_bandwidth from sklearn and create a variable 'bandwidth'
+#    with a value of 0.9 – the bandwidth to use (an arbitrary, high value). The code is as follows - 
+from sklearn.cluster import MeanShift, estimate_bandwidth
+bandwidth = 0.9
 
-#2. Visualize the data using a scatter plot with Income and
-#    Spend_score on the x and y axes respectively with the following code:
-data_scaled.plot.scatter(x='Income', y='Spend_score', color='gray')
-plt.show()
+# 2.	To perform mean-shift clustering on the standardized data,
+#    create an instance of MeanShift, specifying the bandwidth and setting bin_seeding
+#    to True (to speed up the algorithm). Fit the model on the data and assign
+#    the cluster to the variable 'Cluster'. Use the following code:
+ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
+ms.fit(mall_scaled[cluster_cols])
 
-# 3.	Import KMeans from sklearn.cluster. Create an instance of
-#    the KMeans model specifying 5 clusters (n_clusters) and 42 for random_state:
-from sklearn.cluster import KMeans
-model = KMeans(n_clusters=5, random_state=42)
+mall_scaled['Cluster']= ms.predict(X)
 
-# 4.	Next, fit the model on the data using the columns in cluster_cols for the purpose.
-#    Using the predict method of the k-means model, assign the cluster for
-#    each customer to the 'Cluster' variable. Print the first three records of the data_scaled dataset:
-model.fit(data_scaled[cluster_cols])
-data_scaled['Cluster'] = model.predict(data_scaled[cluster_cols])
-data_scaled.head(3)
-
-# 5. Now you need to visualize it to see the points assigned to each cluster.
-#    Plot each cluster with a marker using the following code.
-#    You will subset the dataset for each cluster and use a dictionary to specify the marker for the cluster:
-markers = ['x', '*', '.', '|', '_']
-for clust in range(5):
-     temp = data_scaled[data_scaled.Cluster == clust]
-     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], color = 'gray',
-                label="Cluster "+str(clust))
-plt.xlabel('Income')
-plt.ylabel('Spend_score')
+# 3.	Visualize the clusters using a scatter plot. 
+markers = ['x', '*', '.', '|', '_', '1', '2']
+plt.figure(figsize=[8,6])
+for clust in range(mall_scaled.Cluster.nunique()):
+     temp = mall_scaled[mall_scaled.Cluster == clust]
+     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
+                 label="Cluster"+str(clust), color='gray')
+plt.xlabel("Income")
+plt.ylabel("Spend_score")
 plt.legend()
 plt.show()
 
+# 4.	Estimate the required bandwidth using the estimate_bandwidth method.
+#    Use the estimate_bandwidth function with a quantile value of 0.1 (an arbitrary choice)
+#    to estimate the best bandwidth to use. Print the value, fit the model,
+#    and note the number of clusters, using the following code: 
+bandwidth = estimate_bandwidth(mall_scaled[cluster_cols], quantile=0.1)
+print(bandwidth)
+
+ms = MeanShift(bandwidth=bandwidth, bin_seeding=True) ms.fit(mall_scaled[cluster_cols])
+mall_scaled['Cluster']= ms.predict(mall_scaled[cluster_cols])
+mall_scaled.Cluster.nunique()
+
+
+# 5.	Visualize the obtained clusters using a scatter plot.
+plt.figure(figsize=[8,6])
+for clust in range(mall_scaled.Cluster.nunique()):
+     temp = mall_scaled[mall_scaled.Cluster == clust]
+     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
+                 label="Cluster"+str(clust),  color='gray')
+plt.xlabel("Income")
+plt.ylabel("Spend_score")
+plt.legend()
+plt.show()
+
+
+#  6. Estimate the bandwidth again, this time with a quantile value of 0.15.
+#    Print out the number of clusters obtained. 
+bandwidth = estimate_bandwidth(mall_scaled[cluster_cols], quantile=0.15)
+print(bandwidth)
+
+# 7. Use the bandwidth calculated in the previous step to fit and extract the number of clusters.
+ ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
+ ms.fit(mall_scaled[cluster_cols])
+ mall_scaled['Cluster']= ms.predict(mall_scaled[cluster_cols])
+ mall_scaled.Cluster.nunique()
+ The result should be 5. 
+
+# 8. Visualize the clusters obtained. 
+plt.figure(figsize=[8,6])
+for clust in range(mall_scaled.Cluster.nunique()):
+    temp = mall_scaled[mall_scaled.Cluster == clust]
+    plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
+                label="Cluster"+str(clust), color='gray')
+ plt.xlabel("Income")
+ plt.ylabel("Spend_score")
+ plt.legend()
+ plt.show()
 ```
+
+---
+
+#### **Exercise 4.05: Clustering Data Using the k-prototypes Method**
+For this exercise, you will revisit the customer segmentation problem for Therabank, that you encountered in_ Activity 3.01, Bank Customer Segmentation for Loan Campaign_. The business goal is to get more customers to opt for a personal loan to increase the profitability of the bank's portfolio. Creating customer segments will help the bank identify the types of customers, tune their messaging in the marketing campaigns for the personal loan product. The dataset provided contains data for customers including demographics, some financial information, and how these customers responded to a previous campaign. 
+
+An important feature for business is the education level of the customer and needs to be included in the segmentation. The values in the data are **Primary**, **Secondary**, and **Tertiary**. Since this is a categorical feature, K-means is not a suitable approach. You need to create customer segmentation with this data by applying k-prototype clustering to data that has a mix of categorical (education) and continuous (**income**) variables. 
+
+**Code:**
+
+```python
+# 1. Import pandas and read in the data from the file  
+#    Bank_Personal_Loan_Modelling-2.csv into a pandas DataFrame named bank0:
+import pandas as pd
+bank0 = pd.read_csv("Bank_Personal_Loan_Modelling-2.csv")
+bank0.head()
+
+# 2.	Standardize the Income column:
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+bank_scaled = bank0.copy()
+bank_scaled['Income'] = scaler.fit_transform(bank0[['Income']])
+
+# 3.	Import KPrototypes from the kmodes module. Perform k-prototypes clustering
+#    using three clusters, specifying the education column (in column index 1) as categorical,
+#    and save the result of the clustering as a new column called cluster.
+#    Specify a random_state of 42 for consistency.
+from kmodes.kprototypes import KPrototypes
+cluster_cols = ['Income', 'Education']
+kp = KPrototypes(n_clusters=3, random_state=42)
+bank_scaled['Cluster'] = kp.fit_predict(bank_scaled[cluster_cols], categorical=[1])
+
+# 4.	To understand the obtained clusters, get the proportions of
+#    the different education levels in each cluster using the following code.
+res = bank_scaled.groupby('Cluster')['Education'].value_counts(normalize=True)
+res.unstack().plot.barh(figsize=[9,6], color=['black','lightgray','dimgray'])
+plt.show()
+
+
+# 3.	Visualize the clusters using a scatter plot. 
+markers = ['x', '*', '.', '|', '_', '1', '2']
+plt.figure(figsize=[8,6])
+for clust in range(mall_scaled.Cluster.nunique()):
+     temp = mall_scaled[mall_scaled.Cluster == clust]
+     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
+                 label="Cluster"+str(clust), color='gray')
+plt.xlabel("Income")
+plt.ylabel("Spend_score")
+plt.legend()
+plt.show()
+
+# 4.	Estimate the required bandwidth using the estimate_bandwidth method.
+#    Use the estimate_bandwidth function with a quantile value of 0.1 (an arbitrary choice)
+#    to estimate the best bandwidth to use. Print the value, fit the model,
+#    and note the number of clusters, using the following code: 
+bandwidth = estimate_bandwidth(mall_scaled[cluster_cols], quantile=0.1)
+print(bandwidth)
+
+ms = MeanShift(bandwidth=bandwidth, bin_seeding=True) ms.fit(mall_scaled[cluster_cols])
+mall_scaled['Cluster']= ms.predict(mall_scaled[cluster_cols])
+mall_scaled.Cluster.nunique()
+
+
+# 5.	Visualize the obtained clusters using a scatter plot.
+plt.figure(figsize=[8,6])
+for clust in range(mall_scaled.Cluster.nunique()):
+     temp = mall_scaled[mall_scaled.Cluster == clust]
+     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
+                 label="Cluster"+str(clust),  color='gray')
+plt.xlabel("Income")
+plt.ylabel("Spend_score")
+plt.legend()
+plt.show()
+
+
+#  6. Estimate the bandwidth again, this time with a quantile value of 0.15.
+#    Print out the number of clusters obtained. 
+bandwidth = estimate_bandwidth(mall_scaled[cluster_cols], quantile=0.15)
+print(bandwidth)
+
+# 7. Use the bandwidth calculated in the previous step to fit and extract the number of clusters.
+ ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
+ ms.fit(mall_scaled[cluster_cols])
+ mall_scaled['Cluster']= ms.predict(mall_scaled[cluster_cols])
+ mall_scaled.Cluster.nunique()
+ The result should be 5. 
+
+# 8. Visualize the clusters obtained. 
+plt.figure(figsize=[8,6])
+for clust in range(mall_scaled.Cluster.nunique()):
+    temp = mall_scaled[mall_scaled.Cluster == clust]
+    plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
+                label="Cluster"+str(clust), color='gray')
+ plt.xlabel("Income")
+ plt.ylabel("Spend_score")
+ plt.legend()
+ plt.show()
+```
+
+---
+
 #### **Activity 301: Bank Customer Segmentation for Loan Campaign**
 Banks often have marketing campaigns for their individual products. Therabank is an established bank that offers personal loans as a product. Most of Therabank's customers have deposits, which is a liability for the bank and not profitable. Loans are profitable for the bank. Therefore, getting more customers to opt for a personal loan makes the equation more profitable. The task at hand is to create customer segments to maximize the effectiveness of their personal loan campaign. 
 The bank has data for customers including demographics, some financial information, and how these customers responded to a previous campaign (see Figure 3.21). Some key columns are described here:
