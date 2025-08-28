@@ -1,9 +1,6 @@
 # Chapter04 Evaluating and Choosing the Best Segmentation Approach
 
-## Mục tiêu học tập
 ---
-# Bài Học: Unsupervised Learning và Customer Segmentation
-
 ## Mục tiêu bài học
 - Nắm vững các kỹ thuật clustering tiên tiến cho customer segmentation
 - Học cách lựa chọn số cluster tối ưu một cách khoa học
