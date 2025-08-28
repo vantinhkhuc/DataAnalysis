@@ -1,709 +1,1846 @@
 # Chapter04 Evaluating and Choosing the Best Segmentation Approach
 
 ## Mục tiêu học tập
-Sau khi hoàn thành bài học này, học viên sẽ có thể:
-- Hiểu rõ nhu cầu và tầm quan trọng của customer segmentation
-- Nắm vững thuật toán K-means và ứng dụng trong phân khúc khách hàng
-- Thực hiện phân tích thống kê mô tả và tổng hợp dữ liệu
-- Sử dụng các công cụ Python để thực hiện segmentation
-- Phân tích và diễn giải kết quả phân khúc khách hàng
-- Áp dụng các kỹ thuật nâng cao trong customer segmentation
-
----
-
-## Phần 1: Understanding the Need for Customer Segmentation
-
-### 1.1 Customer Segmentation là gì?
-
-Customer Segmentation (Phân khúc khách hàng) là quá trình chia nhóm khách hàng thành các phân khúc nhỏ hơn dựa trên các đặc điểm chung như:
-- **Hành vi mua sắm** (frequency, monetary, recency)
-- **Đặc điểm nhân khẩu học** (tuổi, giới tính, thu nhập)
-- **Địa lý** (khu vực, thành phố)
-- **Tâm lý** (sở thích, giá trị, thái độ)
-
-### 1.2 Tại sao Customer Segmentation quan trọng?
-
-**Lợi ích cho doanh nghiệp:**
-1. **Cá nhân hóa marketing**: Tạo chiến dịch phù hợp với từng nhóm khách hàng
-2. **Tối ưu hóa sản phẩm**: Phát triển sản phẩm đáp ứng nhu cầu cụ thể
-3. **Tăng ROI**: Tập trung nguồn lực vào các khách hàng có giá trị cao
-4. **Giảm churn rate**: Xác định khách hàng có nguy cơ rời bỏ
-5. **Pricing strategy**: Định giá phù hợp cho từng phân khúc
-
-**Ví dụ thực tế:**
-- **Netflix**: Phân khúc người dùng dựa trên thể loại phim yêu thích
-- **Amazon**: Gợi ý sản phẩm dựa trên lịch sử mua hàng
-- **Spotify**: Tạo playlist cá nhân hóa
-
-### 1.3 Các phương pháp Segmentation truyền thống vs Machine Learning
-
-**Phương pháp truyền thống:**
-- Dựa trên kinh nghiệm và trực giác
-- Phân chia theo các tiêu chí đơn giản (tuổi, giới tính)
-- Hạn chế về khả năng xử lý dữ liệu lớn
-
-**Phương pháp Machine Learning:**
-- Tự động phát hiện pattern trong dữ liệu
-- Xử lý được nhiều chiều dữ liệu
-- Khách quan và dựa trên dữ liệu
-- Có thể cập nhật tự động khi có dữ liệu mới
-
----
-
-## Phần 2: Machine Learning Approach to Segmentation
-
-### 2.1 Unsupervised Learning trong Customer Segmentation
-
-**Định nghĩa**: Unsupervised Learning là phương pháp machine learning không cần nhãn (label) để huấn luyện mô hình.
-
-**Đặc điểm:**
-- Không có "đáp án đúng" trước
-- Mục tiêu: Tìm ra cấu trúc ẩn trong dữ liệu
-- Các thuật toán chính: Clustering, Association Rules, Dimensionality Reduction
-
-### 2.2 Clustering và ứng dụng
-
-**Clustering** là quá trình nhóm các điểm dữ liệu tương tự nhau vào cùng một cụm (cluster).
-
-**Các thuật toán Clustering phổ biến:**
-1. **K-Means**: Phân chia dữ liệu thành K cụm
-2. **Hierarchical Clustering**: Tạo cây phân cấp các cụm
-3. **DBSCAN**: Phát hiện cụm có mật độ cao
-4. **Gaussian Mixture Model**: Mô hình hỗn hợp Gaussian
-
-### 2.3 Tại sao chọn K-Means cho Customer Segmentation?
-
-**Ưu điểm:**
-- Đơn giản, dễ hiểu và implement
-- Hiệu quả với dữ liệu lớn
-- Kết quả ổn định và có thể tái lập
-- Phù hợp với dữ liệu khách hàng thường có dạng spherical clusters
-
-**Nhược điểm:**
-- Cần xác định trước số cụm K
-- Nhạy cảm với outliers
-- Chỉ tìm được cụm hình tròn
-
----
-
-## Phần 3: K-Means Clustering Algorithm
-
-### 3.1 Thuật toán K-Means
-
-**Các bước thực hiện:**
-1. **Khởi tạo**: Chọn K centroids ngẫu nhiên
-2. **Assignment**: Gán mỗi điểm dữ liệu vào cụm có centroid gần nhất
-3. **Update**: Cập nhật centroid = trung bình của các điểm trong cụm
-4. **Repeat**: Lặp lại bước 2-3 cho đến khi hội tụ
-
-### 3.2 Code Implementation cơ bản
+### 6.3. Clustering Validation và Interpretation
 
 ```python
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_score
-import warnings
-warnings.filterwarnings('ignore')
-
-# Thiết lập style cho plots
-plt.style.use('seaborn-v0_8')
-sns.set_palette("husl")
-
-class CustomerSegmentation:
-    def __init__(self, data):
+def advanced_clustering_validation():
+    """
+    Phương pháp validation và interpretation nâng cao
+    """
+    print("=== ADVANCED CLUSTERING VALIDATION ===")
+    
+    # Sử dụng dữ liệu từ ensemble clustering
+    data_for_validation = enhanced_customer_data
+    features = ['age', 'income', 'spending_score', 'recency', 'frequency', 'monetary']
+    
+    scaler = StandardScaler()
+    data_scaled = scaler.fit_transform(data_for_validation[features])
+    
+    # Perform clustering
+    kmeans = KMeans(n_clusters=4, random_state=42)
+    cluster_labels = kmeans.fit_predict(data_scaled)
+    
+    # 1. Internal Validation Metrics
+    print("1. Internal Validation Metrics:")
+    
+    from sklearn.metrics import calinski_harabasz_score, davies_bouldin_score
+    
+    internal_metrics = {
+        'Silhouette Score': silhouette_score(data_scaled, cluster_labels),
+        'Calinski-Harabasz Index': calinski_harabasz_score(data_scaled, cluster_labels),
+        'Davies-Bouldin Index': davies_bouldin_score(data_scaled, cluster_labels)
+    }
+    
+    for metric, value in internal_metrics.items():
+        print(f"   {metric}: {value:.3f}")
+    
+    # 2. Stability Validation (Bootstrap)
+    print("\n2. Stability Validation:")
+    
+    def bootstrap_stability(data, n_bootstrap=100, sample_ratio=0.8):
         """
-        Khởi tạo class CustomerSegmentation
-        
-        Parameters:
-        data: DataFrame chứa dữ liệu khách hàng
+        Bootstrap stability analysis
         """
-        self.data = data
-        self.scaled_data = None
-        self.kmeans = None
-        self.labels = None
+        n_samples = len(data)
+        sample_size = int(n_samples * sample_ratio)
         
-    def preprocess_data(self, features):
-        """
-        Tiền xử lý dữ liệu: standardization
+        stability_scores = []
         
-        Parameters:
-        features: list tên các cột để sử dụng cho clustering
-        """
-        # Chọn features
-        self.features = features
-        self.feature_data = self.data[features].copy()
-        
-        # Standardization
-        self.scaler = StandardScaler()
-        self.scaled_data = self.scaler.fit_transform(self.feature_data)
-        
-        print("Dữ liệu đã được chuẩn hóa!")
-        print(f"Shape: {self.scaled_data.shape}")
-        
-    def find_optimal_k(self, k_range=range(2, 11)):
-        """
-        Tìm số cụm tối ưu bằng Elbow Method và Silhouette Score
-        """
-        inertias = []
-        silhouette_scores = []
-        
-        for k in k_range:
-            kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-            kmeans.fit(self.scaled_data)
+        for i in range(n_bootstrap):
+            # Create bootstrap sample
+            indices = np.random.choice(n_samples, sample_size, replace=True)
+            bootstrap_data = data[indices]
             
-            inertias.append(kmeans.inertia_)
-            silhouette_scores.append(silhouette_score(self.scaled_data, kmeans.labels_))
+            # Cluster bootstrap sample
+            kmeans_boot = KMeans(n_clusters=4, random_state=i)
+            labels_boot = kmeans_boot.fit_predict(bootstrap_data)
+            
+            # Find corresponding labels in original clustering
+            original_labels_subset = cluster_labels[indices]
+            
+            # Calculate ARI between bootstrap and original
+            ari = adjusted_rand_score(original_labels_subset, labels_boot)
+            stability_scores.append(ari)
         
-        # Vẽ biểu đồ
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
+        return stability_scores
+    
+    stability_scores = bootstrap_stability(data_scaled)
+    
+    print(f"   Bootstrap Stability (ARI):")
+    print(f"   Mean: {np.mean(stability_scores):.3f}")
+    print(f"   Std: {np.std(stability_scores):.3f}")
+    print(f"   95% CI: [{np.percentile(stability_scores, 2.5):.3f}, {np.percentile(stability_scores, 97.5):.3f}]")
+    
+    # 3. Feature Importance trong Clustering
+    print("\n3. Feature Importance Analysis:")
+    
+    def calculate_feature_importance(data, labels, feature_names):
+        """
+        Calculate feature importance for clustering
+        """
+        importances = []
         
-        # Elbow Method
-        ax1.plot(k_range, inertias, marker='o', linewidth=2, markersize=8)
-        ax1.set_title('Elbow Method', fontsize=14, fontweight='bold')
-        ax1.set_xlabel('Số cụm (K)')
-        ax1.set_ylabel('Inertia')
-        ax1.grid(True, alpha=0.3)
+        for i, feature_name in enumerate(feature_names):
+            # Calculate between-cluster variance for this feature
+            feature_data = data[:, i]
+            
+            between_var = 0
+            total_var = np.var(feature_data)
+            overall_mean = np.mean(feature_data)
+            
+            for cluster_id in np.unique(labels):
+                cluster_mask = labels == cluster_id
+                cluster_data = feature_data[cluster_mask]
+                cluster_mean = np.mean(cluster_data)
+                cluster_size = len(cluster_data)
+                
+                between_var +=
+### 6.2. Clustering cho High-Dimensional Data
+
+```python
+def high_dimensional_clustering():
+    """
+    Xử lý clustering với dữ liệu nhiều chiều
+    """
+    print("=== HIGH-DIMENSIONAL CLUSTERING ===")
+    
+    # 1. Curse of Dimensionality Demo
+    print("1. Curse of Dimensionality:")
+    
+    def distance_concentration_demo():
+        dimensions = [2, 10, 50, 100, 500]
+        n_points = 1000
         
-        # Silhouette Score
-        ax2.plot(k_range, silhouette_scores, marker='s', color='orange', linewidth=2, markersize=8)
-        ax2.set_title('Silhouette Score', fontsize=14, fontweight='bold')
-        ax2.set_xlabel('Số cụm (K)')
-        ax2.set_ylabel('Silhouette Score')
-        ax2.grid(True, alpha=0.3)
+        concentration_scores = []
+        
+        for dim in dimensions:
+            # Generate random points
+            points = np.random.randn(n_points, dim)
+            
+            # Calculate all pairwise distances
+            from scipy.spatial.distance import pdist
+            distances = pdist(points)
+            
+            # Measure concentration: ratio of max to min distance
+            concentration = distances.std() / distances.mean()
+            concentration_scores.append(concentration)
+            
+            print(f"   Dimension {dim}: Distance concentration = {concentration:.3f}")
+        
+        plt.figure(figsize=(10, 6))
+        plt.plot(dimensions, concentration_scores, 'bo-', linewidth=2, markersize=8)
+        plt.xlabel('Number of Dimensions')
+        plt.ylabel('Distance Concentration (std/mean)')
+        plt.title('Distance Concentration vs Dimensionality')
+        plt.grid(True, alpha=0.3)
+        plt.show()
+    
+    distance_concentration_demo()
+    
+    # 2. Dimensionality Reduction trước Clustering
+    print("\n2. Dimensionality Reduction + Clustering:")
+    
+    # Tạo high-dimensional synthetic data
+    np.random.seed(42)
+    n_samples = 1000
+    n_features = 100
+    
+    # Create data with some structure
+    true_clusters = 3
+    cluster_centers = np.random.randn(true_clusters, n_features) * 3
+    
+    high_dim_data = []
+    true_labels = []
+    
+    for i in range(n_samples):
+        cluster_id = np.random.randint(0, true_clusters)
+        point = cluster_centers[cluster_id] + np.random.randn(n_features) * 0.5
+        high_dim_data.append(point)
+        true_labels.append(cluster_id)
+    
+    high_dim_data = np.array(high_dim_data)
+    true_labels = np.array(true_labels)
+    
+    print(f"   Original data shape: {high_dim_data.shape}")
+    
+    # Method 1: PCA + Clustering
+    from sklearn.decomposition import PCA
+    
+    pca = PCA(n_components=10)
+    data_pca = pca.fit_transform(high_dim_data)
+    
+    kmeans_pca = KMeans(n_clusters=true_clusters, random_state=42)
+    labels_pca = kmeans_pca.fit_predict(data_pca)
+    
+    # Method 2: t-SNE + Clustering
+    from sklearn.manifold import TSNE
+    
+    tsne = TSNE(n_components=2, random_state=42, perplexity=30)
+    data_tsne = tsne.fit_transform(high_dim_data)
+    
+    kmeans_tsne = KMeans(n_clusters=true_clusters, random_state=42)
+    labels_tsne = kmeans_tsne.fit_predict(data_tsne)
+    
+    # Method 3: UMAP + Clustering (if available)
+    try:
+        import umap
+        umap_model = umap.UMAP(n_components=2, random_state=42)
+        data_umap = umap_model.fit_transform(high_dim_data)
+        
+        kmeans_umap = KMeans(n_clusters=true_clusters, random_state=42)
+        labels_umap = kmeans_umap.fit_predict(data_umap)
+        
+        umap_available = True
+    except ImportError:
+        print("   UMAP not available, skipping...")
+        umap_available = False
+    
+    # Method 4: Direct clustering on high-dim data
+    kmeans_direct = KMeans(n_clusters=true_clusters, random_state=42)
+    labels_direct = kmeans_direct.fit_predict(high_dim_data)
+    
+    # Evaluate clustering quality
+    from sklearn.metrics import adjusted_rand_score, silhouette_score
+    
+    results = {
+        'Direct (high-dim)': {
+            'labels': labels_direct,
+            'data': high_dim_data,
+            'ari': adjusted_rand_score(true_labels, labels_direct)
+        },
+        'PCA + K-means': {
+            'labels': labels_pca,
+            'data': data_pca,
+            'ari': adjusted_rand_score(true_labels, labels_pca)
+        },
+        't-SNE + K-means': {
+            'labels': labels_tsne,
+            'data': data_tsne,
+            'ari': adjusted_rand_score(true_labels, labels_tsne)
+        }
+    }
+    
+    if umap_available:
+        results['UMAP + K-means'] = {
+            'labels': labels_umap,
+            'data': data_umap,
+            'ari': adjusted_rand_score(true_labels, labels_umap)
+        }
+    
+    print("\n   Clustering Performance (Adjusted Rand Index):")
+    for method, result in results.items():
+        if result['data'].shape[1] <= 100:  # Only calculate silhouette for reasonable dimensions
+            sil = silhouette_score(result['data'], result['labels'])
+            print(f"   {method}: ARI = {result['ari']:.3f}, Silhouette = {sil:.3f}")
+        else:
+            print(f"   {method}: ARI = {result['ari']:.3f}")
+    
+    # Visualization
+    n_methods = len([r for r in results.values() if r['data'].shape[1] == 2])
+    if n_methods > 0:
+        fig, axes = plt.subplots(1, n_methods, figsize=(5*n_methods, 5))
+        if n_methods == 1:
+            axes = [axes]
+        
+        plot_idx = 0
+        for method_name, result in results.items():
+            if result['data'].shape[1] == 2:  # Only plot 2D data
+                ax = axes[plot_idx]
+                scatter = ax.scatter(result['data'][:, 0], result['data'][:, 1], 
+                                   c=result['labels'], cmap='tab10', alpha=0.6)
+                ax.set_title(f'{method_name}\nARI: {result["ari"]:.3f}')
+                ax.grid(True, alpha=0.3)
+                plot_idx += 1
         
         plt.tight_layout()
         plt.show()
-        
-        # Tìm K tối ưu
-        optimal_k_silhouette = k_range[np.argmax(silhouette_scores)]
-        print(f"K tối ưu theo Silhouette Score: {optimal_k_silhouette}")
-        
-        return inertias, silhouette_scores
-    
-    def perform_clustering(self, n_clusters):
-        """
-        Thực hiện K-means clustering
-        """
-        self.kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
-        self.labels = self.kmeans.fit_predict(self.scaled_data)
-        
-        # Thêm labels vào data gốc
-        self.data['Cluster'] = self.labels
-        
-        print(f"Đã phân chia thành {n_clusters} cụm!")
-        print(f"Silhouette Score: {silhouette_score(self.scaled_data, self.labels):.3f}")
-```
 
-### 3.3 Xác định số cụm tối ưu
+high_dimensional_clustering()
 
-**Phương pháp 1: Elbow Method**
-```python
-def elbow_method_explanation():
-    """
-    Giải thích Elbow Method
-    """
-    print("""
-    ELBOW METHOD:
-    
-    1. Tính WCSS (Within-Cluster Sum of Squares) cho các giá trị K khác nhau
-    2. Vẽ biểu đồ WCSS theo K
-    3. Tìm điểm "gãy" (elbow) - nơi WCSS giảm chậm lại
-    4. Điểm elbow chính là K tối ưu
-    
-    Công thức WCSS: Σ(distance từ điểm đến centroid)²
-    """)
-```
-
-**Phương pháp 2: Silhouette Score**
-```python
-def silhouette_explanation():
-    """
-    Giải thích Silhouette Score
-    """
-    print("""
-    SILHOUETTE SCORE:
-    
-    1. Đo lường độ tương tự của một điểm với cụm của nó
-    2. So sánh với các cụm khác
-    3. Giá trị từ -1 đến 1:
-       - Gần 1: Phân cụm tốt
-       - Gần 0: Điểm nằm trên biên giới
-       - Âm: Có thể bị phân sai cụm
-       
-    Công thức: s = (b - a) / max(a, b)
-    Trong đó:
-    - a: Khoảng cách trung bình đến các điểm trong cùng cụm
-    - b: Khoảng cách trung bình đến cụm gần nhất
-    """)
-```
-
----
-
-## Phần 4: Summary and Descriptive Statistics
-
-### 4.1 Các hàm thống kê cơ bản
-
-```python
-def explore_data(df):
-    """
-    Khám phá dữ liệu cơ bản
-    """
-    print("=" * 50)
-    print("THÔNG TIN CƠ BẢN VỀ DỮ LIỆU")
-    print("=" * 50)
-    
-    print(f"1. Kích thước dữ liệu: {df.shape}")
-    print(f"2. Số lượng missing values:")
-    print(df.isnull().sum())
-    
-    print(f"\n3. Kiểu dữ liệu:")
-    print(df.dtypes)
-    
-    print(f"\n4. Thống kê mô tả:")
-    print(df.describe())
-
-def analyze_clusters(df, features):
-    """
-    Phân tích chi tiết các cụm
-    """
-    print("=" * 50)
-    print("PHÂN TÍCH CÁC CỤM KHÁCH HÀNG")
-    print("=" * 50)
-    
-    # 1. Kích thước các cụm
-    cluster_sizes = df['Cluster'].value_counts().sort_index()
-    print("1. Kích thước các cụm:")
-    for cluster, size in cluster_sizes.items():
-        percentage = (size / len(df)) * 100
-        print(f"   Cụm {cluster}: {size} khách hàng ({percentage:.1f}%)")
-    
-    # 2. Thống kê theo cụm
-    print("\n2. Thống kê trung bình theo cụm:")
-    cluster_stats = df.groupby('Cluster')[features].mean()
-    print(cluster_stats.round(2))
-    
-    # 3. Đặc điểm nổi bật của từng cụm
-    print("\n3. Đặc điểm nổi bật:")
-    for cluster in sorted(df['Cluster'].unique()):
-        cluster_data = df[df['Cluster'] == cluster][features]
-        print(f"\n   Cụm {cluster}:")
-        for feature in features:
-            mean_val = cluster_data[feature].mean()
-            overall_mean = df[feature].mean()
-            if mean_val > overall_mean * 1.2:
-                print(f"     - {feature}: CAO ({mean_val:.2f} vs {overall_mean:.2f})")
-            elif mean_val < overall_mean * 0.8:
-                print(f"     - {feature}: THẤP ({mean_val:.2f} vs {overall_mean:.2f})")
-            else:
-                print(f"     - {feature}: TRUNG BÌNH ({mean_val:.2f})")
-
-def advanced_statistics(df, features):
-    """
-    Thống kê nâng cao
-    """
-    print("=" * 50)
-    print("THỐNG KÊ NÂNG CAO")
-    print("=" * 50)
-    
-    # Correlation matrix
-    print("1. Ma trận tương quan:")
-    corr_matrix = df[features].corr()
-    print(corr_matrix.round(3))
-    
-    # Phân phối dữ liệu
-    print("\n2. Thông tin phân phối:")
-    for feature in features:
-        skewness = df[feature].skew()
-        kurtosis = df[feature].kurtosis()
-        print(f"   {feature}:")
-        print(f"     - Skewness: {skewness:.3f}")
-        print(f"     - Kurtosis: {kurtosis:.3f}")
-```
-
-### 4.2 Visualization Functions
-
-```python
-def plot_cluster_analysis(df, features):
-    """
-    Vẽ biểu đồ phân tích cụm
-    """
-    n_features = len(features)
-    n_clusters = df['Cluster'].nunique()
-    
-    # 1. Distribution plots
-    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-    axes = axes.ravel()
-    
-    for i, feature in enumerate(features[:4]):  # Chỉ vẽ 4 features đầu
-        for cluster in range(n_clusters):
-            cluster_data = df[df['Cluster'] == cluster][feature]
-            axes[i].hist(cluster_data, alpha=0.6, label=f'Cluster {cluster}', bins=20)
-        
-        axes[i].set_title(f'Phân phối {feature} theo cụm')
-        axes[i].set_xlabel(feature)
-        axes[i].set_ylabel('Tần suất')
-        axes[i].legend()
-        axes[i].grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    plt.show()
-    
-    # 2. Box plots
-    fig, axes = plt.subplots(1, len(features), figsize=(5*len(features), 6))
-    if len(features) == 1:
-        axes = [axes]
-    
-    for i, feature in enumerate(features):
-        df.boxplot(column=feature, by='Cluster', ax=axes[i])
-        axes[i].set_title(f'Box Plot: {feature}')
-        axes[i].set_xlabel('Cluster')
-        axes[i].set_ylabel(feature)
-    
-    plt.tight_layout()
-    plt.show()
-    
-    # 3. Scatter plots (nếu có ít nhất 2 features)
-    if len(features) >= 2:
-        plt.figure(figsize=(12, 8))
-        colors = ['red', 'blue', 'green', 'orange', 'purple', 'brown']
-        
-        for cluster in range(n_clusters):
-            cluster_data = df[df['Cluster'] == cluster]
-            plt.scatter(cluster_data[features[0]], cluster_data[features[1]], 
-                       c=colors[cluster % len(colors)], label=f'Cluster {cluster}', alpha=0.7)
-        
-        plt.xlabel(features[0])
-        plt.ylabel(features[1])
-        plt.title(f'Scatter Plot: {features[0]} vs {features[1]}')
-        plt.legend()
-        plt.grid(True, alpha=0.3)
-        plt.show()
-
-def create_cluster_profiles(df, features):
-    """
-    Tạo hồ sơ chi tiết cho từng cụm
-    """
-    cluster_profiles = {}
-    
-    for cluster in sorted(df['Cluster'].unique()):
-        cluster_data = df[df['Cluster'] == cluster]
-        profile = {
-            'size': len(cluster_data),
-            'percentage': len(cluster_data) / len(df) * 100,
-            'characteristics': {}
-        }
-        
-        for feature in features:
-            profile['characteristics'][feature] = {
-                'mean': cluster_data[feature].mean(),
-                'median': cluster_data[feature].median(),
-                'std': cluster_data[feature].std(),
-                'min': cluster_data[feature].min(),
-                'max': cluster_data[feature].max()
-            }
-        
-        cluster_profiles[f'Cluster_{cluster}'] = profile
-    
-    return cluster_profiles
-```
-
----
-
-## Phần 5: Thực hành với dữ liệu thực tế
-
-### 5.1 Tạo dữ liệu mẫu
-
-```python
-def create_sample_data():
-    """
-    Tạo dữ liệu khách hàng mẫu
-    """
-    np.random.seed(42)
-    n_customers = 1000
-    
-    # Tạo các nhóm khách hàng khác nhau
-    data = []
-    
-    # Nhóm 1: Khách hàng VIP (20%)
-    n_vip = int(n_customers * 0.2)
-    vip_data = {
-        'CustomerID': range(1, n_vip + 1),
-        'Annual_Income': np.random.normal(80000, 15000, n_vip),
-        'Spending_Score': np.random.normal(80, 10, n_vip),
-        'Age': np.random.normal(40, 8, n_vip),
-        'Purchase_Frequency': np.random.normal(15, 3, n_vip)
-    }
-    
-    # Nhóm 2: Khách hàng trung bình (50%)
-    n_avg = int(n_customers * 0.5)
-    avg_data = {
-        'CustomerID': range(n_vip + 1, n_vip + n_avg + 1),
-        'Annual_Income': np.random.normal(50000, 12000, n_avg),
-        'Spending_Score': np.random.normal(50, 15, n_avg),
-        'Age': np.random.normal(35, 10, n_avg),
-        'Purchase_Frequency': np.random.normal(8, 2, n_avg)
-    }
-    
-    # Nhóm 3: Khách hàng ít mua sắm (30%)
-    n_low = n_customers - n_vip - n_avg
-    low_data = {
-        'CustomerID': range(n_vip + n_avg + 1, n_customers + 1),
-        'Annual_Income': np.random.normal(30000, 8000, n_low),
-        'Spending_Score': np.random.normal(25, 8, n_low),
-        'Age': np.random.normal(45, 12, n_low),
-        'Purchase_Frequency': np.random.normal(3, 1, n_low)
-    }
-    
-    # Kết hợp dữ liệu
-    df = pd.DataFrame({
-        'CustomerID': list(vip_data['CustomerID']) + list(avg_data['CustomerID']) + list(low_data['CustomerID']),
-        'Annual_Income': np.concatenate([vip_data['Annual_Income'], avg_data['Annual_Income'], low_data['Annual_Income']]),
-        'Spending_Score': np.concatenate([vip_data['Spending_Score'], avg_data['Spending_Score'], low_data['Spending_Score']]),
-        'Age': np.concatenate([vip_data['Age'], avg_data['Age'], low_data['Age']]),
-        'Purchase_Frequency': np.concatenate([vip_data['Purchase_Frequency'], avg_data['Purchase_Frequency'], low_data['Purchase_Frequency']])
-    })
-    
-    # Đảm bảo giá trị dương
-    df['Annual_Income'] = np.abs(df['Annual_Income'])
-    df['Spending_Score'] = np.clip(df['Spending_Score'], 1, 100)
-    df['Age'] = np.clip(df['Age'], 18, 80)
-    df['Purchase_Frequency'] = np.abs(df['Purchase_Frequency'])
-    
-    return df
-
-# Tạo và khám phá dữ liệu
-df = create_sample_data()
-print("Dữ liệu mẫu đã được tạo!")
-explore_data(df)
-```
-
-### 5.2 Quy trình hoàn chỉnh
-
-```python
-def complete_segmentation_workflow():
-    """
-    Quy trình hoàn chỉnh cho Customer Segmentation
-    """
-    # Bước 1: Tạo dữ liệu
-    print("BƯỚC 1: TẠO DỮ LIỆU")
-    df = create_sample_data()
-    
-    # Bước 2: Khám phá dữ liệu
-    print("\nBƯỚC 2: KHÁM PHÁ DỮ LIỆU")
-    explore_data(df)
-    
-    # Bước 3: Chuẩn bị features cho clustering
-    print("\nBƯỚC 3: CHUẨN BỊ FEATURES")
-    features = ['Annual_Income', 'Spending_Score', 'Age', 'Purchase_Frequency']
-    
-    # Bước 4: Khởi tạo và tiền xử lý
-    print("\nBƯỚC 4: TIỀN XỬ LÝ")
-    segmentation = CustomerSegmentation(df)
-    segmentation.preprocess_data(features)
-    
-    # Bước 5: Tìm số cụm tối ưu
-    print("\nBƯỚC 5: TÌM SỐ CỤM TỐI ƯU")
-    segmentation.find_optimal_k()
-    
-    # Bước 6: Thực hiện clustering
-    print("\nBƯỚC 6: THỰC HIỆN CLUSTERING")
-    optimal_k = 3  # Dựa trên kết quả từ bước 5
-    segmentation.perform_clustering(optimal_k)
-    
-    # Bước 7: Phân tích kết quả
-    print("\nBƯỚC 7: PHÂN TÍCH KẾT QUẢ")
-    analyze_clusters(segmentation.data, features)
-    
-    # Bước 8: Visualization
-    print("\nBƯỚC 8: VISUALIZATION")
-    plot_cluster_analysis(segmentation.data, features)
-    
-    # Bước 9: Tạo cluster profiles
-    print("\nBƯỚC 9: TẠO CLUSTER PROFILES")
-    profiles = create_cluster_profiles(segmentation.data, features)
-    
-    return segmentation, profiles
-
-# Chạy quy trình hoàn chỉnh
-segmentation_result, cluster_profiles = complete_segmentation_workflow()
-```
 
 ---
 
 ## Phần 6: Các vấn đề nâng cao
 
-### 6.1 Feature Engineering cho Customer Segmentation
+### 6.1. Xử lý dữ liệu lớn và Streaming Data
 
 ```python
-def create_rfm_features(df):
+def scalable_clustering_techniques():
     """
-    Tạo RFM features (Recency, Frequency, Monetary)
+    Kỹ thuật clustering cho dữ liệu lớn
     """
-    # Giả sử có dữ liệu transaction
-    print("Tạo RFM Features:")
-    print("- Recency: Số ngày từ lần mua cuối")
-    print("- Frequency: Tần suất mua hàng")  
-    print("- Monetary: Giá trị mua hàng")
+    print("=== SCALABLE CLUSTERING TECHNIQUES ===")
     
-    # Ví dụ code tạo RFM
-    rfm_code = """
-    # Tính Recency
-    df['Recency'] = (datetime.now() - df['Last_Purchase_Date']).dt.days
+    # 1. Mini-batch K-means
+    from sklearn.cluster import MiniBatchKMeans
     
-    # Tính Frequency
-    df['Frequency'] = df.groupby('CustomerID')['TransactionID'].transform('count')
+    print("1. Mini-batch K-means:")
+    print("   - Sử dụng random subsets của dữ liệu")
+    print("   - Tốc độ nhanh hơn K-means truyền thống")
+    print("   - Phù hợp với dữ liệu lớn")
     
-    # Tính Monetary
-    df['Monetary'] = df.groupby('CustomerID')['Amount'].transform('sum')
-    """
-    print(rfm_code)
+    # Simulation với dữ liệu lớn
+    np.random.seed(123)
+    large_dataset = np.random.randn(10000, 5)
+    
+    # So sánh thời gian
+    import time
+    
+    # Standard K-means
+    start_time = time.time()
+    kmeans_standard = KMeans(n_clusters=5, random_state=42, n_init=1)
+    kmeans_standard.fit(large_dataset)
+    standard_time = time.time() - start_time
+    
+    # Mini-batch K-means
+    start_time = time.time()
+    kmeans_mini = MiniBatchKMeans(n_clusters=5, random_state=42, batch_size=1000)
+    kmeans_mini.fit(large_dataset)
+    mini_time = time.time() - start_time
+    
+    print(f"   Standard K-means: {standard_time:.3f} seconds")
+    print(f"   Mini-batch K-means: {mini_time:.3f} seconds")
+    print(f"   Speed improvement: {standard_time/mini_time:.1f}x")
+    
+    # 2. Online/Incremental Learning
+    print("\n2. Online Learning với streaming data:")
+    
+    def simulate_streaming_clustering(n_batches=10, batch_size=1000):
+        """
+        Simulate streaming data clustering
+        """
+        # Initialize model
+        online_kmeans = MiniBatchKMeans(n_clusters=4, random_state=42, batch_size=100)
+        
+        cluster_evolution = []
+        
+        for batch_i in range(n_batches):
+            # Simulate new batch of data
+            if batch_i < 5:
+                # First half: data from distribution A
+                batch_data = np.random.multivariate_normal([2, 2], [[1, 0.5], [0.5, 1]], batch_size)
+            else:
+                # Second half: data shifts to distribution B
+                batch_data = np.random.multivariate_normal([5, 1], [[1, -0.3], [-0.3, 1]], batch_size)
+            
+            # Partial fit (online learning)
+            online_kmeans.partial_fit(batch_data)
+            
+            # Store cluster centers for analysis
+            cluster_evolution.append(online_kmeans.cluster_centers_.copy())
+            
+            print(f"   Batch {batch_i + 1}: Processed {batch_size} points")
+        
+        return cluster_evolution, online_kmeans
+    
+    cluster_evolution, final_model = simulate_streaming_clustering()
+    
+    # Visualize cluster evolution
+    plt.figure(figsize=(15, 5))
+    for i, centers in enumerate([cluster_evolution[0], cluster_evolution[4], cluster_evolution[-1]]):
+        plt.subplot(1, 3, i + 1)
+        plt.scatter(centers[:, 0], centers[:, 1], c='red', s=200, marker='x', linewidth=3)
+        plt.title(f'Cluster Centers - Batch {[1, 5, 10][i]}')
+        plt.xlabel('Feature 1')
+        plt.ylabel('Feature 2')
+        plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+    
+    print("   → Cluster centers adapt to changing data distribution")
 
-def handle_categorical_features():
-    """
-    Xử lý categorical features
-    """
-    categorical_code = """
-    from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-    
-    # One-hot encoding
-    df_encoded = pd.get_dummies(df, columns=['Gender', 'City'], prefix=['Gender', 'City'])
-    
-    # Label encoding
-    le = LabelEncoder()
-    df['Category_Encoded'] = le.fit_transform(df['Category'])
-    """
-    print("Xử lý Categorical Features:")
-    print(categorical_code)
+scalable_clustering_techniques()
 
-def dimensionality_reduction():
-    """
-    Giảm chiều dữ liệu với PCA
-    """
-    pca_code = """
-    from sklearn.decomposition import PCA
-    
-    # Áp dụng PCA
-    pca = PCA(n_components=0.95)  # Giữ 95% variance
-    reduced_data = pca.fit_transform(scaled_data)
-    
-    # Xem explained variance ratio
-    print("Explained variance ratio:", pca.explained_variance_ratio_)
-    """
-    print("Dimensionality Reduction với PCA:")
-    print(pca_code)
-```
-
-### 6.2 Xử lý Outliers
+### 5.3. Customer Lifetime Value (CLV) Integration
 
 ```python
-def detect_and_handle_outliers(df, features):
+def clv_based_segmentation(data):
     """
-    Phát hiện và xử lý outliers
+    Tích hợp Customer Lifetime Value vào segmentation
     """
-    print("PHÁT HIỆN VÀ XỬ LÝ OUTLIERS")
-    print("=" * 40)
+    print("=== CLV-BASED SEGMENTATION ===")
     
-    outlier_indices = []
+    # Tính toán CLV components
+    data_clv = data.copy()
     
-    for feature in features:
-        Q1 = df[feature].quantile(0.25)
-        Q3 = df[feature].quantile(0.75)
-        IQR = Q3 - Q1
+    # 1. Average Order Value (AOV)
+    data_clv['aov'] = data_clv['monetary'] / data_clv['frequency']
+    
+    # 2. Purchase Frequency (PF) - transactions per time period
+    data_clv['purchase_frequency'] = data_clv['frequency'] / (data_clv['recency'] / 30)  # per month
+    
+    # 3. Customer Lifespan (CL) - predicted based on recency
+    data_clv['predicted_lifespan'] = np.where(
+        data_clv['recency'] < 30, 24,  # Active customers: 24 months
+        np.where(data_clv['recency'] < 90, 18,  # Regular: 18 months
+                np.where(data_clv['recency'] < 180, 12, 6))  # At risk: 12, Churned: 6
+    )
+    
+    # 4. Simple CLV calculation
+    data_clv['clv_simple'] = data_clv['aov'] * data_clv['purchase_frequency'] * data_clv['predicted_lifespan']
+    
+    # 5. Probabilistic CLV using BG/NBD-like approach
+    def calculate_probability_alive(recency, frequency, T):
+        """
+        Simplified probability that customer is still active
+        """
+        if frequency == 0:
+            return 0.1
         
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        
-        feature_outliers = df[(df[feature] < lower_bound) | (df[feature] > upper_bound)].index
-        outlier_indices.extend(feature_outliers)
-        
-        print(f"{feature}:")
-        print(f"  - Lower bound: {lower_bound:.2f}")
-        print(f"  - Upper bound: {upper_bound:.2f}")
-        print(f"  - Số outliers: {len(feature_outliers)}")
+        # Simple heuristic based on recency vs frequency
+        expected_gap = T / frequency if frequency > 0 else T
+        prob_alive = np.exp(-recency / expected_gap)
+        return np.clip(prob_alive, 0.05, 0.95)
     
-    # Unique outliers
-    unique_outliers = list(set(outlier_indices))
-    print(f"\nTổng số outliers duy nhất: {len(unique_outliers)}")
+    # Total time period (assume 2 years of data)
+    T = 730  # days
     
-    # Các phương pháp xử lý
-    print("\nCác phương pháp xử lý outliers:")
-    print("1. Loại bỏ outliers")
-    print("2. Cap outliers (winsorizing)")
-    print("3. Log transformation")
-    print("4. Robust scaling")
+    data_clv['prob_alive'] = data_clv.apply(
+        lambda row: calculate_probability_alive(row['recency'], row['frequency'], T), axis=1
+    )
     
-    return unique_outliers
+    # 6. Expected CLV với probability
+    data_clv['clv_expected'] = data_clv['clv_simple'] * data_clv['prob_alive']
+    
+    # 7. CLV segments
+    clv_percentiles = data_clv['clv_expected'].quantile([0.25, 0.5, 0.75, 0.9])
+    
+    def assign_clv_segment(clv_value):
+        if clv_value >= clv_percentiles[0.9]:
+            return 'Champions'
+        elif clv_value >= clv_percentiles[0.75]:
+            return 'High Value'
+        elif clv_value >= clv_percentiles[0.5]:
+            return 'Medium Value'
+        elif clv_value >= clv_percentiles[0.25]:
+            return 'Low Value'
+        else:
+            return 'At Risk'
+    
+    data_clv['clv_segment'] = data_clv['clv_expected'].apply(assign_clv_segment)
+    
+    # Analysis
+    print("CLV Segment Distribution:")
+    print(data_clv['clv_segment'].value_counts())
+    
+    print("\nCLV Statistics by Segment:")
+    clv_stats = data_clv.groupby('clv_segment').agg({
+        'clv_expected': ['count', 'mean', 'median', 'std'],
+        'recency': 'mean',
+        'frequency': 'mean',
+        'monetary': 'mean',
+        'prob_alive': 'mean'
+    }).round(2)
+    print(clv_stats)
+    
+    # Visualization
+    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+    
+    # CLV distribution
+    axes[0,0].hist(data_clv['clv_expected'], bins=50, alpha=0.7, color='skyblue')
+    axes[0,0].axvline(data_clv['clv_expected'].mean(), color='red', linestyle='--', label=f"Mean: ${data_clv['clv_expected'].mean():.0f}")
+    axes[0,0].axvline(data_clv['clv_expected'].median(), color='orange', linestyle='--', label=f"Median: ${data_clv['clv_expected'].median():.0f}")
+    axes[0,0].set_xlabel('Expected CLV ($)')
+    axes[0,0].set_ylabel('Frequency')
+    axes[0,0].set_title('CLV Distribution')
+    axes[0,0].legend()
+    axes[0,0].grid(True, alpha=0.3)
+    
+    # CLV vs RFM components
+    scatter = axes[0,1].scatter(data_clv['monetary'], data_clv['clv_expected'], 
+                               c=data_clv['prob_alive'], cmap='viridis', alpha=0.6)
+    axes[0,1].set_xlabel('Historical Monetary Value')
+    axes[0,1].set_ylabel('Expected CLV')
+    axes[0,1].set_title('CLV vs Monetary (colored by Prob. Alive)')
+    plt.colorbar(scatter, ax=axes[0,1])
+    axes[0,1].grid(True, alpha=0.3)
+    
+    # Segment comparison
+    segment_means = data_clv.groupby('clv_segment')['clv_expected'].mean().sort_values(ascending=True)
+    axes[1,0].barh(range(len(segment_means)), segment_means.values, color='lightcoral')
+    axes[1,0].set_yticks(range(len(segment_means)))
+    axes[1,0].set_yticklabels(segment_means.index)
+    axes[1,0].set_xlabel('Average Expected CLV ($)')
+    axes[1,0].set_title('Average CLV by Segment')
+    axes[1,0].grid(True, alpha=0.3)
+    
+    # Probability alive distribution
+    data_clv.boxplot(column='prob_alive', by='clv_segment', ax=axes[1,1])
+    axes[1,1].set_xlabel('CLV Segment')
+    axes[1,1].set_ylabel('Probability Alive')
+    axes[1,1].set_title('Probability of Being Active by Segment')
+    axes[1,1].grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    return data_clv
 
-def robust_scaling_example():
-    """
-    Ví dụ về Robust Scaling
-    """
-    robust_code = """
-    from sklearn.preprocessing import RobustScaler
-    
-    # Robust Scaler ít bị ảnh hưởng bởi outliers
-    robust_scaler = RobustScaler()
-    robust_scaled_data = robust_scaler.fit_transform(df[features])
-    
-    # So sánh với StandardScaler
-    from sklearn.preprocessing import StandardScaler
-    standard_scaler = StandardScaler()
-    standard_scaled_data = standard_scaler.fit_transform(df[features])
-    """
-    print("Robust Scaling Example:")
-    print(robust_code)
+clv_data = clv_based_segmentation(enhanced_customer_data)
 
-### 6.3 Model Validation và Stability
+### 5.2. Ensemble Clustering Methods
 
 ```python
-def validate_clustering_stability(df, features, n_runs=10):
+def ensemble_clustering(data, features, n_clusters=4):
     """
-    Kiểm tra tính ổn định của clustering
+    Kết hợp nhiều phương pháp clustering để tăng độ tin cậy
     """
+    print("=== ENSEMBLE CLUSTERING METHODS ===")
+    
+    # Chuẩn bị dữ liệu
+    scaler = StandardScaler()
+    data_scaled = scaler.fit_transform(data[features])
+    
+    # Các phương pháp clustering khác nhau
+    methods = {
+        'kmeans': KMeans(n_clusters=n_clusters, random_state=42, n_init=10),
+        'gmm': GaussianMixture(n_components=n_clusters, random_state=42),
+        'spectral': SpectralClustering(n_clusters=n_clusters, random_state=42),
+        'agglomerative': AgglomerativeClustering(n_clusters=n_clusters)
+    }
+    
+    # Fit các model và collect results
+    clustering_results = {}
+    for name, model in methods.items():
+        print(f"Fitting {name}...")
+        labels = model.fit_predict(data_scaled)
+        clustering_results[name] = labels
+        
+        # Tính silhouette score
+        sil_score = silhouette_score(data_scaled, labels)
+        print(f"  Silhouette Score: {sil_score:.3f}")
+    
+    # Consensus clustering
+    print("\nCreating consensus clustering...")
+    
+    # Method 1: Majority voting
+    def majority_vote_consensus(results_dict, n_samples):
+        consensus_labels = np.zeros(n_samples)
+        
+        for i in range(n_samples):
+            # Lấy votes từ tất cả methods
+            votes = [results_dict[method][i] for method in results_dict.keys()]
+            # Chọn label xuất hiện nhiều nhất
+            consensus_labels[i] = max(set(votes), key=votes.count)
+        
+        return consensus_labels.astype(int)
+    
+    consensus_labels = majority_vote_consensus(clustering_results, len(data))
+    
+    # Method 2: Co-association matrix
+    def co_association_clustering(results_dict, n_samples, n_clusters):
+        # Tạo co-association matrix
+        co_assoc_matrix = np.zeros((n_samples, n_samples))
+        
+        for method_labels in results_dict.values():
+            for i in range(n_samples):
+                for j in range(n_samples):
+                    if method_labels[i] == method_labels[j]:
+                        co_assoc_matrix[i, j] += 1
+        
+        # Normalize
+        co_assoc_matrix = co_assoc_matrix / len(results_dict)
+        
+        # Convert to distance matrix
+        distance_matrix = 1 - co_assoc_matrix
+        
+        # Apply hierarchical clustering
+        from scipy.cluster.hierarchy import linkage, fcluster
+        from scipy.spatial.distance import squareform
+        
+        condensed_distances = squareform(distance_matrix)
+        linkage_matrix = linkage(condensed_distances, method='average')
+        final_labels = fcluster(linkage_matrix, n_clusters, criterion='maxclust') - 1
+        
+        return final_labels, co_assoc_matrix
+    
+    coassoc_labels, coassoc_matrix = co_association_clustering(clustering_results, len(data), n_clusters)
+    
+    # So sánh các phương pháp consensus
+    consensus_methods = {
+        'majority_vote': consensus_labels,
+        'co_association': coassoc_labels
+    }
+    
+    print("\nConsensus clustering results:")
+    for method_name, labels in consensus_methods.items():
+        sil_score = silhouette_score(data_scaled, labels)
+        print(f"{method_name}: Silhouette = {sil_score:.3f}")
+    
+    # Visualization
+    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+    axes = axes.flatten()
+    
+    # Plot individual methods
+    for idx, (method_name, labels) in enumerate(clustering_results.items()):
+        ax = axes[idx]
+        if len(features) >= 2:
+            scatter = ax.scatter(data[features[0]], data[features[1]], 
+                               c=labels, cmap='tab10', alpha=0.6)
+            ax.set_xlabel(features[0])
+            ax.set_ylabel(features[1])
+        ax.set_title(f'{method_name.upper()}')
+        ax.grid(True, alpha=0.3)
+    
+    # Plot consensus methods
+    for idx, (method_name, labels) in enumerate(consensus_methods.items()):
+        ax = axes[4 + idx]
+        if len(features) >= 2:
+            scatter = ax.scatter(data[features[0]], data[features[1]], 
+                               c=labels, cmap='tab10', alpha=0.6)
+            ax.set_xlabel(features[0])
+            ax.set_ylabel(features[1])
+        ax.set_title(f'CONSENSUS: {method_name.upper()}')
+        ax.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Stability analysis
+    print("\nStability Analysis:")
     from sklearn.metrics import adjusted_rand_score
     
-    print("KIỂM TRA TÍNH ỔN ĐỊNH CỦA CLUSTERING")
-    print("=" * 45)
+    stability_matrix = np.zeros((len(methods), len(methods)))
+    method_names = list(methods.keys())
+    
+    for i, method1 in enumerate(method_names):
+        for j, method2 in enumerate(method_names):
+            if i <= j:
+                ari = adjusted_rand_score(clustering_results[method1], clustering_results[method2])
+                stability_matrix[i, j] = ari
+                stability_matrix[j, i] = ari
+    
+    # Plot stability heatmap
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(stability_matrix, 
+                xticklabels=method_names, 
+                yticklabels=method_names,
+                annot=True, 
+                cmap='viridis',
+                vmin=0, vmax=1)
+    plt.title('Clustering Method Stability (Adjusted Rand Index)')
+    plt.tight_layout()
+    plt.show()
+    
+    avg_stability = np.mean(stability_matrix[np.triu_indices_from(stability_matrix, k=1)])
+    print(f"Average stability across methods: {avg_stability:.3f}")
+    
+    return consensus_methods, clustering_results, coassoc_matrix
+
+# Áp dụng ensemble clustering
+numerical_features_enhanced = ['age', 'income', 'spending_score', 'recency', 'frequency', 'monetary']
+ensemble_results, individual_results, coassoc_matrix = ensemble_clustering(
+    enhanced_customer_data, numerical_features_enhanced
+)
+
+
+---
+
+## Phần 5: Nâng cao kỹ năng Data Science trong Marketing
+
+### 5.1. Feature Engineering cho Customer Segmentation
+
+```python
+def advanced_feature_engineering(data):
+    """
+    Kỹ thuật feature engineering nâng cao cho customer segmentation
+    """
+    print("=== ADVANCED FEATURE ENGINEERING ===")
+    
+    # 1. RFM Features (Recency, Frequency, Monetary)
+    # Giả sử chúng ta có transaction data
+    np.random.seed(999)
+    n_customers = len(data)
+    
+    # Tạo synthetic transaction data
+    transaction_data = []
+    for customer_id in range(n_customers):
+        n_transactions = np.random.poisson(5) + 1
+        for _ in range(n_transactions):
+            days_ago = np.random.exponential(30)
+            amount = np.random.lognormal(4, 1)
+            transaction_data.append({
+                'customer_id': customer_id,
+                'days_ago': days_ago,
+                'amount': amount,
+                'transaction_date': pd.Timestamp.now() - pd.Timedelta(days=days_ago)
+            })
+    
+    transactions_df = pd.DataFrame(transaction_data)
+    
+    # Tính RFM metrics
+    rfm_data = transactions_df.groupby('customer_id').agg({
+        'days_ago': 'min',  # Recency
+        'customer_id': 'count',  # Frequency  
+        'amount': 'sum'  # Monetary
+    }).rename(columns={
+        'days_ago': 'recency',
+        'customer_id': 'frequency',
+        'amount': 'monetary'
+    })
+    
+    # 2. Behavioral Features
+    enhanced_data = data.copy()
+    enhanced_data['customer_id'] = range(len(data))
+    enhanced_data = enhanced_data.merge(rfm_data, left_on='customer_id', right_index=True, how='left')
+    
+    # 3. Derived Features
+    enhanced_data['avg_transaction_value'] = enhanced_data['monetary'] / enhanced_data['frequency']
+    enhanced_data['spending_velocity'] = enhanced_data['monetary'] / enhanced_data['recency']
+    enhanced_data['purchase_intensity'] = enhanced_data['frequency'] / enhanced_data['recency']
+    
+    # 4. Percentile-based Features
+    enhanced_data['recency_percentile'] = enhanced_data['recency'].rank(pct=True)
+    enhanced_data['frequency_percentile'] = enhanced_data['frequency'].rank(pct=True)
+    enhanced_data['monetary_percentile'] = enhanced_data['monetary'].rank(pct=True)
+    
+    # 5. Composite Scores
+    enhanced_data['rfm_score'] = (
+        enhanced_data['recency_percentile'] * 0.15 +  # Lower recency is better
+        enhanced_data['frequency_percentile'] * 0.35 +
+        enhanced_data['monetary_percentile'] * 0.5
+    )
+    
+    # 6. Customer Lifecycle Stage
+    def assign_lifecycle_stage(row):
+        if row['recency'] <= 30 and row['frequency'] >= 3:
+            return 'Active'
+        elif row['recency'] <= 60:
+            return 'Regular'
+        elif row['recency'] <= 180:
+            return 'At Risk'
+        else:
+            return 'Churned'
+    
+    enhanced_data['lifecycle_stage'] = enhanced_data.apply(assign_lifecycle_stage, axis=1)
+    
+    # 7. Interaction Features
+    enhanced_data['age_income_interaction'] = enhanced_data['age'] * enhanced_data['income'] / 100000
+    enhanced_data['spending_vs_income_ratio'] = enhanced_data['spending_score'] / (enhanced_data['income'] / 10000)
+    
+    print("Enhanced features created:")
+    new_features = [col for col in enhanced_data.columns if col not in data.columns and col != 'customer_id']
+    for feature in new_features:
+        print(f"  - {feature}")
+    
+    return enhanced_data, new_features
+
+enhanced_customer_data, new_features = advanced_feature_engineering(mixed_customer_data)
+
+#### 4.2.4. So sánh hiệu quả các phương pháp
+
+```python
+def compare_clustering_methods(data, numerical_features, categorical_features):
+    """
+    So sánh hiệu quả của các phương pháp clustering khác nhau
+    """
+    print("=== SO SÁNH CÁC PHƯƠNG PHÁP CLUSTERING ===")
+    
+    results_comparison = {}
+    
+    # 1. K-means (chỉ với numerical data)
+    numerical_data = data[numerical_features]
+    scaler = StandardScaler()
+    numerical_scaled = scaler.fit_transform(numerical_data)
+    
+    kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
+    kmeans_labels = kmeans.fit_predict(numerical_scaled)
+    
+    results_comparison['K-means'] = {
+        'labels': kmeans_labels,
+        'silhouette': silhouette_score(numerical_scaled, kmeans_labels),
+        'features_used': 'Numerical only',
+        'data_size': numerical_scaled.shape
+    }
+    
+    # 2. K-modes (chỉ với categorical data)
+    categorical_data = data[categorical_features].values
+    kmodes = KModes(n_clusters=4, init='Huang', n_init=5, verbose=0, random_state=42)
+    kmodes_labels = kmodes.fit_predict(categorical_data)
+    
+    results_comparison['K-modes'] = {
+        'labels': kmodes_labels,
+        'cost': kmodes.cost_,
+        'features_used': 'Categorical only',
+        'data_size': categorical_data.shape
+    }
+    
+    # 3. K-prototypes (mixed data)
+    mixed_array = np.column_stack([numerical_scaled, categorical_data])
+    categorical_indices = list(range(len(numerical_features), len(numerical_features) + len(categorical_features)))
+    
+    kproto = KPrototypes(n_clusters=4, init='Huang', gamma=optimal_gamma, n_init=5, verbose=0, random_state=42)
+    kproto_labels = kproto.fit_predict(mixed_array, categorical=categorical_indices)
+    
+    results_comparison['K-prototypes'] = {
+        'labels': kproto_labels,
+        'cost': kproto.cost_,
+        'features_used': 'Numerical + Categorical',
+        'data_size': mixed_array.shape,
+        'gamma': optimal_gamma
+    }
+    
+    # 4. DBSCAN (chỉ numerical)
+    from sklearn.cluster import DBSCAN
+    dbscan = DBSCAN(eps=0.5, min_samples=10)
+    dbscan_labels = dbscan.fit_predict(numerical_scaled)
+    n_clusters_dbscan = len(set(dbscan_labels)) - (1 if -1 in dbscan_labels else 0)
+    n_noise = list(dbscan_labels).count(-1)
+    
+    results_comparison['DBSCAN'] = {
+        'labels': dbscan_labels,
+        'n_clusters': n_clusters_dbscan,
+        'n_noise': n_noise,
+        'features_used': 'Numerical only',
+        'silhouette': silhouette_score(numerical_scaled, dbscan_labels) if n_clusters_dbscan > 1 else -1
+    }
+    
+    # Tạo visualization so sánh
+    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+    methods = ['K-means', 'K-modes', 'K-prototypes', 'DBSCAN']
+    
+    for idx, method in enumerate(methods):
+        row = idx // 2
+        col = idx % 2
+        ax = axes[row, col]
+        
+        labels = results_comparison[method]['labels']
+        
+        if method in ['K-means', 'DBSCAN']:
+            # Sử dụng 2 numerical features đầu tiên để visualize
+            scatter = ax.scatter(data[numerical_features[0]], data[numerical_features[1]], 
+                               c=labels, cmap='tab10', alpha=0.6)
+            ax.set_xlabel(numerical_features[0])
+            ax.set_ylabel(numerical_features[1])
+        else:
+            # Cho K-modes và K-prototypes, tạo một biểu đồ phân phối cluster
+            unique_labels, counts = np.unique(labels, return_counts=True)
+            ax.bar(range(len(counts)), counts, color=plt.cm.tab10(range(len(counts))))
+            ax.set_xlabel('Cluster ID')
+            ax.set_ylabel('Number of Customers')
+            ax.set_xticks(range(len(counts)))
+            ax.set_xticklabels([f'C{i}' for i in unique_labels])
+        
+        ax.set_title(f'{method}')
+        ax.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Tạo bảng so sánh
+    comparison_table = []
+    for method, results in results_comparison.items():
+        n_clusters = len(np.unique(results['labels']))
+        if method == 'DBSCAN':
+            n_clusters = results['n_clusters']
+        
+        row = {
+            'Method': method,
+            'N_Clusters': n_clusters,
+            'Features_Used': results['features_used'],
+            'Data_Shape': f"{results['data_size'][0]} × {results['data_size'][1]}",
+        }
+        
+        if 'silhouette' in results:
+            row['Silhouette_Score'] = f"{results['silhouette']:.3f}"
+        else:
+            row['Silhouette_Score'] = 'N/A'
+        
+        if 'cost' in results:
+            row['Cost'] = f"{results['cost']:.2f}"
+        else:
+            row['Cost'] = 'N/A'
+        
+        comparison_table.append(row)
+    
+    comparison_df = pd.DataFrame(comparison_table)
+    print("\nBảng so sánh các phương pháp:")
+    print(comparison_df.to_string(index=False))
+    
+    # Business recommendations
+    print("\n=== KHUYẾN NGHỊ SỬ DỤNG ===")
+    print("""
+    1. K-means: Tốt cho dữ liệu numerical, nhanh, dễ hiểu
+       → Phù hợp: RFM analysis, behavioral segmentation
+    
+    2. K-modes: Chuyên cho dữ liệu categorical
+       → Phù hợp: Demographic segmentation, product preference
+    
+    3. K-prototypes: Tốt nhất cho mixed data
+       → Phù hợp: Comprehensive customer profiling
+    
+    4. DBSCAN: Tự động tìm clusters, phát hiện outliers
+       → Phù hợp: Fraud detection, anomaly detection
+       
+    5. Mean-Shift: Không cần định số clusters trước
+       → Phù hợp: Exploratory analysis, unknown market structure
+    """)
+    
+    return results_comparison
+
+comparison_results = compare_clustering_methods(
+    mixed_customer_data, numerical_features, categorical_features
+)
+
+#### 4.2.3. Áp dụng K-prototypes cho dữ liệu Mixed
+
+```python
+def kprototypes_segmentation(data, numerical_features, categorical_features, n_clusters_range=range(2, 8)):
+    """
+    Phân khúc khách hàng sử dụng K-prototypes cho mixed data
+    """
+    # Chuẩn bị dữ liệu
+    # K-prototypes cần numerical data được chuẩn hóa
+    scaler = StandardScaler()
+    numerical_data_scaled = scaler.fit_transform(data[numerical_features])
+    
+    # Tạo mixed data array
+    mixed_array = np.column_stack([
+        numerical_data_scaled,
+        data[categorical_features].values
+    ])
+    
+    # Xác định chỉ số của categorical features
+    categorical_indices = list(range(len(numerical_features), len(numerical_features) + len(categorical_features)))
+    
+    # Tìm số cluster và gamma tối ưu
+    costs = []
+    gammas = [0.5, 1.0, 1.5, 2.0]  # Thử nghiệm với các giá trị gamma khác nhau
+    best_gamma = 1.0
+    
+    print("Tìm kiếm gamma tối ưu...")
+    for gamma in gammas:
+        gamma_costs = []
+        for k in n_clusters_range:
+            kproto = KPrototypes(n_clusters=k, init='Huang', gamma=gamma, n_init=5, verbose=0, random_state=42)
+            kproto.fit(mixed_array, categorical=categorical_indices)
+            gamma_costs.append(kproto.cost_)
+        
+        avg_cost = np.mean(gamma_costs)
+        print(f"Gamma {gamma}: Average cost = {avg_cost:.2f}")
+        costs.append(gamma_costs)
+    
+    # Chọn gamma với cost thấp nhất (có thể tùy chỉnh logic này)
+    best_gamma_idx = np.argmin([np.mean(cost_list) for cost_list in costs])
+    best_gamma = gammas[best_gamma_idx]
+    best_costs = costs[best_gamma_idx]
+    
+    print(f"Gamma tối ưu: {best_gamma}")
+    
+    # Vẽ elbow curve với gamma tối ưu
+    plt.figure(figsize=(12, 5))
+    
+    plt.subplot(1, 2, 1)
+    plt.plot(n_clusters_range, best_costs, 'ro-')
+    plt.xlabel('Số Clusters')
+    plt.ylabel('Cost')
+    plt.title(f'Elbow Method for K-prototypes (γ={best_gamma})')
+    plt.grid(True)
+    
+    # So sánh các gamma
+    plt.subplot(1, 2, 2)
+    for i, gamma in enumerate(gammas):
+        plt.plot(n_clusters_range, costs[i], 'o-', label=f'γ={gamma}')
+    plt.xlabel('Số Clusters')
+    plt.ylabel('Cost')
+    plt.title('Cost comparison for different γ values')
+    plt.legend()
+    plt.grid(True)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Chọn k tối ưu
+    optimal_k = 4  # Có thể điều chỉnh dựa trên elbow curve
+    
+    # Fit final model
+    final_kproto = KPrototypes(n_clusters=optimal_k, init='Huang', gamma=best_gamma, n_init=10, verbose=1, random_state=42)
+    clusters = final_kproto.fit_predict(mixed_array, categorical=categorical_indices)
+    
+    # Thêm vào data
+    data_with_clusters = data.copy()
+    data_with_clusters['kprototypes_cluster'] = clusters
+    
+    # Phân tích chi tiết từng cluster
+    print(f"\nPhân tích K-prototypes clusters (k={optimal_k}, γ={best_gamma}):")
+    
+    for cluster_id in range(optimal_k):
+        cluster_data = data_with_clusters[data_with_clusters['kprototypes_cluster'] == cluster_id]
+        print(f"\n{'='*50}")
+        print(f"CLUSTER {cluster_id}: {len(cluster_data)} khách hàng ({len(cluster_data)/len(data)*100:.1f}%)")
+        print(f"{'='*50}")
+        
+        # Phân tích numerical features
+        print("Numerical Features:")
+        for feature in numerical_features:
+            mean_val = cluster_data[feature].mean()
+            median_val = cluster_data[feature].median()
+            std_val = cluster_data[feature].std()
+            print(f"  {feature}: Mean={mean_val:.2f}, Median={median_val:.2f}, Std={std_val:.2f}")
+        
+        # Phân tích categorical features
+        print("\nCategorical Features:")
+        for feature in categorical_features:
+            value_counts = cluster_data[feature].value_counts()
+            mode_value = value_counts.index[0]
+            mode_percentage = (value_counts.iloc[0] / len(cluster_data)) * 100
+            print(f"  {feature}:")
+            for val, count in value_counts.head(3).items():
+                percentage = (count / len(cluster_data)) * 100
+                print(f"    {val}: {count} ({percentage:.1f}%)")
+        
+        # Business interpretation
+        print("\nBusiness Profile:")
+        avg_age = cluster_data['age'].mean()
+        avg_income = cluster_data['income'].mean()
+        avg_spending = cluster_data['spending_score'].mean()
+        
+        if avg_income > 80000 and avg_spending > 60:
+            profile = "High-Value Customers"
+        elif avg_age < 30 and avg_spending > 50:
+            profile = "Young Active Spenders"
+        elif avg_income < 50000:
+            profile = "Budget-Conscious Customers"
+        elif avg_age > 50:
+            profile = "Mature/Senior Customers"
+        else:
+            profile = "Standard Customers"
+        
+        print(f"  Suggested Profile: {profile}")
+    
+    return data_with_clusters, final_kproto, best_gamma
+
+# Áp dụng K-prototypes
+numerical_features = ['age', 'income', 'spending_score']
+categorical_features = ['gender', 'education', 'occupation', 'city_tier']
+
+mixed_data_kproto, kproto_model, optimal_gamma = kprototypes_segmentation(
+    mixed_customer_data, numerical_features, categorical_features
+)
+
+#### 4.2.2. Áp dụng K-modes cho dữ liệu Categorical
+
+```python
+def kmodes_segmentation(data, categorical_features, n_clusters_range=range(2, 10)):
+    """
+    Phân khúc khách hàng sử dụng K-modes cho categorical data
+    """
+    # Lấy dữ liệu categorical
+    categorical_data = data[categorical_features].values
+    
+    # Tìm số cluster tối ưu cho K-modes
+    costs = []
+    for k in n_clusters_range:
+        kmodes_model = KModes(n_clusters=k, init='Huang', n_init=5, verbose=0, random_state=42)
+        kmodes_model.fit(categorical_data)
+        costs.append(kmodes_model.cost_)
+    
+    # Vẽ biểu đồ elbow
+    plt.figure(figsize=(10, 6))
+    plt.plot(n_clusters_range, costs, 'bo-')
+    plt.xlabel('Số Clusters')
+    plt.ylabel('Cost')
+    plt.title('Elbow Method for K-modes')
+    plt.grid(True)
+    plt.show()
+    
+    # Chọn k tối ưu (có thể dựa vào elbow hoặc business logic)
+    optimal_k = 4  # Có thể điều chỉnh dựa trên biểu đồ
+    
+    # Fit model với k tối ưu
+    final_kmodes = KModes(n_clusters=optimal_k, init='Huang', n_init=10, verbose=1, random_state=42)
+    clusters = final_kmodes.fit_predict(categorical_data)
+    
+    # Thêm clusters vào data
+    data_with_clusters = data.copy()
+    data_with_clusters['kmodes_cluster'] = clusters
+    
+    # Phân tích clusters
+    print(f"\nPhân tích K-modes clusters (k={optimal_k}):")
+    for cluster_id in range(optimal_k):
+        cluster_data = data_with_clusters[data_with_clusters['kmodes_cluster'] == cluster_id]
+        print(f"\nCluster {cluster_id}: {len(cluster_data)} khách hàng ({len(cluster_data)/len(data)*100:.1f}%)")
+        
+        for feature in categorical_features:
+            mode_value = cluster_data[feature].mode().values[0]
+            percentage = (cluster_data[feature] == mode_value).mean() * 100
+            print(f"  {feature}: {mode_value} ({percentage:.1f}%)")
+    
+    # Cluster centers (modes)
+    print("\nCluster Centers (Modes):")
+    for i, center in enumerate(final_kmodes.cluster_centroids_):
+        print(f"Cluster {i}:", center)
+    
+    return data_with_clusters, final_kmodes
+
+# Áp dụng K-modes
+categorical_features = ['gender', 'education', 'occupation', 'city_tier']
+mixed_data_kmodes, kmodes_model = kmodes_segmentation(mixed_customer_data, categorical_features)
+
+### 4.2. K-modes và K-prototypes cho dữ liệu Categorical
+
+#### 4.2.1. Lý thuyết K-modes và K-prototypes
+
+K-modes và K-prototypes được thiết kế để xử lý dữ liệu categorical và mixed data.
+
+```python
+# Cài đặt thư viện kmodes
+# pip install kmodes
+
+from kmodes.kmodes import KModes
+from kmodes.kprototypes import KPrototypes
+
+def explain_kmodes_kprototypes():
+    """
+    Giải thích K-modes và K-prototypes
+    """
+    print("=== K-MODES VÀ K-PROTOTYPES ===")
+    print("""
+    K-modes (cho dữ liệu categorical):
+    - Sử dụng mode thay vì mean để tính trung tâm cluster
+    - Dùng Hamming distance thay vì Euclidean distance
+    - Mode = giá trị xuất hiện nhiều nhất trong cluster
+    
+    K-prototypes (cho dữ liệu mixed):
+    - Kết hợp K-means (cho numerical) và K-modes (cho categorical)
+    - Distance = numerical_distance + γ × categorical_distance
+    - γ là trọng số cân bằng giữa 2 loại dữ liệu
+    """)
+
+explain_kmodes_kprototypes()
+
+def create_mixed_customer_data():
+    """
+    Tạo dữ liệu khách hàng mixed (numerical + categorical)
+    """
+    np.random.seed(789)
+    n_customers = 1000
+    
+    # Dữ liệu numerical
+    numerical_data = {
+        'age': np.random.normal(35, 12, n_customers),
+        'income': np.random.lognormal(10, 0.5, n_customers),
+        'spending_score': np.random.normal(50, 20, n_customers)
+    }
+    
+    # Dữ liệu categorical
+    genders = np.random.choice(['Male', 'Female', 'Other'], n_customers, p=[0.45, 0.5, 0.05])
+    education = np.random.choice(['High School', 'Bachelor', 'Master', 'PhD'], 
+                               n_customers, p=[0.3, 0.4, 0.25, 0.05])
+    occupation = np.random.choice(['Student', 'Professional', 'Manager', 'Executive', 'Retired'],
+                                n_customers, p=[0.15, 0.35, 0.25, 0.15, 0.1])
+    city_tier = np.random.choice(['Tier 1', 'Tier 2', 'Tier 3'], 
+                               n_customers, p=[0.4, 0.35, 0.25])
+    
+    mixed_data = pd.DataFrame({
+        'age': np.clip(numerical_data['age'], 18, 70),
+        'income': numerical_data['income'],
+        'spending_score': np.clip(numerical_data['spending_score'], 0, 100),
+        'gender': genders,
+        'education': education,
+        'occupation': occupation,
+        'city_tier': city_tier
+    })
+    
+    return mixed_data
+
+mixed_customer_data = create_mixed_customer_data()
+print("Mixed Customer Data Sample:")
+print(mixed_customer_data.head(10))
+print("\nData Types:")
+print(mixed_customer_data.dtypes)
+# Bài Học: Unsupervised Learning và Customer Segmentation
+
+## Mục tiêu bài học
+- Nắm vững các kỹ thuật clustering tiên tiến cho customer segmentation
+- Học cách lựa chọn số cluster tối ưu một cách khoa học
+- Áp dụng các phương pháp đánh giá clustering cho các bài toán kinh doanh
+- Thực hành với các thuật toán clustering phổ biến: Mean-Shift, K-modes, K-prototypes
+- Phát triển kỹ năng data science trong lĩnh vực marketing
+
+---
+
+## Phần 1: Cải tiến phương pháp Customer Segmentation với các kỹ thuật Clustering tiên tiến
+
+### 1.1. Giới thiệu về Customer Segmentation
+
+Customer Segmentation là quá trình chia khách hàng thành các nhóm dựa trên đặc điểm tương tự. Điều này giúp doanh nghiệp:
+- Tối ưu hóa chiến lược marketing
+- Cá nhân hóa trải nghiệm khách hàng
+- Tăng hiệu quả bán hàng và lợi nhuận
+
+### 1.2. Các kỹ thuật Clustering cơ bản vs. Tiên tiến
+
+**Kỹ thuật cơ bản:**
+- K-Means: Phân cụm dựa trên khoảng cách Euclidean
+- Hierarchical Clustering: Xây dựng cây phân cụm
+
+**Kỹ thuật tiên tiến:**
+- DBSCAN: Phát hiện cluster có mật độ cao
+- Gaussian Mixture Models (GMM): Mô hình xác suất
+- Spectral Clustering: Sử dụng eigenvalues của ma trận similarity
+
+### 1.3. Ví dụ thực hành với DBSCAN
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Tạo dữ liệu mẫu khách hàng
+np.random.seed(42)
+n_customers = 1000
+
+# Tạo các đặc trung khách hàng
+data = {
+    'annual_spending': np.random.normal(5000, 2000, n_customers),
+    'frequency_purchases': np.random.poisson(12, n_customers),
+    'avg_order_value': np.random.normal(150, 50, n_customers),
+    'days_since_last_purchase': np.random.exponential(30, n_customers)
+}
+
+customer_df = pd.DataFrame(data)
+
+# Chuẩn hóa dữ liệu
+scaler = StandardScaler()
+scaled_data = scaler.fit_transform(customer_df)
+
+# Áp dụng DBSCAN
+dbscan = DBSCAN(eps=0.5, min_samples=10)
+clusters = dbscan.fit_predict(scaled_data)
+
+customer_df['cluster'] = clusters
+
+print(f"Số cluster được tìm thấy: {len(np.unique(clusters[clusters != -1]))}")
+print(f"Số outlier: {np.sum(clusters == -1)}")
+
+# Visualize kết quả
+plt.figure(figsize=(12, 8))
+scatter = plt.scatter(customer_df['annual_spending'], 
+                     customer_df['frequency_purchases'], 
+                     c=clusters, cmap='tab10', alpha=0.6)
+plt.xlabel('Annual Spending')
+plt.ylabel('Frequency of Purchases')
+plt.title('Customer Segmentation with DBSCAN')
+plt.colorbar(scatter)
+plt.show()
+```
+
+### 1.4. So sánh với Gaussian Mixture Models
+
+```python
+from sklearn.mixture import GaussianMixture
+from sklearn.metrics import silhouette_score
+
+# GMM với số cluster tối ưu
+best_n_components = 4
+gmm = GaussianMixture(n_components=best_n_components, random_state=42)
+gmm_clusters = gmm.fit_predict(scaled_data)
+
+customer_df['gmm_cluster'] = gmm_clusters
+
+# So sánh hiệu suất
+dbscan_score = silhouette_score(scaled_data, clusters) if len(np.unique(clusters)) > 1 else -1
+gmm_score = silhouette_score(scaled_data, gmm_clusters)
+
+print(f"DBSCAN Silhouette Score: {dbscan_score:.3f}")
+print(f"GMM Silhouette Score: {gmm_score:.3f}")
+```
+
+---
+
+## Phần 2: Phương pháp khoa học để lựa chọn số cluster tối ưu
+
+### 2.1. Các phương pháp đánh giá số cluster
+
+#### 2.1.1. Elbow Method
+```python
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+
+def elbow_method(data, max_clusters=15):
+    """
+    Tìm số cluster tối ưu bằng Elbow Method
+    """
+    inertias = []
+    K_range = range(1, max_clusters + 1)
+    
+    for k in K_range:
+        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+        kmeans.fit(data)
+        inertias.append(kmeans.inertia_)
+    
+    # Vẽ biểu đồ Elbow
+    plt.figure(figsize=(10, 6))
+    plt.plot(K_range, inertias, 'bo-')
+    plt.xlabel('Số Clusters (k)')
+    plt.ylabel('Inertia')
+    plt.title('Elbow Method cho việc tìm k tối ưu')
+    plt.grid(True)
+    plt.show()
+    
+    return inertias
+
+inertias = elbow_method(scaled_data)
+```
+
+#### 2.1.2. Silhouette Analysis
+```python
+from sklearn.metrics import silhouette_score, silhouette_samples
+
+def silhouette_analysis(data, max_clusters=15):
+    """
+    Phân tích Silhouette để tìm số cluster tối ưu
+    """
+    silhouette_scores = []
+    K_range = range(2, max_clusters + 1)
+    
+    for k in K_range:
+        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+        cluster_labels = kmeans.fit_predict(data)
+        silhouette_avg = silhouette_score(data, cluster_labels)
+        silhouette_scores.append(silhouette_avg)
+    
+    # Vẽ biểu đồ Silhouette Score
+    plt.figure(figsize=(10, 6))
+    plt.plot(K_range, silhouette_scores, 'ro-')
+    plt.xlabel('Số Clusters (k)')
+    plt.ylabel('Silhouette Score')
+    plt.title('Silhouette Analysis cho việc tìm k tối ưu')
+    plt.grid(True)
+    plt.show()
+    
+    # Tìm k tối ưu
+    optimal_k = K_range[np.argmax(silhouette_scores)]
+    print(f"Số cluster tối ưu: {optimal_k}")
+    print(f"Silhouette Score tối ưu: {max(silhouette_scores):.3f}")
+    
+    return silhouette_scores, optimal_k
+
+silhouette_scores, optimal_k = silhouette_analysis(scaled_data)
+```
+
+#### 2.1.3. Gap Statistic Method
+```python
+def gap_statistic(data, max_clusters=15, n_refs=10):
+    """
+    Tính Gap Statistic để tìm số cluster tối ưu
+    """
+    gaps = []
+    s_k = []
+    K_range = range(1, max_clusters + 1)
+    
+    for k in K_range:
+        # Tính Wk cho dữ liệu gốc
+        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+        kmeans.fit(data)
+        
+        # Tính within-cluster sum of squares
+        wk = kmeans.inertia_
+        
+        # Tạo dữ liệu reference và tính Wk*
+        ref_wks = []
+        for _ in range(n_refs):
+            # Tạo dữ liệu ngẫu nhiên có cùng kích thước và phân phối
+            ref_data = np.random.uniform(data.min(axis=0), data.max(axis=0), 
+                                       size=data.shape)
+            ref_kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+            ref_kmeans.fit(ref_data)
+            ref_wks.append(ref_kmeans.inertia_)
+        
+        # Tính Gap
+        gap = np.log(np.mean(ref_wks)) - np.log(wk)
+        gaps.append(gap)
+        
+        # Tính standard error
+        s_k.append(np.sqrt(np.var(np.log(ref_wks)) * (1 + 1/n_refs)))
+    
+    # Vẽ biểu đồ Gap Statistic
+    plt.figure(figsize=(10, 6))
+    plt.errorbar(K_range, gaps, yerr=s_k, fmt='o-', capsize=5)
+    plt.xlabel('Số Clusters (k)')
+    plt.ylabel('Gap Statistic')
+    plt.title('Gap Statistic cho việc tìm k tối ưu')
+    plt.grid(True)
+    plt.show()
+    
+    return gaps, s_k
+
+gaps, s_k = gap_statistic(scaled_data)
+```
+
+### 2.2. Kết hợp các phương pháp để ra quyết định cuối cùng
+
+```python
+def comprehensive_cluster_evaluation(data, max_clusters=15):
+    """
+    Đánh giá tổng hợp để tìm số cluster tối ưu
+    """
+    results = {
+        'k': [],
+        'inertia': [],
+        'silhouette': [],
+        'calinski_harabasz': [],
+        'davies_bouldin': []
+    }
+    
+    from sklearn.metrics import calinski_harabasz_score, davies_bouldin_score
+    
+    for k in range(2, max_clusters + 1):
+        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
+        labels = kmeans.fit_predict(data)
+        
+        results['k'].append(k)
+        results['inertia'].append(kmeans.inertia_)
+        results['silhouette'].append(silhouette_score(data, labels))
+        results['calinski_harabasz'].append(calinski_harabasz_score(data, labels))
+        results['davies_bouldin'].append(davies_bouldin_score(data, labels))
+    
+    # Chuẩn hóa các chỉ số để so sánh
+    results_df = pd.DataFrame(results)
+    
+    # Chuẩn hóa (cao hơn = tốt hơn cho tất cả)
+    results_df['inertia_norm'] = 1 - (results_df['inertia'] - results_df['inertia'].min()) / \
+                                (results_df['inertia'].max() - results_df['inertia'].min())
+    results_df['silhouette_norm'] = (results_df['silhouette'] - results_df['silhouette'].min()) / \
+                                   (results_df['silhouette'].max() - results_df['silhouette'].min())
+    results_df['calinski_harabasz_norm'] = (results_df['calinski_harabasz'] - results_df['calinski_harabasz'].min()) / \
+                                          (results_df['calinski_harabasz'].max() - results_df['calinski_harabasz'].min())
+    results_df['davies_bouldin_norm'] = 1 - (results_df['davies_bouldin'] - results_df['davies_bouldin'].min()) / \
+                                       (results_df['davies_bouldin'].max() - results_df['davies_bouldin'].min())
+    
+    # Tính composite score
+    results_df['composite_score'] = (results_df['silhouette_norm'] * 0.4 + 
+                                   results_df['calinski_harabasz_norm'] * 0.3 +
+                                   results_df['davies_bouldin_norm'] * 0.2 +
+                                   results_df['inertia_norm'] * 0.1)
+    
+    optimal_k = results_df.loc[results_df['composite_score'].idxmax(), 'k']
+    
+    print("Kết quả đánh giá tổng hợp:")
+    print(results_df[['k', 'silhouette', 'calinski_harabasz', 'davies_bouldin', 'composite_score']])
+    print(f"\nSố cluster tối ưu được khuyến nghị: {optimal_k}")
+    
+    return results_df, optimal_k
+
+results_df, recommended_k = comprehensive_cluster_evaluation(scaled_data)
+```
+
+---
+
+## Phần 3: Áp dụng các phương pháp đánh giá cho nhiều bài toán kinh doanh
+
+### 3.1. Case Study 1: Phân khúc khách hàng E-commerce
+
+```python
+def ecommerce_segmentation_case():
+    """
+    Case study: Phân khúc khách hàng cho trang thương mại điện tử
+    """
+    # Tạo dữ liệu mô phỏng e-commerce
+    np.random.seed(123)
+    n_customers = 2000
+    
+    ecommerce_data = pd.DataFrame({
+        'recency': np.random.exponential(30, n_customers),  # Ngày từ lần mua cuối
+        'frequency': np.random.poisson(8, n_customers),     # Số lần mua
+        'monetary': np.random.lognormal(6, 1, n_customers), # Tổng tiền đã chi
+        'avg_session_duration': np.random.normal(15, 8, n_customers),  # Phút
+        'page_views_per_session': np.random.poisson(12, n_customers),
+        'cart_abandonment_rate': np.random.beta(2, 8, n_customers),
+    })
+    
+    # Loại bỏ outliers
+    ecommerce_data = ecommerce_data[ecommerce_data['avg_session_duration'] > 0]
+    
+    print("Thống kê mô tả dữ liệu E-commerce:")
+    print(ecommerce_data.describe())
     
     # Chuẩn hóa dữ liệu
     scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(df[features])
+    ecommerce_scaled = scaler.fit_transform(ecommerce_data)
     
-    # Chạy K-means nhiều lần với random seeds khác nhau
-    results = []
-    base_labels = None
+    # Tìm số cluster tối ưu
+    _, optimal_k = comprehensive_cluster_evaluation(ecommerce_scaled, max_clusters=12)
     
-    for i in range(n_runs):
-        kmeans = KMeans(n_clusters=3, random_state=i, n_init=10)
-        labels = kmeans.fit_predict(scaled_data)
+    # Thực hiện clustering với k tối ưu
+    final_kmeans = KMeans(n_clusters=optimal_k, random_state=42, n_init=10)
+    ecommerce_data['cluster'] = final_kmeans.fit_predict(ecommerce_scaled)
+    
+    # Phân tích từng segment
+    segment_analysis = ecommerce_data.groupby('cluster').agg({
+        'recency': ['mean', 'median'],
+        'frequency': ['mean', 'median'], 
+        'monetary': ['mean', 'median'],
+        'avg_session_duration': ['mean', 'median'],
+        'page_views_per_session': ['mean', 'median'],
+        'cart_abandonment_rate': ['mean', 'median']
+    }).round(2)
+    
+    print("\nPhân tích các segment khách hàng:")
+    print(segment_analysis)
+    
+    # Đặt tên cho các segment
+    segment_names = []
+    for cluster_id in range(optimal_k):
+        cluster_data = ecommerce_data[ecommerce_data['cluster'] == cluster_id]
         
-        if base_labels is None:
-            base_labels = labels
+        avg_recency = cluster_data['recency'].mean()
+        avg_frequency = cluster_data['frequency'].mean()
+        avg_monetary = cluster_data['monetary'].mean()
+        
+        if avg_recency < 20 and avg_frequency > 10 and avg_monetary > 1000:
+            segment_names.append("Champions")
+        elif avg_recency < 30 and avg_frequency > 6:
+            segment_names.append("Loyal Customers")
+        elif avg_monetary > 800:
+            segment_names.append("Big Spenders") 
+        elif avg_recency > 60:
+            segment_names.append("At Risk")
         else:
-            # Tính ARI với kết quả đầu tiên
-            ari_score = adjusted_rand_score(base_labels, labels)
-            results.append(ari_score)
+            segment_names.append(f"Segment {cluster_id + 1}")
     
-    avg_ari = np.mean(results)
-    std_ari = np.std(results)
+    print(f"\nTên các segment: {segment_names}")
     
-    print(f"Adjusted Rand Index trung bình: {avg_ari:.3f}")
-    print(f"Độ lệch chuẩn: {std_ari:.3f}")
+    # Visualization
+    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
     
-    if avg_ari > 0.8:
-        print("✓ Clustering rất ổn định")
-    elif avg_ari > 0.6:
-        print("⚠ Clustering khá ổn định")
-    else:
-        print("✗ Clustering không ổn định - cần điều chỉnh")
+    # RFM Analysis
+    scatter1 = axes[0,0].scatter(ecommerce_data['recency'], ecommerce_data['frequency'], 
+                                c=ecommerce_data['cluster'], cmap='tab10', alpha=0.6)
+    axes[0,0].set_xlabel('Recency (days)')
+    axes[0,0].set_ylabel('Frequency')
+    axes[0,0].set_title('Recency vs Frequency')
     
-    return results
+    scatter2 = axes[0,1].scatter(ecommerce_data['frequency'], ecommerce_data['monetary'],
+                                c=ecommerce_data['cluster'], cmap='tab10', alpha=0.6)
+    axes[0,1].set_xlabel('Frequency')
+    axes[0,1].set_ylabel('Monetary')
+    axes[0,1].set_title('Frequency vs Monetary')
+    
+    scatter3 = axes[1,0].scatter(ecommerce_data['avg_session_duration'], 
+                                ecommerce_data['page_views_per_session'],
+                                c=ecommerce_data['cluster'], cmap='tab10', alpha=0.6)
+    axes[1,0].set_xlabel('Avg Session Duration (min)')
+    axes[1,0].set_ylabel('Page Views per Session')
+    axes[1,0].set_title('Engagement Metrics')
+    
+    # Distribution của các cluster
+    cluster_counts = ecommerce_data['cluster'].value_counts().sort_index()
+    axes[1,1].bar(range(len(cluster_counts)), cluster_counts.values)
+    axes[1,1].set_xlabel('Cluster')
+    axes[1,1].set_ylabel('Number of Customers')
+    axes[1,1].set_title('Customer Distribution by Cluster')
+    axes[1,1].set_xticks(range(len(cluster_counts)))
+    axes[1,1].set_xticklabels([f'C{i}' for i in cluster_counts.index])
+    
+    plt.tight_layout()
+    plt.show()
+    
+    return ecommerce_data, segment_names
+
+ecommerce_results, segment_names = ecommerce_segmentation_case()
 ```
 
+### 3.2. Case Study 2: Phân khúc khách hàng Ngân hàng
+
+```python
+def banking_segmentation_case():
+    """
+    Case study: Phân khúc khách hàng ngân hàng
+    """
+    np.random.seed(456)
+    n_customers = 1500
+    
+    banking_data = pd.DataFrame({
+        'account_balance': np.random.lognormal(8, 1.5, n_customers),
+        'credit_score': np.random.normal(650, 100, n_customers),
+        'loan_amount': np.random.lognormal(9, 1, n_customers) * np.random.binomial(1, 0.3, n_customers),
+        'num_products': np.random.poisson(2.5, n_customers),
+        'transaction_frequency': np.random.poisson(25, n_customers),
+        'age': np.random.normal(45, 15, n_customers),
+        'income': np.random.lognormal(10, 0.5, n_customers)
+    })
+    
+    # Xử lý dữ liệu
+    banking_data['credit_score'] = np.clip(banking_data['credit_score'], 300, 850)
+    banking_data['age'] = np.clip(banking_data['age'], 18, 80)
+    
+    print("Banking Customer Data Overview:")
+    print(banking_data.describe())
+    
+    # Feature engineering
+    banking_data['loan_to_income_ratio'] = banking_data['loan_amount'] / banking_data['income']
+    banking_data['balance_to_income_ratio'] = banking_data['account_balance'] / banking_data['income']
+    
+    # Chuẩn hóa
+    features_for_clustering = ['account_balance', 'credit_score', 'loan_amount', 
+                             'num_products', 'transaction_frequency', 'age', 'income',
+                             'loan_to_income_ratio', 'balance_to_income_ratio']
+    
+    scaler = StandardScaler()
+    banking_scaled = scaler.fit_transform(banking_data[features_for_clustering])
+    
+    # Clustering
+    _, optimal_k = comprehensive_cluster_evaluation(banking_scaled, max_clusters=10)
+    
+    kmeans = KMeans(n_clusters=optimal_k, random_state=42, n_init=10)
+    banking_data['cluster'] = kmeans.fit_predict(banking_scaled)
+    
+    # Phân tích segments
+    print(f"\nBanking Segments Analysis (k={optimal_k}):")
+    segment_analysis = banking_data.groupby('cluster')[features_for_clustering].mean().round(2)
+    print(segment_analysis)
+    
+    # Business insights
+    print("\nBusiness Insights:")
+    for cluster_id in range(optimal_k):
+        cluster_data = banking_data[banking_data['cluster'] == cluster_id]
+        size = len(cluster_data)
+        avg_balance = cluster_data['account_balance'].mean()
+        avg_credit = cluster_data['credit_score'].mean()
+        avg_products = cluster_data['num_products'].mean()
+        
+        print(f"Cluster {cluster_id}: {size} customers")
+        print(f"  - Avg Balance: ${avg_balance:,.0f}")
+        print(f"  - Avg Credit Score: {avg_credit:.0f}")
+        print(f"  - Avg Products: {avg_products:.1f}")
+        
+        # Characterization
+        if avg_balance > 100000 and avg_credit > 700:
+            print("  - Profile: Premium/Private Banking Customers")
+        elif avg_products > 3 and avg_balance > 50000:
+            print("  - Profile: High-Value Multi-Product Customers")  
+        elif avg_credit < 600:
+            print("  - Profile: High-Risk/Subprime Customers")
+        else:
+            print("  - Profile: Standard Banking Customers")
+        print()
+    
+    return banking_data
+
+banking_results = banking_segmentation_case()
+```
+
+### 3.3. Đánh giá và So sánh Hiệu quả
+
+```python
+def evaluate_segmentation_quality(data, labels, feature_names):
+    """
+    Đánh giá chất lượng segmentation từ góc độ business
+    """
+    from sklearn.metrics import calinski_harabasz_score, davies_bouldin_score
+    
+    # Các chỉ số kỹ thuật
+    silhouette_avg = silhouette_score(data, labels)
+    calinski_harabasz = calinski_harabasz_score(data, labels)
+    davies_bouldin = davies_bouldin_score(data, labels)
+    
+    print("=== ĐÁNH GIÁ CHẤT LƯỢNG SEGMENTATION ===")
+    print(f"Silhouette Score: {silhouette_avg:.3f} (Càng gần 1 càng tốt)")
+    print(f"Calinski-Harabasz Index: {calinski_harabasz:.2f} (Càng cao càng tốt)")
+    print(f"Davies-Bouldin Index: {davies_bouldin:.3f} (Càng thấp càng tốt)")
+    
+    # Phân tích business metrics
+    df_with_clusters = pd.DataFrame(data, columns=feature_names)
+    df_with_clusters['cluster'] = labels
+    
+    print("\n=== PHÂN TÍCH BUSINESS METRICS ===")
+    
+    # Tính coefficient of variation cho mỗi feature trong mỗi cluster
+    cluster_stability = {}
+    for cluster_id in np.unique(labels):
+        if cluster_id == -1:  # Skip outliers for DBSCAN
+            continue
+        cluster_data = df_with_clusters[df_with_clusters['cluster'] == cluster_id]
+        
+        stability_scores = []
+        for feature in feature_names:
+            cv = cluster_data[feature].std() / abs(cluster_data[feature].mean()) if cluster_data[feature].mean() != 0 else float('inf')
+            stability_scores.append(cv)
+        
+        cluster_stability[cluster_id] = np.mean(stability_scores)
+    
+    avg_stability = np.mean(list(cluster_stability.values()))
+    print(f"Độ ổn định trung bình của clusters (CV): {avg_stability:.3f} (Càng thấp càng tốt)")
+    
+    # Tính separability - khoảng cách giữa các cluster centers
+    cluster_centers = []
+    for cluster_id in np.unique(labels):
+        if cluster_id == -1:
+            continue
+        cluster_data = df_with_clusters[df_with_clusters['cluster'] == cluster_id]
+        center = cluster_data[feature_names].mean().values
+        cluster_centers.append(center)
+    
+    if len(cluster_centers) > 1:
+        from scipy.spatial.distance import pdist
+        center_distances = pdist(cluster_centers)
+        avg_separation = np.mean(center_distances)
+        print(f"Độ tách biệt trung bình giữa clusters: {avg_separation:.3f} (Càng cao càng tốt)")
+    
+    # Actionability - đánh giá tính khả thi của segments
+    print("\n=== ĐÁNH GIÁ TÍNH KHẢ THI (ACTIONABILITY) ===")
+    
+    cluster_sizes = pd.Series(labels).value_counts()
+    min_segment_size = cluster_sizes.min()
+    max_segment_size = cluster_sizes.max()
+    size_ratio = max_segment_size / min_segment_size if min_segment_size > 0 else float('inf')
+    
+    print(f"Kích thước segment nhỏ nhất: {min_segment_size}")
+    print(f"Kích thước segment lớn nhất: {max_segment_size}")
+    print(f"Tỷ lệ kích thước (max/min): {size_ratio:.2f}")
+    
+    if size_ratio > 10:
+        print("⚠️  Cảnh báo: Chênh lệch kích thước segments quá lớn - có thể khó triển khai")
+    elif 3 <= len(np.unique(labels)) <= 7:
+        print("✅ Số lượng segments phù hợp cho triển khai business (3-7 segments)")
+    else:
+        print("⚠️  Số lượng segments có thể không tối ưu cho triển khai")
+    
+    return {
+        'silhouette_score': silhouette_avg,
+        'calinski_harabasz_score': calinski_harabasz,
+        'davies_bouldin_score': davies_bouldin,
+        'stability_score': avg_stability,
+        'separation_score': avg_separation if len(cluster_centers) > 1 else 0,
+        'size_ratio': size_ratio
+    }
+
+# Đánh giá cho case study e-commerce
+ecommerce_features = ['recency', 'frequency', 'monetary', 'avg_session_duration', 
+                     'page_views_per_session', 'cart_abandonment_rate']
+ecommerce_scaled_for_eval = StandardScaler().fit_transform(ecommerce_results[ecommerce_features])
+
+print("ĐÁNH GIÁ E-COMMERCE SEGMENTATION:")
+ecommerce_eval = evaluate_segmentation_quality(
+    ecommerce_scaled_for_eval, 
+    ecommerce_results['cluster'].values,
+    ecommerce_features
+)
+```
+
+---
+
+## Phần 4: Các thuật toán Clustering khác: Mean-Shift, K-modes, K-prototypes
+
+### 4.1. Mean-Shift Clustering
+
+Mean-Shift là thuật toán clustering không cần định trước số cluster, tự động tìm các mode (peak) trong phân phối dữ liệu.
+
+#### 4.1.1. Lý thuyết Mean-Shift
+
+```python
+from sklearn.cluster import MeanShift, estimate_bandwidth
+
+def explain_mean_shift():
+    """
+    Giải thích cách hoạt động của Mean-Shift
+    """
+    print("=== MEAN-SHIFT CLUSTERING ===")
+    print("""
+    Mean-Shift hoạt động theo nguyên tắc:
+    1. Đặt một 'cửa sổ' (kernel) tại mỗi điểm dữ liệu
+    2. Tính trọng tâm (centroid) của các điểm trong cửa sổ
+    3. Di chuyển cửa sổ đến trọng tâm mới
+    4. Lặp lại cho đến khi hội tụ
+    5. Các điểm hội tụ về cùng một vị trí được gộp thành 1 cluster
+    
+    Ưu điểm:
+    - Không cần định trước số cluster
+    - Có thể tìm cluster với hình dạng bất kỳ
+    - Tự động loại bỏ outliers
+    
+    Nhược điểm:
+    - Tốc độ chậm với dữ liệu lớn
+    - Nhạy cảm với tham số bandwidth
+    - Khó áp dụng với dữ liệu có nhiều chiều
+    """)
+
+explain_mean_shift()
+
+def meanshift_customer_segmentation(data, features):
+    """
+    Áp dụng Mean-Shift cho customer segmentation
+    """
+    # Chuẩn hóa dữ liệu
+    scaler = StandardScaler()
+    data_scaled = scaler.fit_transform(data[features])
+    
+    # Ước tính bandwidth tối ưu
+    bandwidth = estimate_bandwidth(data_scaled, quantile=0.2, n_samples=500)
+    
+    print(f"Bandwidth được ước tính: {bandwidth:.3f}")
+    
+    # Áp dụng Mean-Shift
+    ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
+    ms.fit(data_scaled)
+    
+    labels = ms.labels_
+    cluster_centers = ms.cluster_centers_
+    n_clusters = len(np.unique(labels))
+    
+    print(f"Số clusters được tìm thấy: {n_clusters}")
+    print(f"Số điểm được phân loại: {len(labels[labels != -1])}")
+    
+    # Thêm labels vào data
+    data_with_clusters = data.copy()
+    data_with_clusters['meanshift_cluster'] = labels
+    
+    # Phân tích clusters
+    print("\nPhân tích clusters:")
+    for cluster_id in np.unique(labels):
+        cluster_data = data_with_clusters[data_with_clusters['meanshift_cluster'] == cluster_id]
+        print(f"Cluster {cluster_id}: {len(cluster_data)} khách hàng")
+        
+        for feature in features:
+            mean_val = cluster_data[feature].mean()
+            print(f"  {feature}: {mean_val:.2f}")
+        print()
+    
+    # Visualization
+    if len(features) >= 2:
+        plt.figure(figsize=(12, 5))
+        
+        plt.subplot(1, 2, 1)
+        scatter = plt.scatter(data[features[0]], data[features[1]], 
+                            c=labels, cmap='tab10', alpha=0.6)
+        plt.scatter(cluster_centers[:, 0], cluster_centers[:, 1], 
+                   c='red', marker='x', s=200, linewidths=3)
+        plt.xlabel(features[0])
+        plt.ylabel(features[1])
+        plt.title('Mean-Shift Clustering Results')
+        plt.colorbar(scatter)
+        
+        # So sánh với K-Means
+        plt.subplot(1, 2, 2)
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        kmeans_labels = kmeans.fit_predict(data_scaled)
+        
+        scatter2 = plt.scatter(data[features[0]], data[features[1]], 
+                             c=kmeans_labels, cmap='tab10', alpha=0.6)
+        plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1],
+                   c='red', marker='x', s=200, linewidths=3)
+        plt.xlabel(features[0])
+        plt.ylabel(features[1])
+        plt.title('K-Means Clustering (for comparison)')
+        plt.colorbar(scatter2)
+        
+        plt.tight_layout()
+        plt.show()
+    
+    return data_with_clusters, ms
+
+# Áp dụng Mean-Shift cho dữ liệu e-commerce
+ecommerce_meanshift, ms_model = meanshift_customer_segmentation(
+    ecommerce_results, 
+    ['recency', 'frequency', 'monetary', 'avg_session_duration']
+)
+```
 ---
 
 ## Bài Tập Ứng Dụng
