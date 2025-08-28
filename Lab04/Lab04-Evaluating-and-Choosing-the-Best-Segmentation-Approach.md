@@ -10,6 +10,9 @@ Sau khi hoàn thành bài học này, học viên sẽ có thể:
 - Áp dụng các kỹ thuật nâng cao trong customer segmentation
 ## **Bài tập Thực hành**
 ### Bài tập cơ bản
+
+---
+
 #### **Exercise 4.01: Data Staging and Visualization**
 You will be revisiting the business problem you worked on in _Chapter 3, Unsupervised Learning and Customer Segmentation_. You are a data scientist at a leading consulting company and its new client is a popular chain of malls spread across many countries. The mall wishes to re-design its existing offers and marketing communications to improve sales in one of its key markets. An understanding of their customers is critical for this objective, and for that, good customer segmentation is needed. 
 
@@ -40,6 +43,9 @@ mall0.plot.scatter(x='Income', y='Spend_score', color='gray')
 plt.show()
 
 ```
+
+---
+
 #### **Exercise 4.02: Choosing the Number of Clusters Based on Visual Inspection**
 The goal of the exercise is to further refine the customer segmentation approach by using visual inspection to decide on the optimal number of clusters. You will try different numbers of clusters (ranging from two to six) and use visual inspection to evaluate the results and choose the right number of clusters. Continue in the Jupyter notebook from _Exercise 4.01, Data Staging and Visualization and perform_ the following steps.
 
@@ -89,6 +95,8 @@ plt.show()
 
 ```
 
+---
+
 #### **Exercise 4.03: Determining the Number of Clusters Using the Elbow Method**
 In this exercise, you will use the elbow method to identify the optimal number of clusters. The goal is to improve upon the mall customer segmentation approach by using a principled method to determine the number of clusters so that all involved stakeholders, including business teams, gain more confidence in the soundness of the approach and the resulting clusters. Try the range 2 – 10 for the number of clusters using the age and income data. Continue in the same Jupyter notebook you have been using for the exercises so far. 
 
@@ -124,6 +132,9 @@ plt.ylabel('SSE/Inertia')
 plt.show()
  
 ```
+
+---
+
 #### **Activity 4.01: Optimizing a Luxury Clothing Brand's Marketing Campaign Using Clustering**
 You are working at a company that sells luxury clothing. Their sales team has collected data on customer age, income, their annual spend at the business, and the number of days since their last purchase. The company wants to start targeted marketing campaigns but doesn't know how many different types of customers they have. If they understood the number of different segments, it would help design the campaign better by helping define the channels to use, the messaging to employ, and more. 
 Your goal is to perform customer segmentation for the company which will help them optimize their campaigns. To make your approach robust and more reliable to business, you need to arrive at the right number of segments by using the visualization approach as well as the elbow method with the sum of squared errors. 
@@ -260,9 +271,9 @@ bank_scaled = bank0.copy()
 bank_scaled['Income'] = scaler.fit_transform(bank0[['Income']])
 
 # 3.	Import KPrototypes from the kmodes module. Perform k-prototypes clustering
-#    using three clusters, specifying the education column (in column index 1) as categorical,
-#    and save the result of the clustering as a new column called cluster.
-#    Specify a random_state of 42 for consistency.
+#    using three clusters, specifying the education column (in column index 1) ,
+#    as categorical and save the result of the clustering as a new column 
+#    called cluster.Specify a random_state of 42 for consistency.
 from kmodes.kprototypes import KPrototypes
 cluster_cols = ['Income', 'Education']
 kp = KPrototypes(n_clusters=3, random_state=42)
@@ -274,65 +285,43 @@ res = bank_scaled.groupby('Cluster')['Education'].value_counts(normalize=True)
 res.unstack().plot.barh(figsize=[9,6], color=['black','lightgray','dimgray'])
 plt.show()
 
+```
 
-# 3.	Visualize the clusters using a scatter plot. 
-markers = ['x', '*', '.', '|', '_', '1', '2']
-plt.figure(figsize=[8,6])
-for clust in range(mall_scaled.Cluster.nunique()):
-     temp = mall_scaled[mall_scaled.Cluster == clust]
-     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
-                 label="Cluster"+str(clust), color='gray')
-plt.xlabel("Income")
-plt.ylabel("Spend_score")
-plt.legend()
+---
+
+#### **Exercise 4.06: Using Silhouette Score to Pick Optimal Number of Clusters**
+In this exercise, you will continue working on the mall customer segmentation case. The objective of the exercise is to identify the right number of clusters using a statistical approach that is, the silhouette score. You will perform k-means clustering on mall customers using different numbers of clusters and use the silhouette score to determine the best number of clusters to use. You will need to continue in the Jupyter notebook used for the exercises so far. 
+
+**Code:**
+
+```python
+# 1. Import pandas and read in the data from the file  
+#    Bank_Personal_Loan_Modelling-2.csv into a pandas DataFrame named bank0:
+import pandas as pd
+bank0 = pd.read_csv("Bank_Personal_Loan_Modelling-2.csv")
+bank0.head()
+
+# 2.	Standardize the Income column:
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+bank_scaled = bank0.copy()
+bank_scaled['Income'] = scaler.fit_transform(bank0[['Income']])
+
+# 3.	Import KPrototypes from the kmodes module. Perform k-prototypes clustering
+#    using three clusters, specifying the education column (in column index 1) ,
+#    as categorical and save the result of the clustering as a new column 
+#    called cluster.Specify a random_state of 42 for consistency.
+from kmodes.kprototypes import KPrototypes
+cluster_cols = ['Income', 'Education']
+kp = KPrototypes(n_clusters=3, random_state=42)
+bank_scaled['Cluster'] = kp.fit_predict(bank_scaled[cluster_cols], categorical=[1])
+
+# 4.	To understand the obtained clusters, get the proportions of
+#    the different education levels in each cluster using the following code.
+res = bank_scaled.groupby('Cluster')['Education'].value_counts(normalize=True)
+res.unstack().plot.barh(figsize=[9,6], color=['black','lightgray','dimgray'])
 plt.show()
 
-# 4.	Estimate the required bandwidth using the estimate_bandwidth method.
-#    Use the estimate_bandwidth function with a quantile value of 0.1 (an arbitrary choice)
-#    to estimate the best bandwidth to use. Print the value, fit the model,
-#    and note the number of clusters, using the following code: 
-bandwidth = estimate_bandwidth(mall_scaled[cluster_cols], quantile=0.1)
-print(bandwidth)
-
-ms = MeanShift(bandwidth=bandwidth, bin_seeding=True) ms.fit(mall_scaled[cluster_cols])
-mall_scaled['Cluster']= ms.predict(mall_scaled[cluster_cols])
-mall_scaled.Cluster.nunique()
-
-
-# 5.	Visualize the obtained clusters using a scatter plot.
-plt.figure(figsize=[8,6])
-for clust in range(mall_scaled.Cluster.nunique()):
-     temp = mall_scaled[mall_scaled.Cluster == clust]
-     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
-                 label="Cluster"+str(clust),  color='gray')
-plt.xlabel("Income")
-plt.ylabel("Spend_score")
-plt.legend()
-plt.show()
-
-
-#  6. Estimate the bandwidth again, this time with a quantile value of 0.15.
-#    Print out the number of clusters obtained. 
-bandwidth = estimate_bandwidth(mall_scaled[cluster_cols], quantile=0.15)
-print(bandwidth)
-
-# 7. Use the bandwidth calculated in the previous step to fit and extract the number of clusters.
- ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
- ms.fit(mall_scaled[cluster_cols])
- mall_scaled['Cluster']= ms.predict(mall_scaled[cluster_cols])
- mall_scaled.Cluster.nunique()
- The result should be 5. 
-
-# 8. Visualize the clusters obtained. 
-plt.figure(figsize=[8,6])
-for clust in range(mall_scaled.Cluster.nunique()):
-    temp = mall_scaled[mall_scaled.Cluster == clust]
-    plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
-                label="Cluster"+str(clust), color='gray')
- plt.xlabel("Income")
- plt.ylabel("Spend_score")
- plt.legend()
- plt.show()
 ```
 
 ---
