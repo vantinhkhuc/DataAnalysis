@@ -1127,101 +1127,97 @@ def advanced_feature_engineering(data):
     for feature
 ```
 
-### 6.3. Clustering Validation và Interpretation
+## Phần 6: Các vấn đề nâng cao
+
+### 6.1. Xử lý dữ liệu lớn và Streaming Data
 
 ```python
-def advanced_clustering_validation():
+def scalable_clustering_techniques():
     """
-    Phương pháp validation và interpretation nâng cao
+    Kỹ thuật clustering cho dữ liệu lớn
     """
-    print("=== ADVANCED CLUSTERING VALIDATION ===")
+    print("=== SCALABLE CLUSTERING TECHNIQUES ===")
     
-    # Sử dụng dữ liệu từ ensemble clustering
-    data_for_validation = enhanced_customer_data
-    features = ['age', 'income', 'spending_score', 'recency', 'frequency', 'monetary']
+    # 1. Mini-batch K-means
+    from sklearn.cluster import MiniBatchKMeans
     
-    scaler = StandardScaler()
-    data_scaled = scaler.fit_transform(data_for_validation[features])
+    print("1. Mini-batch K-means:")
+    print("   - Sử dụng random subsets của dữ liệu")
+    print("   - Tốc độ nhanh hơn K-means truyền thống")
+    print("   - Phù hợp với dữ liệu lớn")
     
-    # Perform clustering
-    kmeans = KMeans(n_clusters=4, random_state=42)
-    cluster_labels = kmeans.fit_predict(data_scaled)
+    # Simulation với dữ liệu lớn
+    np.random.seed(123)
+    large_dataset = np.random.randn(10000, 5)
     
-    # 1. Internal Validation Metrics
-    print("1. Internal Validation Metrics:")
+    # So sánh thời gian
+    import time
     
-    from sklearn.metrics import calinski_harabasz_score, davies_bouldin_score
+    # Standard K-means
+    start_time = time.time()
+    kmeans_standard = KMeans(n_clusters=5, random_state=42, n_init=1)
+    kmeans_standard.fit(large_dataset)
+    standard_time = time.time() - start_time
     
-    internal_metrics = {
-        'Silhouette Score': silhouette_score(data_scaled, cluster_labels),
-        'Calinski-Harabasz Index': calinski_harabasz_score(data_scaled, cluster_labels),
-        'Davies-Bouldin Index': davies_bouldin_score(data_scaled, cluster_labels)
-    }
+    # Mini-batch K-means
+    start_time = time.time()
+    kmeans_mini = MiniBatchKMeans(n_clusters=5, random_state=42, batch_size=1000)
+    kmeans_mini.fit(large_dataset)
+    mini_time = time.time() - start_time
     
-    for metric, value in internal_metrics.items():
-        print(f"   {metric}: {value:.3f}")
+    print(f"   Standard K-means: {standard_time:.3f} seconds")
+    print(f"   Mini-batch K-means: {mini_time:.3f} seconds")
+    print(f"   Speed improvement: {standard_time/mini_time:.1f}x")
     
-    # 2. Stability Validation (Bootstrap)
-    print("\n2. Stability Validation:")
+    # 2. Online/Incremental Learning
+    print("\n2. Online Learning với streaming data:")
     
-    def bootstrap_stability(data, n_bootstrap=100, sample_ratio=0.8):
+    def simulate_streaming_clustering(n_batches=10, batch_size=1000):
         """
-        Bootstrap stability analysis
+        Simulate streaming data clustering
         """
-        n_samples = len(data)
-        sample_size = int(n_samples * sample_ratio)
+        # Initialize model
+        online_kmeans = MiniBatchKMeans(n_clusters=4, random_state=42, batch_size=100)
         
-        stability_scores = []
+        cluster_evolution = []
         
-        for i in range(n_bootstrap):
-            # Create bootstrap sample
-            indices = np.random.choice(n_samples, sample_size, replace=True)
-            bootstrap_data = data[indices]
+        for batch_i in range(n_batches):
+            # Simulate new batch of data
+            if batch_i < 5:
+                # First half: data from distribution A
+                batch_data = np.random.multivariate_normal([2, 2], [[1, 0.5], [0.5, 1]], batch_size)
+            else:
+                # Second half: data shifts to distribution B
+                batch_data = np.random.multivariate_normal([5, 1], [[1, -0.3], [-0.3, 1]], batch_size)
             
-            # Cluster bootstrap sample
-            kmeans_boot = KMeans(n_clusters=4, random_state=i)
-            labels_boot = kmeans_boot.fit_predict(bootstrap_data)
+            # Partial fit (online learning)
+            online_kmeans.partial_fit(batch_data)
             
-            # Find corresponding labels in original clustering
-            original_labels_subset = cluster_labels[indices]
+            # Store cluster centers for analysis
+            cluster_evolution.append(online_kmeans.cluster_centers_.copy())
             
-            # Calculate ARI between bootstrap and original
-            ari = adjusted_rand_score(original_labels_subset, labels_boot)
-            stability_scores.append(ari)
+            print(f"   Batch {batch_i + 1}: Processed {batch_size} points")
         
-        return stability_scores
+        return cluster_evolution, online_kmeans
     
-    stability_scores = bootstrap_stability(data_scaled)
+    cluster_evolution, final_model = simulate_streaming_clustering()
     
-    print(f"   Bootstrap Stability (ARI):")
-    print(f"   Mean: {np.mean(stability_scores):.3f}")
-    print(f"   Std: {np.std(stability_scores):.3f}")
-    print(f"   95% CI: [{np.percentile(stability_scores, 2.5):.3f}, {np.percentile(stability_scores, 97.5):.3f}]")
+    # Visualize cluster evolution
+    plt.figure(figsize=(15, 5))
+    for i, centers in enumerate([cluster_evolution[0], cluster_evolution[4], cluster_evolution[-1]]):
+        plt.subplot(1, 3, i + 1)
+        plt.scatter(centers[:, 0], centers[:, 1], c='red', s=200, marker='x', linewidth=3)
+        plt.title(f'Cluster Centers - Batch {[1, 5, 10][i]}')
+        plt.xlabel('Feature 1')
+        plt.ylabel('Feature 2')
+        plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.show()
     
-    # 3. Feature Importance trong Clustering
-    print("\n3. Feature Importance Analysis:")
-    
-    def calculate_feature_importance(data, labels, feature_names):
-        """
-        Calculate feature importance for clustering
-        """
-        importances = []
-        
-        for i, feature_name in enumerate(feature_names):
-            # Calculate between-cluster variance for this feature
-            feature_data = data[:, i]
-            
-            between_var = 0
-            total_var = np.var(feature_data)
-            overall_mean = np.mean(feature_data)
-            
-            for cluster_id in np.unique(labels):
-                cluster_mask = labels == cluster_id
-                cluster_data = feature_data[cluster_mask]
-                cluster_mean = np.mean(cluster_data)
-                cluster_size = len(cluster_data)
-                
-                between_var +=
+    print("   → Cluster centers adapt to changing data distribution")
+
+scalable_clustering_techniques()
+```
 ### 6.2. Clustering cho High-Dimensional Data
 
 ```python
@@ -1381,102 +1377,201 @@ def high_dimensional_clustering():
         
         plt.tight_layout()
         plt.show()
+```
+### 6.3. Clustering Validation và Interpretation
 
-high_dimensional_clustering()
+```python
+def advanced_clustering_validation():
+    """
+    Phương pháp validation và interpretation nâng cao
+    """
+    print("=== ADVANCED CLUSTERING VALIDATION ===")
+    
+    # Sử dụng dữ liệu từ ensemble clustering
+    data_for_validation = enhanced_customer_data
+    features = ['age', 'income', 'spending_score', 'recency', 'frequency', 'monetary']
+    
+    scaler = StandardScaler()
+    data_scaled = scaler.fit_transform(data_for_validation[features])
+    
+    # Perform clustering
+    kmeans = KMeans(n_clusters=4, random_state=42)
+    cluster_labels = kmeans.fit_predict(data_scaled)
+    
+    # 1. Internal Validation Metrics
+    print("1. Internal Validation Metrics:")
+    
+    from sklearn.metrics import calinski_harabasz_score, davies_bouldin_score
+    
+    internal_metrics = {
+        'Silhouette Score': silhouette_score(data_scaled, cluster_labels),
+        'Calinski-Harabasz Index': calinski_harabasz_score(data_scaled, cluster_labels),
+        'Davies-Bouldin Index': davies_bouldin_score(data_scaled, cluster_labels)
+    }
+    
+    for metric, value in internal_metrics.items():
+        print(f"   {metric}: {value:.3f}")
+    
+    # 2. Stability Validation (Bootstrap)
+    print("\n2. Stability Validation:")
+    
+    def bootstrap_stability(data, n_bootstrap=100, sample_ratio=0.8):
+        """
+        Bootstrap stability analysis
+        """
+        n_samples = len(data)
+        sample_size = int(n_samples * sample_ratio)
+        
+        stability_scores = []
+        
+        for i in range(n_bootstrap):
+            # Create bootstrap sample
+            indices = np.random.choice(n_samples, sample_size, replace=True)
+            bootstrap_data = data[indices]
+            
+            # Cluster bootstrap sample
+            kmeans_boot = KMeans(n_clusters=4, random_state=i)
+            labels_boot = kmeans_boot.fit_predict(bootstrap_data)
+            
+            # Find corresponding labels in original clustering
+            original_labels_subset = cluster_labels[indices]
+            
+            # Calculate ARI between bootstrap and original
+            ari = adjusted_rand_score(original_labels_subset, labels_boot)
+            stability_scores.append(ari)
+        
+        return stability_scores
+    
+    stability_scores = bootstrap_stability(data_scaled)
+    
+    print(f"   Bootstrap Stability (ARI):")
+    print(f"   Mean: {np.mean(stability_scores):.3f}")
+    print(f"   Std: {np.std(stability_scores):.3f}")
+    print(f"   95% CI: [{np.percentile(stability_scores, 2.5):.3f}, {np.percentile(stability_scores, 97.5):.3f}]")
+    
+    # 3. Feature Importance trong Clustering
+    print("\n3. Feature Importance Analysis:")
+    
+    def calculate_feature_importance(data, labels, feature_names):
+        """
+        Calculate feature importance for clustering
+        """
+        importances = []
+        
+        for i, feature_name in enumerate(feature_names):
+            # Calculate between-cluster variance for this feature
+            feature_data = data[:, i]
+            
+            between_var = 0
+            total_var = np.var(feature_data)
+            overall_mean = np.mean(feature_data)
+            
+            for cluster_id in np.unique(labels):
+                cluster_mask = labels == cluster_id
+                cluster_data = feature_data[cluster_mask]
+                cluster_mean = np.mean(cluster_data)
+                cluster_size = len(cluster_data)
+                
+                between_var += high_dimensional_clustering()
+
+```
+---
+
+
 
 
 ---
 
-## Phần 6: Các vấn đề nâng cao
+## Phần 5: Nâng cao kỹ năng Data Science trong Marketing
 
-### 6.1. Xử lý dữ liệu lớn và Streaming Data
+### 5.1. Feature Engineering cho Customer Segmentation
 
 ```python
-def scalable_clustering_techniques():
+def advanced_feature_engineering(data):
     """
-    Kỹ thuật clustering cho dữ liệu lớn
+    Kỹ thuật feature engineering nâng cao cho customer segmentation
     """
-    print("=== SCALABLE CLUSTERING TECHNIQUES ===")
+    print("=== ADVANCED FEATURE ENGINEERING ===")
     
-    # 1. Mini-batch K-means
-    from sklearn.cluster import MiniBatchKMeans
+    # 1. RFM Features (Recency, Frequency, Monetary)
+    # Giả sử chúng ta có transaction data
+    np.random.seed(999)
+    n_customers = len(data)
     
-    print("1. Mini-batch K-means:")
-    print("   - Sử dụng random subsets của dữ liệu")
-    print("   - Tốc độ nhanh hơn K-means truyền thống")
-    print("   - Phù hợp với dữ liệu lớn")
+    # Tạo synthetic transaction data
+    transaction_data = []
+    for customer_id in range(n_customers):
+        n_transactions = np.random.poisson(5) + 1
+        for _ in range(n_transactions):
+            days_ago = np.random.exponential(30)
+            amount = np.random.lognormal(4, 1)
+            transaction_data.append({
+                'customer_id': customer_id,
+                'days_ago': days_ago,
+                'amount': amount,
+                'transaction_date': pd.Timestamp.now() - pd.Timedelta(days=days_ago)
+            })
     
-    # Simulation với dữ liệu lớn
-    np.random.seed(123)
-    large_dataset = np.random.randn(10000, 5)
+    transactions_df = pd.DataFrame(transaction_data)
     
-    # So sánh thời gian
-    import time
+    # Tính RFM metrics
+    rfm_data = transactions_df.groupby('customer_id').agg({
+        'days_ago': 'min',  # Recency
+        'customer_id': 'count',  # Frequency  
+        'amount': 'sum'  # Monetary
+    }).rename(columns={
+        'days_ago': 'recency',
+        'customer_id': 'frequency',
+        'amount': 'monetary'
+    })
     
-    # Standard K-means
-    start_time = time.time()
-    kmeans_standard = KMeans(n_clusters=5, random_state=42, n_init=1)
-    kmeans_standard.fit(large_dataset)
-    standard_time = time.time() - start_time
+    # 2. Behavioral Features
+    enhanced_data = data.copy()
+    enhanced_data['customer_id'] = range(len(data))
+    enhanced_data = enhanced_data.merge(rfm_data, left_on='customer_id', right_index=True, how='left')
     
-    # Mini-batch K-means
-    start_time = time.time()
-    kmeans_mini = MiniBatchKMeans(n_clusters=5, random_state=42, batch_size=1000)
-    kmeans_mini.fit(large_dataset)
-    mini_time = time.time() - start_time
+    # 3. Derived Features
+    enhanced_data['avg_transaction_value'] = enhanced_data['monetary'] / enhanced_data['frequency']
+    enhanced_data['spending_velocity'] = enhanced_data['monetary'] / enhanced_data['recency']
+    enhanced_data['purchase_intensity'] = enhanced_data['frequency'] / enhanced_data['recency']
     
-    print(f"   Standard K-means: {standard_time:.3f} seconds")
-    print(f"   Mini-batch K-means: {mini_time:.3f} seconds")
-    print(f"   Speed improvement: {standard_time/mini_time:.1f}x")
+    # 4. Percentile-based Features
+    enhanced_data['recency_percentile'] = enhanced_data['recency'].rank(pct=True)
+    enhanced_data['frequency_percentile'] = enhanced_data['frequency'].rank(pct=True)
+    enhanced_data['monetary_percentile'] = enhanced_data['monetary'].rank(pct=True)
     
-    # 2. Online/Incremental Learning
-    print("\n2. Online Learning với streaming data:")
+    # 5. Composite Scores
+    enhanced_data['rfm_score'] = (
+        enhanced_data['recency_percentile'] * 0.15 +  # Lower recency is better
+        enhanced_data['frequency_percentile'] * 0.35 +
+        enhanced_data['monetary_percentile'] * 0.5
+    )
     
-    def simulate_streaming_clustering(n_batches=10, batch_size=1000):
-        """
-        Simulate streaming data clustering
-        """
-        # Initialize model
-        online_kmeans = MiniBatchKMeans(n_clusters=4, random_state=42, batch_size=100)
-        
-        cluster_evolution = []
-        
-        for batch_i in range(n_batches):
-            # Simulate new batch of data
-            if batch_i < 5:
-                # First half: data from distribution A
-                batch_data = np.random.multivariate_normal([2, 2], [[1, 0.5], [0.5, 1]], batch_size)
-            else:
-                # Second half: data shifts to distribution B
-                batch_data = np.random.multivariate_normal([5, 1], [[1, -0.3], [-0.3, 1]], batch_size)
-            
-            # Partial fit (online learning)
-            online_kmeans.partial_fit(batch_data)
-            
-            # Store cluster centers for analysis
-            cluster_evolution.append(online_kmeans.cluster_centers_.copy())
-            
-            print(f"   Batch {batch_i + 1}: Processed {batch_size} points")
-        
-        return cluster_evolution, online_kmeans
+    # 6. Customer Lifecycle Stage
+    def assign_lifecycle_stage(row):
+        if row['recency'] <= 30 and row['frequency'] >= 3:
+            return 'Active'
+        elif row['recency'] <= 60:
+            return 'Regular'
+        elif row['recency'] <= 180:
+            return 'At Risk'
+        else:
+            return 'Churned'
     
-    cluster_evolution, final_model = simulate_streaming_clustering()
+    enhanced_data['lifecycle_stage'] = enhanced_data.apply(assign_lifecycle_stage, axis=1)
     
-    # Visualize cluster evolution
-    plt.figure(figsize=(15, 5))
-    for i, centers in enumerate([cluster_evolution[0], cluster_evolution[4], cluster_evolution[-1]]):
-        plt.subplot(1, 3, i + 1)
-        plt.scatter(centers[:, 0], centers[:, 1], c='red', s=200, marker='x', linewidth=3)
-        plt.title(f'Cluster Centers - Batch {[1, 5, 10][i]}')
-        plt.xlabel('Feature 1')
-        plt.ylabel('Feature 2')
-        plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.show()
+    # 7. Interaction Features
+    enhanced_data['age_income_interaction'] = enhanced_data['age'] * enhanced_data['income'] / 100000
+    enhanced_data['spending_vs_income_ratio'] = enhanced_data['spending_score'] / (enhanced_data['income'] / 10000)
     
-    print("   → Cluster centers adapt to changing data distribution")
+    print("Enhanced features created:")
+    new_features = [col for col in enhanced_data.columns if col not in data.columns and col != 'customer_id']
+    for feature in new_features:
+        print(f"  - {feature}")
+    
+    return enhanced_data, new_features
 
-scalable_clustering_techniques()
+enhanced_customer_data, new_features = advanced_feature_engineering(mixed_customer_data)
 
 ### 5.3. Customer Lifetime Value (CLV) Integration
 
@@ -1760,99 +1855,6 @@ ensemble_results, individual_results, coassoc_matrix = ensemble_clustering(
     enhanced_customer_data, numerical_features_enhanced
 )
 
-
----
-
-## Phần 5: Nâng cao kỹ năng Data Science trong Marketing
-
-### 5.1. Feature Engineering cho Customer Segmentation
-
-```python
-def advanced_feature_engineering(data):
-    """
-    Kỹ thuật feature engineering nâng cao cho customer segmentation
-    """
-    print("=== ADVANCED FEATURE ENGINEERING ===")
-    
-    # 1. RFM Features (Recency, Frequency, Monetary)
-    # Giả sử chúng ta có transaction data
-    np.random.seed(999)
-    n_customers = len(data)
-    
-    # Tạo synthetic transaction data
-    transaction_data = []
-    for customer_id in range(n_customers):
-        n_transactions = np.random.poisson(5) + 1
-        for _ in range(n_transactions):
-            days_ago = np.random.exponential(30)
-            amount = np.random.lognormal(4, 1)
-            transaction_data.append({
-                'customer_id': customer_id,
-                'days_ago': days_ago,
-                'amount': amount,
-                'transaction_date': pd.Timestamp.now() - pd.Timedelta(days=days_ago)
-            })
-    
-    transactions_df = pd.DataFrame(transaction_data)
-    
-    # Tính RFM metrics
-    rfm_data = transactions_df.groupby('customer_id').agg({
-        'days_ago': 'min',  # Recency
-        'customer_id': 'count',  # Frequency  
-        'amount': 'sum'  # Monetary
-    }).rename(columns={
-        'days_ago': 'recency',
-        'customer_id': 'frequency',
-        'amount': 'monetary'
-    })
-    
-    # 2. Behavioral Features
-    enhanced_data = data.copy()
-    enhanced_data['customer_id'] = range(len(data))
-    enhanced_data = enhanced_data.merge(rfm_data, left_on='customer_id', right_index=True, how='left')
-    
-    # 3. Derived Features
-    enhanced_data['avg_transaction_value'] = enhanced_data['monetary'] / enhanced_data['frequency']
-    enhanced_data['spending_velocity'] = enhanced_data['monetary'] / enhanced_data['recency']
-    enhanced_data['purchase_intensity'] = enhanced_data['frequency'] / enhanced_data['recency']
-    
-    # 4. Percentile-based Features
-    enhanced_data['recency_percentile'] = enhanced_data['recency'].rank(pct=True)
-    enhanced_data['frequency_percentile'] = enhanced_data['frequency'].rank(pct=True)
-    enhanced_data['monetary_percentile'] = enhanced_data['monetary'].rank(pct=True)
-    
-    # 5. Composite Scores
-    enhanced_data['rfm_score'] = (
-        enhanced_data['recency_percentile'] * 0.15 +  # Lower recency is better
-        enhanced_data['frequency_percentile'] * 0.35 +
-        enhanced_data['monetary_percentile'] * 0.5
-    )
-    
-    # 6. Customer Lifecycle Stage
-    def assign_lifecycle_stage(row):
-        if row['recency'] <= 30 and row['frequency'] >= 3:
-            return 'Active'
-        elif row['recency'] <= 60:
-            return 'Regular'
-        elif row['recency'] <= 180:
-            return 'At Risk'
-        else:
-            return 'Churned'
-    
-    enhanced_data['lifecycle_stage'] = enhanced_data.apply(assign_lifecycle_stage, axis=1)
-    
-    # 7. Interaction Features
-    enhanced_data['age_income_interaction'] = enhanced_data['age'] * enhanced_data['income'] / 100000
-    enhanced_data['spending_vs_income_ratio'] = enhanced_data['spending_score'] / (enhanced_data['income'] / 10000)
-    
-    print("Enhanced features created:")
-    new_features = [col for col in enhanced_data.columns if col not in data.columns and col != 'customer_id']
-    for feature in new_features:
-        print(f"  - {feature}")
-    
-    return enhanced_data, new_features
-
-enhanced_customer_data, new_features = advanced_feature_engineering(mixed_customer_data)
 
 #### 4.2.4. So sánh hiệu quả các phương pháp
 
