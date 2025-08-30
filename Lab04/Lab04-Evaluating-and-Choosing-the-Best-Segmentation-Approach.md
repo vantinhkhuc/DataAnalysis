@@ -4267,4 +4267,20 @@ print(f"\n🚀 READY FOR SENIOR DATA SCIENTIST ROLES IN CUSTOMER ANALYTICS!")
 print("="*60)
 ```
 
-
+```
+choice(['25-34', '35-44', '45-54'], size, p=[0.3, 0.5, 0.2]),
+                    'gender': np.random.choice(['Male', 'Female'], size, p=[0.6, 0.4]),
+                    'education': np.random.choice(['Graduate', 'Post-Graduate'], size, p=[0.4, 0.6]),
+                    'income_bracket': np.random.choice(['High', 'Very High'], size, p=[0.3, 0.7]),
+                    'city_tier': np.random.choice(['Tier 1'], size),
+                    'preferred_channel': np.random.choice(['Online', 'Store', 'Mobile'], size, p=[0.5, 0.3, 0.2]),
+                    'payment_method': np.random.choice(['Credit Card', 'Digital Wallet'], size, p=[0.6, 0.4]),
+                    'product_category': np.random.choice(['Electronics', 'Fashion', 'Home'], size, p=[0.4, 0.4, 0.2]),
+                    'membership_type': np.random.choice(['Premium', 'Gold'], size, p=[0.7, 0.3]),
+                    'true_segment': [segment] * size
+                }
+            elif segment == 'Standard':
+                segment_data = {
+                    'customer_id': range(customer_id, customer_id + size),
+                    'age_group': np.random
+```
