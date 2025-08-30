@@ -167,28 +167,40 @@ df.corr()
 ---
 
 #### **Activity 5.01: Examining the Relationship between Store Location and Revenue**
-You are working at a company that sells luxury clothing. Their sales team has collected data on customer age, income, their annual spend at the business, and the number of days since their last purchase. The company wants to start targeted marketing campaigns but doesn't know how many different types of customers they have. If they understood the number of different segments, it would help design the campaign better by helping define the channels to use, the messaging to employ, and more. 
-Your goal is to perform customer segmentation for the company which will help them optimize their campaigns. To make your approach robust and more reliable to business, you need to arrive at the right number of segments by using the visualization approach as well as the elbow method with the sum of squared errors. 
+The fashion giant Azra also has several physical retail stores where customers can try and buy apparel and fashion accessories. With increased internet penetration and higher adoption of e-commerce among customers, the footfall to the physical stores has been decreasing. To optimize operation costs, the company wishes to understand the factors that affect the revenue of a store. This will help them take better calls regarding setting up future stores and making decisions about the existing ones. 
+The data for the activity is in the file location_rev.csv. The file has data on several storefront locations and information about the surrounding area. This information includes the following: 
+•	revenue (the revenue of the storefront at each location)
+•	location_age (the number of years since the store opened)
+•	num_competitors (the number of competitors in a 20-mile radius)
+•	median_income (the median income of the residents in the area)
+•	num_loyalty_members (the members enrolled in the loyalty program in the area)
+•	population_density (the population density of the area)
+The goal of the activity is to use the data to uncover some business insights that will help the company decide on the locations for its stores. You will visualize the different associations in the data and then quantify them using correlations. You will interpret the results and answer some questions pertinent to the business: 
+•	Which variable has the strongest association with the revenue? 
+•	Are all the associations intuitive and make business sense? 
+ 
+_Perform these steps to complete the activity._
 
-_Execute the following steps to complete the activity:_
+1. Load the necessary libraries (pandas, pyplot from matplotlib, and seaborn), read the data from location_rev.csv into a DataFrame, and examine the data by printing the top five rows. 
 
-1.	Import the libraries required for DataFrame handling and plotting (pandas, numpy, matplotlib). Read in the data from the file  
-'Clothing_Customers.csv' into a DataFrame and print the top 5 rows to understand it better.
-2.	Standardize all the columns in the data. You will be using all four columns for the segmentation. 
-3.	Visualize the data to get a good understanding of it. Since you are dealing with four dimensions, use PCA to reduce to two dimensions before plotting. The resulting plot should be as follows.
+![Figure 5.24: First five records of the storefront data](images/Figure-5.24.jpg)
 
-![Figure 4.8: Scatterplot of the dimensionality reduced data](images/Figure-4.8.jpg)
+2. Using the pandas DataFrame's plot method, create a scatter plot between median_income and the revenue of the store. The output should look like the following:
 
-4. Visualize clustering with two through seven clusters. You should get the following plot.
+ ![Figure 5.25: Scatter plot of median_income and revenue](images/Figure-5.25.jpg)  
 
- ![Figure 4.9: Resulting clusters for different number of specified clusters](images/Figure-4.9.jpg)  
+3. Use seaborn's pairplot function to visualize the data and its relationships. 
+You should get the following plot:
 
-Choosing clusters using elbow method - create a plot of the sum of squared errors and look for an elbow. Vary the number of clusters from 2 to 11. You should get the following plot.
+ ![Figure 5.26: The seaborn pairplot of the entire dataset](images/Figure-5.26.jpg)  
 
- ![Figure 4.10: SSE plot for different values of k](images/Figure-4.10.jpg)  
+4. Using the y_vars parameter, plot only the row for associations with the revenue variable. The output should be as follows:
 
-5. Do both the methods agree on the optimal number of clusters? Looking at the results from both, and based on your business understanding, what is the number of clusters you would choose? Explain your decision.
+ ![Figure 5.27: Associations with revenue](images/Figure-5.27.jpg)  
 
+5. Finally, calculate correlations using the appropriate method(s) to quantify the relationships between the different variables and location revenue. Analyze the data so that you can answer the following questions:
+a)	Which variables have the highest association with revenue? 
+b)	Do the associations make business sense?
    
 **Code:**
 
@@ -200,228 +212,88 @@ Choosing clusters using elbow method - create a plot of the sum of squared error
 ---
 
 #### **Exercise 5.04: Building a Linear Model Predicting Customer Spend**
-In this exercise, you will cluster mall customers using the mean-shift algorithm. You will employ the columns Income and Spend_score as criteria. You will first manually specify the bandwidth parameter. Then, you will estimate the bandwidth parameter using the estimate_bandwidth method and see how it varies with the choice of quantile. Continue in the Jupyter notebook from Exercise 4.03, Determining the Number of Clusters Using the Elbow Method and perform the following steps. 
+Predicting the future revenue for a customer based on past transactions is a classic problem that linear regression can solve. In this exercise, you will create a linear regression model to predict customer revenue for 2020 for the high-fashion company Azra. In the previous exercises, you performed feature engineering to get the data ready for modeling and analyzed the relationships in the data. Now, using linear regression, you will create a model that describes how future revenue relates to the features based on past transactions.
+You will train a linear regression model with revenue_2020 as the dependent variable and the rest of the variables as the independent variables. You will use the train-test approach to make sure you train the model on part of the data and assess it on the unseen test data. You will interpret the coefficients from the trained model and check whether they make business sense. To mathematically assess the performance of the model, you will check the correlation between the predicted values of revenue_2020 and the actual values. A higher correlation would indicate a higher performance of the model.
+You will use the file **wrangled_transactions.csv** created in _Exercise 5.02, Creating Features for Transaction Data_. 
+ 
 
 **Code:**
 
 ```python
-# 1.	Import MeanShift and estimate_bandwidth from sklearn and create a variable 'bandwidth'
-#    with a value of 0.9 – the bandwidth to use (an arbitrary, high value). The code is as follows - 
-from sklearn.cluster import MeanShift, estimate_bandwidth
-bandwidth = 0.9
+# 1.	Import pandas and numpy using the following code:
+import pandas as pd, numpy as np
 
-# 2.	To perform mean-shift clustering on the standardized data,
-#    create an instance of MeanShift, specifying the bandwidth and setting bin_seeding
-#    to True (to speed up the algorithm). Fit the model on the data and assign
-#    the cluster to the variable 'Cluster'. Use the following code:
-ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
-ms.fit(mall_scaled[cluster_cols])
+# 2.	Create a new DataFrame named df and read the data from  wrangled_transactions.csv with CustomerID as the index:
+df = pd.read_csv('wrangled_transactions.csv', \                  index_col='CustomerID')
 
-mall_scaled['Cluster']= ms.predict(X)
+# 3.	Look at the correlations between the variables again using the corr function:
+df.corr()
 
-# 3.	Visualize the clusters using a scatter plot. 
-markers = ['x', '*', '.', '|', '_', '1', '2']
-plt.figure(figsize=[8,6])
-for clust in range(mall_scaled.Cluster.nunique()):
-     temp = mall_scaled[mall_scaled.Cluster == clust]
-     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
-                 label="Cluster"+str(clust), color='gray')
-plt.xlabel("Income")
-plt.ylabel("Spend_score")
-plt.legend()
-plt.show()
+# 4.	Store the independent and dependent variables in the X and y variables, respectively:
+X = df[['revenue_2019',\
+        'days_since_last_purchase',\
+        'number_of_purchases',\         'avg_order_cost']] y = df['revenue_2020']
 
-# 4.	Estimate the required bandwidth using the estimate_bandwidth method.
-#    Use the estimate_bandwidth function with a quantile value of 0.1 (an arbitrary choice)
-#    to estimate the best bandwidth to use. Print the value, fit the model,
-#    and note the number of clusters, using the following code: 
-bandwidth = estimate_bandwidth(mall_scaled[cluster_cols], quantile=0.1)
-print(bandwidth)
-
-ms = MeanShift(bandwidth=bandwidth, bin_seeding=True) ms.fit(mall_scaled[cluster_cols])
-mall_scaled['Cluster']= ms.predict(mall_scaled[cluster_cols])
-mall_scaled.Cluster.nunique()
-
-
-# 5.	Visualize the obtained clusters using a scatter plot.
-plt.figure(figsize=[8,6])
-for clust in range(mall_scaled.Cluster.nunique()):
-     temp = mall_scaled[mall_scaled.Cluster == clust]
-     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
-                 label="Cluster"+str(clust),  color='gray')
-plt.xlabel("Income")
-plt.ylabel("Spend_score")
-plt.legend()
-plt.show()
-
-
-#  6. Estimate the bandwidth again, this time with a quantile value of 0.15.
-#    Print out the number of clusters obtained. 
-bandwidth = estimate_bandwidth(mall_scaled[cluster_cols], quantile=0.15)
-print(bandwidth)
-
-# 7. Use the bandwidth calculated in the previous step to fit and extract the number of clusters.
- ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
- ms.fit(mall_scaled[cluster_cols])
- mall_scaled['Cluster']= ms.predict(mall_scaled[cluster_cols])
- mall_scaled.Cluster.nunique()
- The result should be 5. 
-
-# 8. Visualize the clusters obtained. 
-plt.figure(figsize=[8,6])
-for clust in range(mall_scaled.Cluster.nunique()):
-    temp = mall_scaled[mall_scaled.Cluster == clust]
-    plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
-                label="Cluster"+str(clust), color='gray')
- plt.xlabel("Income")
- plt.ylabel("Spend_score")
- plt.legend()
- plt.show()
-```
-
----
-
-#### **Exercise 4.05: Clustering Data Using the k-prototypes Method**
-For this exercise, you will revisit the customer segmentation problem for Therabank, that you encountered in_ Activity 3.01, Bank Customer Segmentation for Loan Campaign_. The business goal is to get more customers to opt for a personal loan to increase the profitability of the bank's portfolio. Creating customer segments will help the bank identify the types of customers, tune their messaging in the marketing campaigns for the personal loan product. The dataset provided contains data for customers including demographics, some financial information, and how these customers responded to a previous campaign. 
-
-An important feature for business is the education level of the customer and needs to be included in the segmentation. The values in the data are **Primary**, **Secondary**, and **Tertiary**. Since this is a categorical feature, K-means is not a suitable approach. You need to create customer segmentation with this data by applying k-prototype clustering to data that has a mix of categorical (education) and continuous (**income**) variables. 
-
-**Code:**
-
-```python
-# 1. Import pandas and read in the data from the file  
-#    Bank_Personal_Loan_Modelling-2.csv into a pandas DataFrame named bank0:
-import pandas as pd
-bank0 = pd.read_csv("Bank_Personal_Loan_Modelling-2.csv")
-bank0.head()
-
-# 2.	Standardize the Income column:
-from sklearn.preprocessing import StandardScaler
-scaler = StandardScaler()
-bank_scaled = bank0.copy()
-bank_scaled['Income'] = scaler.fit_transform(bank0[['Income']])
-
-# 3.	Import KPrototypes from the kmodes module. Perform k-prototypes clustering
-#    using three clusters, specifying the education column (in column index 1) ,
-#    as categorical and save the result of the clustering as a new column 
-#    called cluster.Specify a random_state of 42 for consistency.
-from kmodes.kprototypes import KPrototypes
-cluster_cols = ['Income', 'Education']
-kp = KPrototypes(n_clusters=3, random_state=42)
-bank_scaled['Cluster'] = kp.fit_predict(bank_scaled[cluster_cols], categorical=[1])
-
-# 4.	To understand the obtained clusters, get the proportions of
-#    the different education levels in each cluster using the following code.
-res = bank_scaled.groupby('Cluster')['Education'].value_counts(normalize=True)
-res.unstack().plot.barh(figsize=[9,6], color=['black','lightgray','dimgray'])
-plt.show()
-
-```
-
----
-
-#### **Exercise 4.06: Using Silhouette Score to Pick Optimal Number of Clusters**
-In this exercise, you will continue working on the mall customer segmentation case. The objective of the exercise is to identify the right number of clusters using a statistical approach that is, the silhouette score. You will perform k-means clustering on mall customers using different numbers of clusters and use the silhouette score to determine the best number of clusters to use. You will need to continue in the Jupyter notebook used for the exercises so far. 
-
-**Code:**
-
-```python
-# 1. Import pandas and read in the data from the file  
-#    Bank_Personal_Loan_Modelling-2.csv into a pandas DataFrame named bank0:
-import pandas as pd
-bank0 = pd.read_csv("Bank_Personal_Loan_Modelling-2.csv")
-bank0.head()
-
-# 2.	Standardize the Income column:
-from sklearn.preprocessing import StandardScaler
-scaler = StandardScaler()
-bank_scaled = bank0.copy()
-bank_scaled['Income'] = scaler.fit_transform(bank0[['Income']])
-
-# 3.	Import KPrototypes from the kmodes module. Perform k-prototypes clustering
-#    using three clusters, specifying the education column (in column index 1) ,
-#    as categorical and save the result of the clustering as a new column 
-#    called cluster.Specify a random_state of 42 for consistency.
-from kmodes.kprototypes import KPrototypes
-cluster_cols = ['Income', 'Education']
-kp = KPrototypes(n_clusters=3, random_state=42)
-bank_scaled['Cluster'] = kp.fit_predict(bank_scaled[cluster_cols], categorical=[1])
-
-# 4.	To understand the obtained clusters, get the proportions of
-#    the different education levels in each cluster using the following code.
-res = bank_scaled.groupby('Cluster')['Education'].value_counts(normalize=True)
-res.unstack().plot.barh(figsize=[9,6], color=['black','lightgray','dimgray'])
-plt.show()
-
-```
-
----
-
-#### **Exercise 4.07: Using a Train-Test Split to Evaluate Clustering Performance**
-In this exercise, you will use a train-test split approach to evaluate the performance of the clustering. The goal of the exercise is to ensure reliable and robust customers segments from the mall customers. You will need to separate the data into train and test sets first. Then, you will fit a K-means model with a sub-optimal number of clusters. If the clusters are good, the silhouette score should be consistent between the train and test data. Continue in the same Jupyter notebook used so far for all the preceding exercises. 
-
-**Code:**
-
-```python
-# 1. Import the train_test_split function from sklearn and perform the split on the mall customer data.
-#    Specify the train size as 0.75 and  a random_state of 42. Print the shapes of the resulting datasets.
+# 5.	Use sklearn to perform a train-test split on the data, so that you can assess the model on a dataset it was not trained on:
 from sklearn.model_selection import train_test_split
-df_train, df_test = train_test_split(mall0, train_size=0.75, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split\
+                                   (X, y, random_state = 100)
 
-#    Specifying a train_size of 0.75 assigns 75% of the records to the train set and
-#    the remaining to the test set. Using random_state ensures that the results are reproducible.
-print(df_train.shape)
-print(df_test.shape)
+# 6.	Import LinearRegression from sklearn using the following code:
+from sklearn.linear_model import LinearRegression
 
-# 2.	Fit a Kmeans mode with 6 clusters on the train data. Calculate the average silhouette score.
-#    Ignore the warnings (if any) resulting from this step.
-model = KMeans(n_clusters=6, random_state=42)
-df_train['Cluster'] = model.fit_predict(df_train[cluster_cols])
-silhouette_avg = silhouette_score(df_train[cluster_cols], df_train['Cluster'])
-print(silhouette_avg)
+# 7.	Create a LinearRegression model, and fit it on the training data:
+model = LinearRegression() model.fit(X_train,y_train)
 
-# 3.	Using the predict method of the model, predict the clusters for the test data.
-#    Then, calculate the average silhouette score for the test data using the following code.
-#    Ignore warnings, if any, from the code. 
-df_test['Cluster'] = model.predict(df_test[cluster_cols])
-silhouette_avg = silhouette_score(df_test[cluster_cols],df_test['Cluster'])
-print(silhouette_avg)
+# 8.	Examine the model coefficients by checking the coef_ property. Note that these are in the same order as your X columns: revenue_2019,  days_since_last_purchase, number_of_purchases, and  avg_order_cost:
+model.coef_
 
-# 4.	Visualize the predicted clusters on the test data using a scatter plot,
-#    marking the different clusters.
-for clust in range(df_test.Cluster.nunique()):
-     temp = df_test[df_test.Cluster == clust]
-     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], color='gray')
-plt.xlabel("Income")
-plt.ylabel("Spend_score")
-plt.show()
+# 9.	Check the intercept term of the model by checking the intercept_ property:
+model.intercept_
+This should give a value of 264.86. From steps 8 and 9, you can arrive at the model's full equation:
+revenue_2020= 264.86.74 + 5.79*(revenue_2019) + 7.477*(days_since_ last_purchase) + 336.61*(number_of_purchases) – 2.056*(avg_order_ cost)
+
+# 10.	You can now use the fitted model to make predictions about a customer outside of your dataset. Make a DataFrame that holds data for one customer, where revenue for 2019 is 1,000, the number of days since the last purchase is 20, the number of purchases made is 2, and the average order cost is 500. Have the model make a prediction on this one customer's data:
+single_customer = pd.DataFrame({'revenue_2019': [1000],\                                 'days_since_last_purchase': [20],\
+                                'number_of_purchases': [2],\                                 'avg_order_cost': [500]})
+model.predict(single_customer)
+The result should be an array with a single value of about 5847.67, indicating the predicted revenue for 2020 for a customer with this data.
+
+# 11.	You can plot the model's predictions on the test set against the true value. First, import matplotlib, and make a scatter plot of the model predictions on X_test against y_test. Limit the x and y axes to a maximum value of 10,000 so that we get a better view of where most of the data points lie. Finally, add a line with slope 1, which will serve as your reference—if all the points lie on this line, it means you have a perfect relationship between your predictions and the true answer:
+import matplotlib.pyplot as plt %matplotlib inline
+plt.scatter(model.predict(X_test), y_test, color='gray') plt.xlim(0,10000) plt.ylim(0,10000) plt.plot([0, 10000], [0, 10000], 'k-') plt.xlabel('Model Predictions') plt.ylabel('True Value') plt.show()
+
+
+# 12. To further examine the relationship, you can use correlation. Use the corrcoef method from NumPy to calculate the correlation between the predicted and the actual values of revenue_2020 for the test data:
+np.corrcoef(model.predict(X_test), y_test)
+
 
 ```
+
 ---
 
 #### **Activity 5.02: Predicting Store Revenue Using Linear Regression**
-You are a data science manager in the marketing division at a major multinational alcoholic beverage company. Over the past year, the marketing team launched 32 initiatives to increase its sales. Your team has acquired data that tells you which customers have responded to which of the 32 marketing initiatives recently (this data is present within the **customer_offers.csv** file). The business goal is to improve future marketing campaigns by targeting them precisely, so they can provide offers customized to groups that tend to respond to similar offers. The solution is to build customer segments based on the responses of the customers to past initiatives. 
+Revisit the problem you were solving earlier for the high-fashion company Azra. A good understanding of which factors drive the revenue for a storefront will be critical in helping the company decide the locations for upcoming stores in a way that maximizes the overall revenue. 
+You will continue working on the dataset you explored in_ Activity 5.01, Examining the Relationship between Store Location and Revenue_. You have, for each store, the revenue along with information about the location of the store. In _Activity 5.01, Examining the Relationship between Store Location and Revenue_, you analyzed the relationship between the store revenue and the location-related features. 
+Now, you will build a predictive model using linear regression to predict the revenue of a store using information about its location. You will use a train-test split approach to train the model on part of the data and assess the performance on unseen test data. You will assess the performance of the test data by calculating the correlation between the actual values and the predicted values of revenue. Additionally, you will examine the coefficients of the model to ensure that the model makes business sense. 
+Complete the following tasks. Continue in the Jupyter notebook used for _Activity 5.01, Examining the Relationship between Store Location and Revenue_.
 
-In this activity, you will employ a thorough approach to clustering by trying multiple clustering techniques. Additionally, you will employ statistical approaches to cluster evaluation to ensure your results are reliable and robust. Using the cluster evaluation techniques, you will also tune the hyperparameters, as applicable, for the clustering algorithms. Start in a new Jupyter notebook for the activity.
-Execute the following steps to complete this activity:
-1.	Import the necessary libraries for data handling, clustering, and visualization. Import data from **customer_offers.csv** into a pandas DataFrame. 
-2.	Print the top five rows of the DataFrame, which should look like the table below.
+1. Import the necessary libraries and the data from **location_rev.csv** and view the first few rows, which should look as follows:
 
-![Figure 4.21: First five records of the customer_offers data](images/Figure-4.21.jpg)
+![Figure 5.33: The first five rows of the location revenue data](images/Figure-5.33.jpg)
 
-3.	Divide the dataset into train and test sets by using the **train_test_split** method from scikit-learn. Specify **random_state** as 100 for consistency.
-4.	Perform k-means on the data. Identify the optimal number of clusters by using the silhouette score approach on the train data by plotting the score for the different number of clusters, varying from **2** through **10**. The plot for silhouette scores should be as follows:
+2.	Create a variable, X, with the predictors (all columns except revenue) in it, and store the outcome (revenue) in a separate variable, y.
+3.	Split the data into a training and test set. Use random_state = 100.
+4.	Create a linear regression model and fit it on the training data.
+5.	Print out the model coefficients.
+6.	Print out the model intercept.
+7.	Produce a prediction for a location that has three competitors; a median income of 30,000; 1,200 loyalty members; a population density of 2,000; and a location age of 10. The result should be an array with a single value of 27573.21782447, indicating the predicted revenue for a customer with this data.
+8.	Plot the model's predictions versus the true values on the test data. Your plot should look as follows:
 
-![Figure 4.22: Silhouette scores for different number of clusters](images/Figure-4.22.jpg)
+![Figure 5.34: The model predictions plotted against the true value](images/Figure-5.34.jpg)
 
-5.	Perform K means using k found in the previous step. Print out the **silhouette score** on the test set.
-6.	Perform mean-shift clustering on the data, using the **estimate_bandwidth** method with a quantile value of **0.1** to estimate the bandwidth. Print out the silhouette score from the model on the test set.
-7.	Perform k-modes on the data. Identify the optimal number of clusters by using the silhouette score approach on the train data by plotting the score for the different number of clusters, varying from **3** through **10**. You should get the following output.
-
-![Figure 4.23: Silhouette scores for different K for K-modes](images/Figure-4.23.jpg)
-
-8.	Using K found in the previous step, perform K-modes on the data. Print out the silhouette score on the test set.
-9.	Which of the three techniques gives you the best result? What is the final number of clusters you will go with? 
+9. Calculate the correlation between the model predictions and the true values of the test data.
+The result should be around 0.91.
 
 ---
 ## Bài tập tổng hợp
