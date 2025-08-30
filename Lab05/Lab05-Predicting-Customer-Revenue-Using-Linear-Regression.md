@@ -8,10 +8,11 @@ Sau khi hoàn thành bài học này, học viên sẽ có thể:
 - Sử dụng các công cụ Python để thực hiện segmentation
 - Phân tích và diễn giải kết quả phân khúc khách hàng
 - Áp dụng các kỹ thuật nâng cao trong customer segmentation
-## **Bài tập Thực hành**
-### Bài tập cơ bản
 
 ---
+
+## **Bài tập Thực hành**
+### Bài tập cơ bản
 
 #### **Exercise 5.01: Predicting Sales from Advertising Spend Using Linear Regression**
 HINA Inc. is a large FMCG company that is streamlining its marketing budget. This involves taking stock of all its marketing strategies. This, in turn, means re-assessing the effectiveness of its existing spend on various marketing channels. As a marketing analyst, you need to figure out if spending money on TV advertising campaigns results in a direct increase in sales. In other words, you need to find out if the TV advertising spend and the sales figures share a linear relationship. Linear regression seems perfect for the job as it models the relationship as a line. 
@@ -298,17 +299,7 @@ The result should be around 0.91.
 ---
 ## Bài tập tổng hợp
 
-# Bài Tập Ứng Dụng: Unsupervised Learning và Customer Segmentation
-
-## Mục Tiêu Học Tập
-- Nắm vững các kỹ thuật clustering hiện đại cho phân khúc khách hàng
-- Học cách chọn số cluster tối ưu một cách có nguyên tắc
-- Áp dụng các phương pháp đánh giá cluster cho nhiều bài toán kinh doanh
-- Thực hành các thuật toán clustering nâng cao: Mean-Shift, K-Modes, K-Prototypes
-
----
-
-## Bài Tập 1: Cải Tiến Phương Pháp Customer Segmentation với Kỹ Thuật Clustering Hiện Đại
+### Bài Tập 1: Cải Tiến Phương Pháp Customer Segmentation với Kỹ Thuật Clustering Hiện Đại
 
 ### Mô Tả Bài Toán
 Bạn là Data Scientist tại một công ty thương mại điện tử. Công ty muốn cải tiến chiến lược phân khúc khách hàng hiện tại bằng cách sử dụng các kỹ thuật clustering hiện đại thay vì phương pháp truyền thống.
