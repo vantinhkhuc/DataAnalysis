@@ -23,25 +23,38 @@ You are provided with historical advertising data – weekly sales and spend on 
 ```python
 # 1.	Import the relevant libraries for plotting and data manipulation, load advertising.csv
 #    dataset into a pandas DataFrame, and print the top five records using the following code:
-import numpy as np, pandas as pd import matplotlib.pyplot as plt, seaborn as sns advertising = pd.read_csv("advertising.csv") advertising.head()
+import numpy as np, pandas as pd import matplotlib.pyplot as plt, seaborn as sns
+advertising = pd.read_csv("advertising.csv")
+advertising.head()
 
 
 # 2.	Visualize the association between TV and Sales through a scatter plot using the following code:
-plt.scatter(advertising.TV, advertising.Sales, \             marker="+", color='gray') plt.xlabel("TV") plt.ylabel("Sales") plt.show()
+plt.scatter(advertising.TV, advertising.Sales, marker="+", color='gray')
+plt.xlabel("TV") plt.ylabel("Sales")
+
+plt.show()
 
 
 # 3.	Import LinearRegression from sklearn and create an instance of LinearRegression using the following code:
-from sklearn.linear_model import LinearRegression lr = LinearRegression()
+from sklearn.linear_model import LinearRegression
 
-# 4.	Fit a linear regression model, supplying the TV column as the features and Sales as the outcome, using the fit method of LinearRegression: 
+lr = LinearRegression()
+
+# 4.	Fit a linear regression model, supplying the TV column as the features and Sales as the outcome,
+#   	using the fit method of LinearRegression: 
 lr.fit(advertising[['TV']], advertising[['Sales']])
 
 # 5.	Using the predict method of the model, create a sales_pred variable containing the predictions from the model:
 sales_pred = lr.predict(advertising[['TV']])
 
-# 6.	Plot the predicted sales as a line over the scatter plot of Sales versus TV (using the simple line plot). This should help you assess how well the line fits the data and if it indeed is a good representation of the relationship:
-plt.plot(advertising.TV, sales_pred,"k--") plt.scatter(advertising.TV, advertising.Sales, \             marker='+', color='gray') plt.xlabel("TV") plt.ylabel('Sales') plt.show()
+# 6.	Plot the predicted sales as a line over the scatter plot of Sales versus TV (using the simple line plot).
+#   	This should help you assess how well the line fits the data and
+#   	if it indeed is a good representation of the relationship:
+plt.plot(advertising.TV, sales_pred,"k--")
+plt.scatter(advertising.TV, advertising.Sales, marker='+', color='gray')
+plt.xlabel("TV") plt.ylabel('Sales')
 
+plt.show()
 
 ```
 
@@ -78,62 +91,93 @@ revenue_2020 will be the dependent variable in the model, the rest being the ind
 **Code:**
 
 ```python
-# 1. Import pandas and load the data from retail_transactions.csv into a DataFrame named df, then print the first five records of the DataFrame. Also, import the datetime module as it will come in handy later:
-import pandas as pd import datetime as dt df = pd.read_csv('azra_retail_transactions.csv') df.head()
+# 1.	Import pandas and load the data from retail_transactions.csv into a DataFrame named df,
+#   	then print the first five records of the DataFrame.
+#   	Also, import the datetime module as it will come in handy later:
+import pandas as pd import datetime as dt
+
+df = pd.read_csv('azra_retail_transactions.csv')
+df.head()
 
 # 2.	Convert the InvoiceDate column to date format using the to_datetime method from pandas: 
 df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
 
 # 3.	Calculate the revenue for each row, by multiplying Quantity by UnitPrice. 
-Print the first five records of the dataset to verify the result:
+#   	Print the first five records of the dataset to verify the result:
 df['revenue'] = df['UnitPrice']*df['Quantity'] df.head()
 
 
-# 4.	In the dataset, each invoice could be spread over multiple rows, one for each type of product purchased (since the row is for each product, and a customer can buy multiple products in an order). These can be combined such that data for each transaction is on a single row. To do so, perform a groupby operation on InvoiceNo. However, before that, you need to specify how to combine those rows that are grouped together. Use the following code: 
-operations = {'revenue':'sum',\
-              'InvoiceDate':'first',\               'CustomerID':'first'} df = df.groupby('InvoiceNo').agg(operations)
+# 4.	In the dataset, each invoice could be spread over multiple rows, one for each type of product purchased
+#   	(since the row is for each product, and a customer can buy multiple products in an order).
+#   	These can be combined such that data for each transaction is on a single row.
+#   	To do so, perform a groupby operation on InvoiceNo. However, before that, you need to specify
+#   	how to combine those rows that are grouped together. Use the following code: 
+operations = {'revenue':'sum', 'InvoiceDate':'first', 'CustomerID':'first'}
+df = df.groupby('InvoiceNo').agg(operations)
 
 # 5.	Finally, use the head function to display the result:
 df.head()
 
-# 6.	You will be using the year of the transaction to derive features for 2019 and 2020. Create a separate column named year for the year. To do that, use the year attribute of the InvoiceDate column, as follows:
+# 6.	You will be using the year of the transaction to derive features for 2019 and 2020.
+#   	Create a separate column named year for the year.
+#   	To do that, use the year attribute of the InvoiceDate column, as follows:
 df['year'] = df['InvoiceDate'].dt.year
 
-# 7.	For each transaction, calculate how many days' difference there is between the last day of 2019 and the invoice date using the following code. Use the datetime module we imported earlier:
-df['days_since'] = (dt.datetime(year=2019, month=12, day=31) \                     - df['InvoiceDate']).apply(lambda x: x.days)
+# 7.	For each transaction, calculate how many days' difference there is between the last day of 2019 and
+#   	the invoice date using the following code. Use the datetime module we imported earlier:
+df['days_since'] = (dt.datetime(year=2019, month=12, day=31) - df['InvoiceDate']).apply(lambda x: x.days)
 
-# 8.	Next, create the features for days since the first and last purchase, along with the number of purchases and total revenue for 2019. Define a set of aggregation functions for each of the variables and apply them using the groupby method. You will calculate the sum of revenue. For the days_since column, you will calculate the maximum and the minimum number of days, as well as the number of unique values (giving you how many separate days this customer made a purchase on). Since these are your predictors, store the result in a variable, X, using the following code:
-operations = {'revenue':'sum',\               'days_since':['max','min','nunique']}
+# 8.	Next, create the features for days since the first and last purchase,
+#   	along with the number of purchases and total revenue for 2019.
+#   	Define a set of aggregation functions for each of the variables and apply them using the groupby method.
+#   	You will calculate the sum of revenue. For the days_since column,
+#   	you will calculate the maximum and the minimum number of days, as well as the number of unique values
+#   	(giving you how many separate days this customer made a purchase on).
+#   	Since these are your predictors, store the result in a variable, X, using the following code:
+operations = {'revenue':'sum', 'days_since':['max','min','nunique']}
 X = df[df['year'] == 2019].groupby('CustomerID').agg(operations)
 
 # 9.	Now, use the head function to see the results:
 X.head()
 
-# 10. To simplify this, reset the names of the columns to make them easier to refer to later. Use the following code and print the results using the head function:
+# 10. To simplify this, reset the names of the columns to make them easier to refer to later.
+#   	Use the following code and print the results using the head function:
 X.columns = [' '.join(col).strip() for col in X.columns.values]
 X.head()
 
-# 11.	Derive one more feature: the average spend per order. Calculate this by dividing revenue sum by days_since nunique (note that this is the average spend per day. For simplicity, assume that a customer only makes one order in a day): 
-X['avg_order_cost'] = X['revenue sum']/X['days_since nunique']
+# 11.	Derive one more feature: the average spend per order.
+#   	Calculate this by dividing revenue sum by days_since nunique (note that this is the average spend per day.
+#   	For simplicity, assume that a customer only makes one order in a day): 
+X['avg_order_cost'] = X['revenue sum'] / X['days_since nunique']
 
-# 12.	You need the outcome that you will be predicting, which is just the sum of revenue for 2020. Calculate this with a simple groupby operation and store the values in the y variable, as follows:
+# 12.	You need the outcome that you will be predicting, which is just the sum of revenue for 2020.
+#   	Calculate this with a simple groupby operation and store the values in the y variable, as follows:
 y = df[df['year'] == 2020].groupby('CustomerID')['revenue'].sum()
 
-# 13.	Put your predictors and outcomes into a single DataFrame, wrangled_df, and rename the columns to have more intuitive names. Finally, look at the resulting DataFrame, using the head function:
-wrangled_df = pd.concat([X,y], axis=1) wrangled_df.columns = ['revenue_2019',\
-                       'days_since_first_purchase',\
-                       'days_since_last_purchase',\
-                       'number_of_purchases',\
-                       'avg_order_cost',\                        'revenue_2020'] wrangled_df.head()
+# 13.	Put your predictors and outcomes into a single DataFrame, wrangled_df, and rename the columns to have more 
+#   	intuitive names. Finally, look at the resulting DataFrame, using the head function:
+wrangled_df = pd.concat([X,y], axis=1) wrangled_df.columns = ['revenue_2019', 'days_since_first_purchase',
+                       'days_since_last_purchase', 'number_of_purchases', 'avg_order_cost', 'revenue_2020']
+wrangled_df.head()
 
 # 14.	To drop the customers without values, drop rows where either of the revenue columns are null, as follows:
-wrangled_df = wrangled_df[~wrangled_df.revenue_2019.isnull()] wrangled_df = wrangled_df[~wrangled_df.revenue_2020.isnull()]
+wrangled_df = wrangled_df[~wrangled_df.revenue_2019.isnull()]
+wrangled_df = wrangled_df[~wrangled_df.revenue_2020.isnull()]
 
-# 15.	As a final data-cleaning step, it's often a good idea to get rid of outliers. A standard definition is that an outlier is any data point more than three standard deviations above the median. Use this criterion to drop customers that are outliers in terms of 2019 or 2020 revenue:
-wrangled_df = wrangled_df[wrangled_df.revenue_2020 \               < ((wrangled_df.revenue_2020.median()) \               + wrangled_df.revenue_2020.std()*3)] wrangled_df = wrangled_df[wrangled_df.revenue_2019 \               < ((wrangled_df.revenue_2019.median()) \
-              + wrangled_df.revenue_2019.std()*3)]
-16.	It's often a good idea after you've done your data cleaning and feature engineering, to save the new data as a new file, so that, as you're developing your model, you don't need to run the data through the whole feature engineering and cleaning pipeline each time you want to rerun your code. You can do this using the to_csv function. Also, take a look at your final DataFrame using the head function:
-wrangled_df.to_csv('wrangled_transactions.csv') wrangled_df.head()
+# 15.	As a final data-cleaning step, it's often a good idea to get rid of outliers.
+#   	A standard definition is that an outlier is any data point more than three standard deviations above the median.
+#   	Use this criterion to drop customers that are outliers in terms of 2019 or 2020 revenue:
+wrangled_df = wrangled_df[wrangled_df.revenue_2020  < ((wrangled_df.revenue_2020.median()) +
+              wrangled_df.revenue_2020.std()*3)]
+wrangled_df = wrangled_df[wrangled_df.revenue_2019 < ((wrangled_df.revenue_2019.median()) +
+              wrangled_df.revenue_2019.std()*3)]
+
+# 16.	It's often a good idea after you've done your data cleaning and feature engineering, to save the new data as 
+#   	a new file, so that, as you're developing your model, you don't need to run the data through
+#   	the whole feature engineering and cleaning pipeline each time you want to rerun your code.
+#   	You can do this using the to_csv function. Also, take a look at your final DataFrame using the head function:
+wrangled_df.to_csv('wrangled_transactions.csv')
+wrangled_df.head()
 
 ```
 
@@ -146,20 +190,27 @@ You will use scatter plots to visualize the relationships and use correlations t
 **Code:**
 
 ```python
-# 1.	Use pandas to import the data you saved at the end of the last exercise (wrangled_transactions.csv). The CustomerID field is not needed for the analysis. Assign CustomerId as the index for the DataFrame:
-df = pd.read_csv('wrangled_transactions.csv', \                  index_col='CustomerID')
+# 1.	Use pandas to import the data you saved at the end of the last exercise (wrangled_transactions.csv).
+#   	The CustomerID field is not needed for the analysis. Assign CustomerId as the index for the DataFrame:
+df = pd.read_csv('wrangled_transactions.csv',  index_col='CustomerID')
 
 
-# 2.	Using the plot method of the pandas DataFrame, make a scatter plot with days_since_first_purchase on the x axis and revenue_2020 on the y axis to examine the relationship between them:
-df.plot.scatter(x="days_since_first_purchase", \                 y="revenue_2020", \                 figsize=[6,6], color='gray') plt.show()
+# 2.	Using the plot method of the pandas DataFrame, make a scatter plot with days_since_first_purchase
+#   	on the x axis and revenue_2020 on the y axis to examine the relationship between them:
+df.plot.scatter(x="days_since_first_purchase", y="revenue_2020", figsize=[6,6], color='gray')
 
-# 3. Using the pairplot function of the seaborn library, create pairwise scatter plots of all the features. Use the following code:
+plt.show()
+
+# 3.	Using the pairplot function of the seaborn library, create pairwise scatter plots of all the features.
+#   	Use the following code:
 import seaborn as sns sns.set_palette('Greys_r') sns.pairplot(df) plt.show()
 
-# 4. Using the pairplot function and the y_vars parameter, limit the view to the row for your target variable, that is, revenue_2020:
+# 4.	Using the pairplot function and the y_vars parameter,
+#   	limit the view to the row for your target variable, that is, revenue_2020:
 sns.pairplot(df, x_vars=df.columns, y_vars="revenue_2020") plt.show()
 
-# 5. Next, use correlations to quantify the associations between the variables. Use the corr method on the pandas DataFrame, as in the following code:
+# 5.	Next, use correlations to quantify the associations between the variables.
+#   	Use the corr method on the pandas DataFrame, as in the following code:
 df.corr()
 
  
