@@ -348,7 +348,8 @@ Complete the following tasks. Continue in the Jupyter notebook used for _Activit
 The result should be around 0.91.
 
 ---
-### Bài Tập 1: Model Improvement (Cấp độ Cơ bản)
+### Bài tập tổng hợp
+#### Bài Tập 1: Model Improvement (Cấp độ Cơ bản)
 
 **Yêu cầu**: Cải thiện mô hình hiện tại bằng cách:
 
@@ -379,7 +380,7 @@ def improve_model():
 # Học viên tự implement
 ```
 
-### Bài Tập 2: Business Case Analysis (Cấp độ Trung bình)
+#### Bài Tập 2: Business Case Analysis (Cấp độ Trung bình)
 
 **Scenario**: Bạn là Data Analyst tại một công ty retail online. Marketing team muốn biết:
 
@@ -405,7 +406,7 @@ def business_case_analysis():
     pass
 ```
 
-### Bài Tập 3: Advanced Implementation (Cấp độ Nâng cao)
+#### Bài Tập 3: Advanced Implementation (Cấp độ Nâng cao)
 
 **Yêu cầu**: Xây dựng complete ML pipeline
 
@@ -445,7 +446,7 @@ predictor = CustomerRevenuePredictor()
 # Implement và test
 ```
 
-### Bài Tập 4: Data Quality Assessment (Cấp độ Cơ bản)
+#### Bài Tập 4: Data Quality Assessment (Cấp độ Cơ bản)
 
 **Mục tiêu**: Học cách đánh giá và cải thiện chất lượng dữ liệu trước khi modeling
 
@@ -539,7 +540,7 @@ def data_quality_assessment(df):
 
 ---
 
-### Bài Tập 5: A/B Testing Revenue Impact (Cấp độ Trung bình)
+#### Bài Tập 5: A/B Testing Revenue Impact (Cấp độ Trung bình)
 
 **Mục tiêu**: Sử dụng regression để phân tích impact của A/B test lên customer revenue
 
@@ -683,7 +684,7 @@ A/B Test Analysis Results:
 
 ---
 
-### Bài Tập 6: Multi-Model Customer Lifetime Value System (Cấp độ Nâng cao)
+#### Bài Tập 6: Multi-Model Customer Lifetime Value System (Cấp độ Nâng cao)
 
 **Mục tiêu**: Xây dựng hệ thống hoàn chỉnh để predict Customer Lifetime Value với multiple models
 
@@ -950,7 +951,7 @@ Bonus Points:
 
 ---
 
-### Bài Tập 7: Model Validation và Deployment
+#### Bài Tập 7: Model Validation và Deployment
 
 **Yêu cầu**: 
 1. Implement cross-validation
