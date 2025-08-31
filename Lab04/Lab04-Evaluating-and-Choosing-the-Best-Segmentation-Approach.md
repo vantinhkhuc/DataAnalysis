@@ -22,23 +22,24 @@ The goal of this exercise is to load the data and perform basic clean-up so that
 **Code:**
 
 ```python
-# 1. In a fresh Jupyter notebook, import pandas, numpy, matplotlib and seaborn libraries and
-#    load the mall customer data from the file  Mall_Customers.csv into a DataFrame (mall0)
-#    and print the top five records, using the code below. 
+# 1.	In a fresh Jupyter notebook, import pandas, numpy, matplotlib and seaborn libraries and
+#   	load the mall customer data from the file  Mall_Customers.csv into a DataFrame (mall0)
+#   	and print the top five records, using the code below. 
 import numpy as np, pandas as pd
 import matplotlib.pyplot as plt, seaborn as sns
+
 mall0 = pd.read_csv("Mall_Customers.csv")
 mall0.head()
 
-# 2. Rename the columns 'Annual Income (k$)' and  
-#    'Spending Score (1-100)' to 'Income' and 'Spend_score' respectively.
-#    Print the top five records of the dataset to confirm that the change was completed.
+# 2.	Rename the columns 'Annual Income (k$)' and  
+#   	'Spending Score (1-100)' to 'Income' and 'Spend_score' respectively.
+#   	Print the top five records of the dataset to confirm that the change was completed.
 mall0.rename({'Annual Income (k$)':'Income',  'Spending Score (1-100)':'Spend_score'},
              axis=1, inplace=True)
 mall0.head()
 
-# 3. Plot a scatterplot of the Income and Spend_score fields using the following code.
-#    You will be performing clustering later using these two features as the criteria.
+# 3.	Plot a scatterplot of the Income and Spend_score fields using the following code.
+#   	You will be performing clustering later using these two features as the criteria.
 mall0.plot.scatter(x='Income', y='Spend_score', color='gray')
 plt.show()
 
@@ -56,7 +57,9 @@ The goal of the exercise is to further refine the customer segmentation approach
 #    after copying the information into new dataset named mall_scaled, using the following code: 
 mall_scaled = mall0.copy()
 cols_to_scale = ['Age', 'Income', 'Spend_score']
+
 from sklearn.preprocessing import StandardScaler
+
 scaler = StandardScaler()
 mall_scaled[cols_to_scale] = scaler.fit_transform(mall_scaled[cols_to_scale])
 
@@ -65,6 +68,7 @@ mall_scaled[cols_to_scale] = scaler.fit_transform(mall_scaled[cols_to_scale])
 #    and define the colors and shapes that you will use for each cluster
 #    (since you will be visualizing up to seven clusters in all, define seven different shapes), as follows: 
 from sklearn.cluster import KMeans
+
 cluster_cols = ['Income', 'Spend_score']
 markers = ['x', '*', '.', '|', '_', '1', '2']
 
@@ -78,6 +82,7 @@ markers = ['x', '*', '.', '|', '_', '1', '2']
 #    Use a separate for loop to plot each cluster in each subplot,
 #    so we can use different shapes for each cluster. Use the following snippet:
 plt.figure(figsize=[12,8])
+
 for n in range(2,8):
     model = KMeans(n_clusters=n, random_state=42)
     mall_scaled['Cluster']= model.fit_predict(mall_scaled[cluster_cols])
@@ -91,6 +96,7 @@ for n in range(2,8):
         plt.xlabel('Income')
         plt.ylabel('Spend_score')
         plt.legend()
+
 plt.show()
 
 ```
@@ -118,6 +124,7 @@ print(model.inertia_)
 #    ranging from 2 to 10 and store the inertia values for the different models in a list. 
 X = mall_scaled[cluster_cols]
 inertia_scores = []
+
 for K in range(2,11):
     inertia = KMeans(n_clusters=K, random_state=42).fit(X).inertia_
     inertia_scores.append(inertia)
@@ -177,12 +184,13 @@ In this exercise, you will cluster mall customers using the mean-shift algorithm
 # 1.	Import MeanShift and estimate_bandwidth from sklearn and create a variable 'bandwidth'
 #    with a value of 0.9 – the bandwidth to use (an arbitrary, high value). The code is as follows - 
 from sklearn.cluster import MeanShift, estimate_bandwidth
+
 bandwidth = 0.9
 
 # 2.	To perform mean-shift clustering on the standardized data,
-#    create an instance of MeanShift, specifying the bandwidth and setting bin_seeding
-#    to True (to speed up the algorithm). Fit the model on the data and assign
-#    the cluster to the variable 'Cluster'. Use the following code:
+#   	create an instance of MeanShift, specifying the bandwidth and setting bin_seeding
+#   	to True (to speed up the algorithm). Fit the model on the data and assign
+#   	the cluster to the variable 'Cluster'. Use the following code:
 ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
 ms.fit(mall_scaled[cluster_cols])
 
@@ -191,19 +199,22 @@ mall_scaled['Cluster']= ms.predict(X)
 # 3.	Visualize the clusters using a scatter plot. 
 markers = ['x', '*', '.', '|', '_', '1', '2']
 plt.figure(figsize=[8,6])
+
 for clust in range(mall_scaled.Cluster.nunique()):
      temp = mall_scaled[mall_scaled.Cluster == clust]
      plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
                  label="Cluster"+str(clust), color='gray')
+
 plt.xlabel("Income")
 plt.ylabel("Spend_score")
 plt.legend()
+
 plt.show()
 
 # 4.	Estimate the required bandwidth using the estimate_bandwidth method.
-#    Use the estimate_bandwidth function with a quantile value of 0.1 (an arbitrary choice)
-#    to estimate the best bandwidth to use. Print the value, fit the model,
-#    and note the number of clusters, using the following code: 
+#   	Use the estimate_bandwidth function with a quantile value of 0.1 (an arbitrary choice)
+#   	to estimate the best bandwidth to use. Print the value, fit the model,
+#   	and note the number of clusters, using the following code: 
 bandwidth = estimate_bandwidth(mall_scaled[cluster_cols], quantile=0.1)
 print(bandwidth)
 
@@ -214,6 +225,7 @@ mall_scaled.Cluster.nunique()
 
 # 5.	Visualize the obtained clusters using a scatter plot.
 plt.figure(figsize=[8,6])
+
 for clust in range(mall_scaled.Cluster.nunique()):
      temp = mall_scaled[mall_scaled.Cluster == clust]
      plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
@@ -221,6 +233,7 @@ for clust in range(mall_scaled.Cluster.nunique()):
 plt.xlabel("Income")
 plt.ylabel("Spend_score")
 plt.legend()
+
 plt.show()
 
 
@@ -234,10 +247,11 @@ print(bandwidth)
  ms.fit(mall_scaled[cluster_cols])
  mall_scaled['Cluster']= ms.predict(mall_scaled[cluster_cols])
  mall_scaled.Cluster.nunique()
- The result should be 5. 
+ #   	The result should be 5. 
 
 # 8. Visualize the clusters obtained. 
 plt.figure(figsize=[8,6])
+
 for clust in range(mall_scaled.Cluster.nunique()):
     temp = mall_scaled[mall_scaled.Cluster == clust]
     plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], 
@@ -245,6 +259,7 @@ for clust in range(mall_scaled.Cluster.nunique()):
  plt.xlabel("Income")
  plt.ylabel("Spend_score")
  plt.legend()
+
  plt.show()
 ```
 
@@ -266,6 +281,7 @@ bank0.head()
 
 # 2.	Standardize the Income column:
 from sklearn.preprocessing import StandardScaler
+
 scaler = StandardScaler()
 bank_scaled = bank0.copy()
 bank_scaled['Income'] = scaler.fit_transform(bank0[['Income']])
@@ -275,6 +291,7 @@ bank_scaled['Income'] = scaler.fit_transform(bank0[['Income']])
 #    as categorical and save the result of the clustering as a new column 
 #    called cluster.Specify a random_state of 42 for consistency.
 from kmodes.kprototypes import KPrototypes
+
 cluster_cols = ['Income', 'Education']
 kp = KPrototypes(n_clusters=3, random_state=42)
 bank_scaled['Cluster'] = kp.fit_predict(bank_scaled[cluster_cols], categorical=[1])
@@ -283,7 +300,8 @@ bank_scaled['Cluster'] = kp.fit_predict(bank_scaled[cluster_cols], categorical=[
 #    the different education levels in each cluster using the following code.
 res = bank_scaled.groupby('Cluster')['Education'].value_counts(normalize=True)
 res.unstack().plot.barh(figsize=[9,6], color=['black','lightgray','dimgray'])
-plt.show()
+
+# plt.show()
 
 ```
 
@@ -298,11 +316,13 @@ In this exercise, you will continue working on the mall customer segmentation ca
 # 1. Import pandas and read in the data from the file  
 #    Bank_Personal_Loan_Modelling-2.csv into a pandas DataFrame named bank0:
 import pandas as pd
+
 bank0 = pd.read_csv("Bank_Personal_Loan_Modelling-2.csv")
 bank0.head()
 
 # 2.	Standardize the Income column:
 from sklearn.preprocessing import StandardScaler
+
 scaler = StandardScaler()
 bank_scaled = bank0.copy()
 bank_scaled['Income'] = scaler.fit_transform(bank0[['Income']])
@@ -312,6 +332,7 @@ bank_scaled['Income'] = scaler.fit_transform(bank0[['Income']])
 #    as categorical and save the result of the clustering as a new column 
 #    called cluster.Specify a random_state of 42 for consistency.
 from kmodes.kprototypes import KPrototypes
+
 cluster_cols = ['Income', 'Education']
 kp = KPrototypes(n_clusters=3, random_state=42)
 bank_scaled['Cluster'] = kp.fit_predict(bank_scaled[cluster_cols], categorical=[1])
@@ -320,7 +341,7 @@ bank_scaled['Cluster'] = kp.fit_predict(bank_scaled[cluster_cols], categorical=[
 #    the different education levels in each cluster using the following code.
 res = bank_scaled.groupby('Cluster')['Education'].value_counts(normalize=True)
 res.unstack().plot.barh(figsize=[9,6], color=['black','lightgray','dimgray'])
-plt.show()
+# plt.show()
 
 ```
 
@@ -335,6 +356,7 @@ In this exercise, you will use a train-test split approach to evaluate the perfo
 # 1. Import the train_test_split function from sklearn and perform the split on the mall customer data.
 #    Specify the train size as 0.75 and  a random_state of 42. Print the shapes of the resulting datasets.
 from sklearn.model_selection import train_test_split
+
 df_train, df_test = train_test_split(mall0, train_size=0.75, random_state=42)
 
 #    Specifying a train_size of 0.75 assigns 75% of the records to the train set and
@@ -346,6 +368,7 @@ print(df_test.shape)
 #    Ignore the warnings (if any) resulting from this step.
 model = KMeans(n_clusters=6, random_state=42)
 df_train['Cluster'] = model.fit_predict(df_train[cluster_cols])
+
 silhouette_avg = silhouette_score(df_train[cluster_cols], df_train['Cluster'])
 print(silhouette_avg)
 
@@ -353,6 +376,7 @@ print(silhouette_avg)
 #    Then, calculate the average silhouette score for the test data using the following code.
 #    Ignore warnings, if any, from the code. 
 df_test['Cluster'] = model.predict(df_test[cluster_cols])
+
 silhouette_avg = silhouette_score(df_test[cluster_cols],df_test['Cluster'])
 print(silhouette_avg)
 
@@ -361,8 +385,10 @@ print(silhouette_avg)
 for clust in range(df_test.Cluster.nunique()):
      temp = df_test[df_test.Cluster == clust]
      plt.scatter(temp.Income, temp.Spend_score, marker=markers[clust], color='gray')
+
 plt.xlabel("Income")
 plt.ylabel("Spend_score")
+
 plt.show()
 
 ```
