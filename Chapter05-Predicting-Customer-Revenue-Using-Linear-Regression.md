@@ -860,3 +860,680 @@ Complete the following tasks. Continue in the Jupyter notebook used for _Activit
 The result should be around 0.91.
 
 ---
+### Bài tập tổng hợp
+#### Bài Tập 1: Model Improvement (Cấp độ Cơ bản)
+
+**Yêu cầu**: Cải thiện mô hình hiện tại bằng cách:
+
+1. Thêm feature engineering mới
+2. Thử nghiệm với polynomial features
+3. So sánh kết quả với mô hình gốc
+
+```python
+# Template cho học viên
+from sklearn.preprocessing import PolynomialFeatures
+
+def improve_model():
+    """
+    Bài tập: Cải thiện mô hình linear regression
+    """
+    # TODO: 1. Create new engineered features
+    # Gợi ý: interaction features, polynomial features, binning
+    
+    # TODO: 2. Try polynomial regression
+    poly = PolynomialFeatures(degree=2, include_bias=False)
+    # Implement polynomial features
+    
+    # TODO: 3. Compare results
+    # So sánh MAE, RMSE, R² với mô hình gốc
+    
+    pass
+
+# Học viên tự implement
+```
+
+#### Bài Tập 2: Business Case Analysis (Cấp độ Trung bình)
+
+**Scenario**: Bạn là Data Analyst tại một công ty retail online. Marketing team muốn biết:
+
+1. Nên đầu tư marketing budget vào channel nào?
+2. Khách hàng nào có tiềm năng revenue cao nhất?
+3. Làm thế nào để tăng revenue per customer lên 20%?
+
+**Yêu cầu**:
+```python
+def business_case_analysis():
+    """
+    Phân tích business case với linear regression model
+    """
+    # TODO: 1. Analyze marketing channel impact
+    # Sử dụng coefficients để đánh giá hiệu quả từng channel
+    
+    # TODO: 2. Create customer scoring system
+    # Rank customers theo predicted revenue
+    
+    # TODO: 3. Revenue optimization strategy
+    # Tìm features có thể optimize để tăng revenue
+    
+    pass
+```
+
+#### Bài Tập 3: Advanced Implementation (Cấp độ Nâng cao)
+
+**Yêu cầu**: Xây dựng complete ML pipeline
+
+```python
+class CustomerRevenuePredictor:
+    """
+    Complete ML pipeline for customer revenue prediction
+    """
+    
+    def __init__(self):
+        self.model = None
+        self.scaler = None
+        self.feature_names = None
+    
+    def preprocess_data(self, df):
+        # TODO: Implement complete preprocessing pipeline
+        pass
+    
+    def train(self, X, y):
+        # TODO: Train model with cross-validation
+        pass
+    
+    def predict(self, X):
+        # TODO: Make predictions with confidence intervals
+        pass
+    
+    def explain_prediction(self, customer_data):
+        # TODO: Explain individual predictions
+        pass
+    
+    def generate_report(self):
+        # TODO: Generate business report
+        pass
+
+# Test với new data
+predictor = CustomerRevenuePredictor()
+# Implement và test
+```
+
+#### Bài Tập 4: Data Quality Assessment (Cấp độ Cơ bản)
+
+**Mục tiêu**: Học cách đánh giá và cải thiện chất lượng dữ liệu trước khi modeling
+
+**Dataset**: Bạn nhận được một dataset khách hàng mới với nhiều vấn đề về chất lượng dữ liệu
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Tạo dataset có vấn đề để thực hành
+np.random.seed(123)
+problematic_data = {
+    'customer_id': ['CUST_' + str(i).zfill(4) for i in range(1, 501)],
+    'age': np.concatenate([
+        np.random.randint(18, 80, 450),  # Normal ages
+        [-5, 150, 999, 0, -10]           # Invalid ages
+    ]),
+    'income': np.concatenate([
+        np.random.normal(55000, 20000, 480),  # Normal incomes
+        [0, -50000, 999999999, np.nan, None]  # Problematic values
+    ]),
+    'email': [f'user{i}@email.com' if i % 10 != 0 else 
+             ('invalid_email' if i % 20 == 0 else np.nan) 
+             for i in range(1, 501)],
+    'registration_date': pd.date_range('2020-01-01', periods=500, freq='D'),
+    'last_purchase_amount': np.concatenate([
+        np.random.exponential(100, 470),      # Normal purchases
+        [0, 0, -100, np.nan, 999999]         # Problematic values
+    ])
+}
+
+df_problems = pd.DataFrame(problematic_data)
+
+# === NHIỆM VỤ CỦA HỌC VIÊN ===
+
+def data_quality_assessment(df):
+    """
+    Bài tập 1: Đánh giá chất lượng dữ liệu
+    
+    TODO: Hoàn thành các function sau
+    """
+    
+    # 1. Phát hiện missing values
+    def detect_missing_values():
+        # TODO: Tạo report về missing values
+        # - Số lượng và tỷ lệ missing values cho mỗi column
+        # - Visualize missing data pattern
+        # - Đề xuất cách xử lý
+        pass
+    
+    # 2. Phát hiện outliers
+    def detect_outliers():
+        # TODO: Sử dụng multiple methods
+        # - IQR method
+        # - Z-score method  
+        # - Isolation Forest (bonus)
+        # - Visualize outliers bằng boxplot và scatter
+        pass
+    
+    # 3. Validate data types và formats
+    def validate_data_formats():
+        # TODO: Check data consistency
+        # - Email format validation
+        # - Age reasonable ranges (18-100)
+        # - Income positive values
+        # - Date formats
+        pass
+    
+    # 4. Tạo data quality report
+    def create_quality_report():
+        # TODO: Tạo comprehensive report
+        # - Summary statistics
+        # - Quality score (0-100)
+        # - Recommended actions
+        pass
+    
+    # Gọi các functions và return results
+    return detect_missing_values(), detect_outliers(), validate_data_formats(), create_quality_report()
+
+# Test function
+# quality_results = data_quality_assessment(df_problems)
+```
+
+**Deliverable**:
+- Jupyter notebook với complete data quality analysis
+- Data cleaning pipeline
+- Before/after comparison charts
+- Written report về data quality issues tìm được
+
+---
+
+#### Bài Tập 5: A/B Testing Revenue Impact (Cấp độ Trung bình)
+
+**Mục tiêu**: Sử dụng regression để phân tích impact của A/B test lên customer revenue
+
+**Scenario**: 
+Công ty đã chạy A/B test cho 2 tháng với 2 versions của product page:
+- **Control Group (A)**: Original product page
+- **Treatment Group (B)**: New design với enhanced features
+
+```python
+# Tạo A/B test dataset
+np.random.seed(456)
+n_customers = 2000
+
+ab_test_data = {
+    'customer_id': [f'AB_{i:04d}' for i in range(1, n_customers + 1)],
+    'test_group': np.random.choice(['A', 'B'], n_customers, p=[0.5, 0.5]),
+    'age': np.random.randint(18, 70, n_customers),
+    'gender': np.random.choice(['Male', 'Female', 'Other'], n_customers, p=[0.45, 0.50, 0.05]),
+    'previous_revenue': np.random.exponential(800, n_customers),
+    'session_duration': np.random.normal(15, 5, n_customers),  # minutes
+    'pages_viewed': np.random.poisson(8, n_customers),
+    'device_type': np.random.choice(['Mobile', 'Desktop', 'Tablet'], n_customers, p=[0.6, 0.35, 0.05]),
+    'marketing_channel': np.random.choice(['Organic', 'Paid', 'Social', 'Email'], n_customers)
+}
+
+# Create revenue với treatment effect
+treatment_effect = 150  # $150 additional revenue for group B
+df_ab = pd.DataFrame(ab_test_data)
+
+# Revenue generation with treatment effect
+base_revenue = (
+    df_ab['previous_revenue'] * 0.3 +
+    df_ab['session_duration'] * 10 +
+    df_ab['pages_viewed'] * 15 +
+    np.random.normal(0, 100, n_customers)
+)
+
+# Add treatment effect for group B
+df_ab['post_test_revenue'] = np.where(
+    df_ab['test_group'] == 'B', 
+    base_revenue + treatment_effect + np.random.normal(0, 50, n_customers),
+    base_revenue + np.random.normal(0, 50, n_customers)
+)
+
+# === NHIỆM VỤ CỦA HỌC VIÊN ===
+
+class ABTestAnalyzer:
+    """
+    Bài tập 2: A/B Test Analysis với Regression
+    """
+    
+    def __init__(self, data):
+        self.data = data.copy()
+        self.results = {}
+    
+    def descriptive_analysis(self):
+        """
+        TODO: 1. Phân tích mô tả cơ bản
+        - So sánh revenue giữa 2 groups
+        - Check balance của demographics
+        - Visualize distributions
+        """
+        pass
+    
+    def statistical_significance_test(self):
+        """
+        TODO: 2. Kiểm định thống kê
+        - T-test for revenue difference
+        - Chi-square test for categorical variables
+        - Effect size calculation (Cohen's d)
+        """
+        pass
+    
+    def regression_analysis(self):
+        """
+        TODO: 3. Regression Analysis (KEY PART)
+        
+        Model: revenue = β₀ + β₁*treatment + β₂*age + β₃*previous_revenue + ... + ε
+        
+        - Build regression model với treatment variable
+        - Control for other factors (age, device, etc.)
+        - Interpret treatment coefficient
+        - Calculate confidence intervals
+        """
+        pass
+    
+    def segmentation_analysis(self):
+        """
+        TODO: 4. Segmented Analysis
+        - Phân tích treatment effect theo demographics
+        - Mobile vs Desktop users
+        - New vs Returning customers
+        - Age groups
+        """
+        pass
+    
+    def business_recommendations(self):
+        """
+        TODO: 5. Business Recommendations
+        - Should we roll out treatment to all users?
+        - What's the expected revenue impact?
+        - Which segments benefit most?
+        - ROI calculation
+        """
+        pass
+
+# Test class
+# analyzer = ABTestAnalyzer(df_ab)
+# analyzer.descriptive_analysis()
+# analyzer.regression_analysis()
+```
+
+**Expected Output**:
+```python
+# Ví dụ expected results
+"""
+A/B Test Analysis Results:
+========================
+1. Overall Impact:
+   - Treatment Group Average Revenue: $1,234
+   - Control Group Average Revenue: $1,089  
+   - Difference: $145 (13.3% increase)
+   - Statistical Significance: p < 0.001
+   
+2. Regression Results:
+   - Treatment Effect: $142.7 (95% CI: $98.3 - $187.1)
+   - R²: 0.67
+   - Adjusted for: age, device, previous_revenue, session_duration
+   
+3. Segment Analysis:
+   - Mobile users: +$167 revenue
+   - Desktop users: +$128 revenue
+   - Users 25-40: Highest treatment effect (+$201)
+   
+4. Business Recommendation: IMPLEMENT
+   - Expected annual revenue increase: $2.1M
+   - Implementation cost: $500K
+   - ROI: 320%
+"""
+```
+
+---
+
+#### Bài Tập 6: Multi-Model Customer Lifetime Value System (Cấp độ Nâng cao)
+
+**Mục tiêu**: Xây dựng hệ thống hoàn chỉnh để predict Customer Lifetime Value với multiple models
+
+**Business Context**: 
+Bạn là Senior Data Scientist tại một subscription-based business. Cần xây dựng CLV prediction system để:
+- Optimize customer acquisition cost (CAC)
+- Personalize retention strategies  
+- Forecast long-term revenue
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression, Ridge, Lasso
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.model_selection import cross_val_score, GridSearchCV, TimeSeriesSplit
+import joblib
+import warnings
+warnings.filterwarnings('ignore')
+
+# Tạo complex subscription dataset
+np.random.seed(789)
+n_customers = 5000
+
+subscription_data = {
+    'customer_id': [f'SUB_{i:05d}' for i in range(1, n_customers + 1)],
+    'signup_date': pd.date_range('2020-01-01', periods=n_customers, freq='D'),
+    'subscription_tier': np.random.choice(['Basic', 'Premium', 'Enterprise'], 
+                                        n_customers, p=[0.6, 0.3, 0.1]),
+    'acquisition_channel': np.random.choice(['Organic', 'Paid_Search', 'Social', 'Referral'], 
+                                          n_customers, p=[0.4, 0.3, 0.2, 0.1]),
+    'initial_payment': np.random.choice([9.99, 19.99, 49.99], n_customers, p=[0.6, 0.3, 0.1]),
+    'customer_age': np.random.randint(18, 65, n_customers),
+    'company_size': np.random.choice(['1-10', '11-50', '51-200', '200+'], 
+                                   n_customers, p=[0.5, 0.3, 0.15, 0.05]),
+    
+    # Behavioral features
+    'first_month_logins': np.random.poisson(15, n_customers),
+    'feature_adoption_score': np.random.beta(2, 5, n_customers),  # 0-1 scale
+    'support_tickets_count': np.random.poisson(2, n_customers),
+    'referrals_made': np.random.poisson(0.5, n_customers),
+    
+    # Engagement metrics
+    'avg_session_duration': np.random.exponential(20, n_customers),  # minutes
+    'monthly_active_days': np.random.randint(1, 31, n_customers),
+    'integration_usage': np.random.choice([0, 1], n_customers, p=[0.7, 0.3]),
+}
+
+df_clv = pd.DataFrame(subscription_data)
+
+# Generate complex CLV với multiple factors
+def generate_realistic_clv(row):
+    base_clv = row['initial_payment'] * 12  # Annual value
+    
+    # Tier multipliers
+    tier_multiplier = {'Basic': 1.0, 'Premium': 2.5, 'Enterprise': 8.0}[row['subscription_tier']]
+    
+    # Channel quality
+    channel_quality = {'Organic': 1.3, 'Referral': 1.5, 'Paid_Search': 1.1, 'Social': 0.9}[row['acquisition_channel']]
+    
+    # Behavioral impact
+    engagement_score = (
+        row['first_month_logins'] / 30 +
+        row['feature_adoption_score'] +
+        row['monthly_active_days'] / 31 +
+        row['integration_usage'] * 0.5
+    ) / 4
+    
+    # Final CLV calculation
+    clv = base_clv * tier_multiplier * channel_quality * (0.5 + engagement_score) * np.random.uniform(0.8, 1.2)
+    
+    return max(clv, 0)  # Ensure non-negative
+
+df_clv['actual_clv'] = df_clv.apply(generate_realistic_clv, axis=1)
+
+# === NHIỆM VỤ NÂNG CAO ===
+
+class CLVPredictionSystem:
+    """
+    Bài tập 3: Complete CLV Prediction System
+    
+    Requirements:
+    1. Multiple model comparison
+    2. Feature engineering pipeline
+    3. Model interpretation
+    4. Business simulation
+    5. Production-ready code
+    """
+    
+    def __init__(self):
+        self.models = {}
+        self.preprocessor = None
+        self.feature_names = None
+        self.best_model = None
+        self.business_metrics = {}
+    
+    def advanced_feature_engineering(self, df):
+        """
+        TODO: 1. Sophisticated Feature Engineering
+        
+        Create advanced features:
+        - Time-based features (seasonality, tenure)
+        - Interaction features (tier × channel)
+        - Behavioral clusters
+        - Risk scores (churn probability)
+        - Cohort analysis features
+        """
+        pass
+    
+    def model_comparison_pipeline(self, X, y):
+        """
+        TODO: 2. Multi-Model Comparison
+        
+        Compare models:
+        - Linear Regression (baseline)
+        - Ridge Regression (L2 regularization)
+        - Lasso Regression (feature selection)
+        - Random Forest (non-linear patterns)
+        - Gradient Boosting (bonus: XGBoost/LightGBM)
+        
+        Use cross-validation and multiple metrics
+        """
+        models_to_test = {
+            'Linear': LinearRegression(),
+            'Ridge': Ridge(),
+            'Lasso': Lasso(),
+            'RandomForest': RandomForestRegressor(n_estimators=100, random_state=42)
+        }
+        
+        # TODO: Implement grid search và cross-validation
+        pass
+    
+    def feature_importance_analysis(self):
+        """
+        TODO: 3. Advanced Model Interpretation
+        
+        Implement:
+        - Coefficient analysis (linear models)
+        - Feature importance (tree models)  
+        - SHAP values (if time permits)
+        - Partial dependence plots
+        """
+        pass
+    
+    def business_simulation(self, model, X_test, y_test):
+        """
+        TODO: 4. Business Impact Simulation
+        
+        Simulate business scenarios:
+        - Customer acquisition ROI
+        - Retention campaign targeting
+        - Pricing strategy optimization
+        - Revenue forecasting
+        """
+        
+        # Example simulation framework
+        def simulate_acquisition_strategy():
+            # TODO: If CAC = $100, which customers to acquire?
+            predictions = model.predict(X_test)
+            # Calculate ROI for different customer segments
+            pass
+        
+        def simulate_retention_campaigns():
+            # TODO: Which customers to target for retention?
+            # High CLV + High churn risk = Priority
+            pass
+        
+        pass
+    
+    def production_deployment_prep(self):
+        """
+        TODO: 5. Production Readiness
+        
+        Implement:
+        - Model serialization/deserialization
+        - Input validation
+        - Prediction confidence intervals
+        - Model monitoring setup
+        - API endpoint template
+        """
+        
+        def save_model_pipeline(self, filepath):
+            # TODO: Save complete pipeline
+            pass
+        
+        def load_model_pipeline(filepath):
+            # TODO: Load và validate
+            pass
+        
+        def predict_with_confidence(self, X):
+            # TODO: Predictions với uncertainty quantification
+            pass
+        
+        pass
+    
+    def generate_executive_report(self):
+        """
+        TODO: 6. Executive Summary Report
+        
+        Create business-friendly report:
+        - Model performance in business terms
+        - Expected revenue impact
+        - Strategic recommendations
+        - Implementation roadmap
+        """
+        pass
+
+# === EVALUATION CRITERIA ===
+"""
+Advanced Exercise Evaluation:
+
+Technical Excellence (40%):
+- Code quality và best practices
+- Multiple model implementation
+- Proper cross-validation
+- Feature engineering creativity
+
+Business Impact (35%):
+- Realistic business scenarios
+- ROI calculations
+- Strategic recommendations
+- Executive communication
+
+Innovation (25%):
+- Creative feature engineering
+- Advanced techniques usage
+- Production considerations
+- Novel insights discovery
+
+Bonus Points:
+- SHAP implementation
+- Interactive visualizations
+- Docker containerization
+- Real-time prediction API
+"""
+
+# Test implementation
+# clv_system = CLVPredictionSystem()
+# clv_system.advanced_feature_engineering(df_clv)
+# clv_system.model_comparison_pipeline(X, y)
+```
+
+**Expected Deliverables**:
+
+1. **Technical Report** (Jupyter Notebook):
+   - Complete model comparison với metrics
+   - Feature importance analysis
+   - Model interpretation visualizations
+
+2. **Business Report** (PowerPoint/PDF):
+   - Executive summary
+   - ROI projections
+   - Strategic recommendations
+
+3. **Production Code** (Python files):
+   - Clean, documented model pipeline
+   - Unit tests
+   - API endpoint example
+
+4. **Interactive Dashboard** (Bonus):
+   - Streamlit/Dash app
+   - Real-time CLV predictions
+   - Business scenario simulations
+
+---
+
+#### Bài Tập 7: Model Validation và Deployment
+
+**Yêu cầu**: 
+1. Implement cross-validation
+2. Create model monitoring system
+3. Build simple API endpoint
+
+```python
+from sklearn.model_selection import cross_val_score
+from flask import Flask, request, jsonify
+
+# TODO: 1. Cross-validation
+def perform_cross_validation():
+    # Implement 5-fold CV
+    pass
+
+# TODO: 2. Model monitoring
+def monitor_model_performance():
+    # Track model drift
+    pass
+
+# TODO: 3. Simple API
+app = Flask(__name__)
+
+@app.route('/predict', methods=['POST'])
+def predict_revenue():
+    # TODO: Implement prediction API
+    pass
+```
+
+---
+
+## Tài Liệu Tham Khảo và Đọc Thêm
+
+### Essential Libraries Documentation
+- **Scikit-learn**: [Linear Regression Guide](https://scikit-learn.org/stable/modules/linear_model.html)
+- **Pandas**: [Data Manipulation](https://pandas.pydata.org/docs/)
+- **NumPy**: [Numerical Computing](https://numpy.org/doc/)
+
+### Advanced Topics
+- **Regularization**: Ridge, Lasso, Elastic Net regression
+- **Feature Selection**: Statistical methods, Recursive Feature Elimination
+- **Model Interpretation**: SHAP values, LIME
+- **Time Series**: When revenue has temporal dependencies
+
+### Business Applications
+- Customer Lifetime Value (CLV) modeling
+- Price optimization
+- Demand forecasting
+- Marketing mix modeling
+
+---
+
+## Checklist Đánh Giá
+
+### Kiến thức cơ bản ✓
+- [ ] Hiểu được supervised learning và regression
+- [ ] Nắm vững linear regression assumptions
+- [ ] Biết cách đánh giá model performance
+
+### Kỹ năng thực hành ✓
+- [ ] Thực hiện EDA và data cleaning
+- [ ] Engineer features hiệu quả
+- [ ] Implement và evaluate linear regression
+- [ ] Interpret results và derive insights
+
+### Tư duy kinh doanh ✓
+- [ ] Chuyển đổi business problems thành ML problems
+- [ ] Diễn giải technical results cho business stakeholders
+- [ ] Đưa ra recommendations dựa trên model insights
+
+---
+
+*Lưu ý: Bài giảng này được thiết kế cho học viên đã có kiến thức lập trình Python cơ bản. Các bài tập được sắp xếp theo độ khó tăng dần để học viên có thể phát triển kỹ năng từng bước.*
