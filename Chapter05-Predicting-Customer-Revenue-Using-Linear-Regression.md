@@ -11,25 +11,37 @@ You are provided with historical advertising data – weekly sales and spend on 
 
 ```python
 # 1.	Import the relevant libraries for plotting and data manipulation, load advertising.csv
-#    dataset into a pandas DataFrame, and print the top five records using the following code:
-import numpy as np, pandas as pd import matplotlib.pyplot as plt, seaborn as sns advertising = pd.read_csv("advertising.csv") advertising.head()
+#   	dataset into a pandas DataFrame, and print the top five records using the following code:
+import numpy as np, pandas as pd
+import matplotlib.pyplot as plt, seaborn as sns
+advertising = pd.read_csv("advertising.csv")
+advertising.head()
 
 
 # 2.	Visualize the association between TV and Sales through a scatter plot using the following code:
-plt.scatter(advertising.TV, advertising.Sales, \             marker="+", color='gray') plt.xlabel("TV") plt.ylabel("Sales") plt.show()
+plt.scatter(advertising.TV, advertising.Sales, marker="+", color='gray')
+plt.xlabel("TV") plt.ylabel("Sales")
+plt.show()
 
 
 # 3.	Import LinearRegression from sklearn and create an instance of LinearRegression using the following code:
-from sklearn.linear_model import LinearRegression lr = LinearRegression()
+from sklearn.linear_model import LinearRegression
+lr = LinearRegression()
 
-# 4.	Fit a linear regression model, supplying the TV column as the features and Sales as the outcome, using the fit method of LinearRegression: 
+# 4.	Fit a linear regression model, supplying the TV column as the features and Sales as the outcome,
+#   	using the fit method of LinearRegression: 
 lr.fit(advertising[['TV']], advertising[['Sales']])
 
 # 5.	Using the predict method of the model, create a sales_pred variable containing the predictions from the model:
 sales_pred = lr.predict(advertising[['TV']])
 
-# 6.	Plot the predicted sales as a line over the scatter plot of Sales versus TV (using the simple line plot). This should help you assess how well the line fits the data and if it indeed is a good representation of the relationship:
-plt.plot(advertising.TV, sales_pred,"k--") plt.scatter(advertising.TV, advertising.Sales, \             marker='+', color='gray') plt.xlabel("TV") plt.ylabel('Sales') plt.show()
+# 6.	Plot the predicted sales as a line over the scatter plot of Sales versus TV (using the simple line plot).
+#   	This should help you assess how well the line fits the data and if it indeed is
+#   	a good representation of the relationship:
+plt.plot(advertising.TV, sales_pred,"k--")
+plt.scatter(advertising.TV, advertising.Sales, marker='+', color='gray')
+plt.xlabel("TV") plt.ylabel('Sales')
+plt.show()
 
 
 ```
