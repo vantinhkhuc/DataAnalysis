@@ -1,6 +1,568 @@
 # Chapter 05 Predicting Customer Revenue Using Linear Regression
 
-## **Bài tập Thực hành**
+
+## Mục tiêu học tập
+- Hiểu cách áp dụng machine learning để giải quyết các vấn đề kinh doanh
+- Nắm vững khái niệm regression và linear regression
+- Thực hiện các bước quan trọng trong quy trình modeling
+- Xây dựng và triển khai mô hình linear regression
+- Diễn giải kết quả và rút ra insights kinh doanh
+
+---
+
+## Phần 1: How to Solve Business Problems That Require the Prediction of Quantities
+
+### 1.1 Giới thiệu về Predictive Analytics trong Kinh doanh
+
+Trong thế giới kinh doanh hiện đại, việc dự đoán các chỉ số quan trọng là chìa khóa thành công. Các vấn đề kinh doanh thường gặp:
+
+- **Dự đoán doanh thu khách hàng**: Ước tính giá trị lifetime value của khách hàng
+- **Dự đoán nhu cầu sản phẩm**: Quản lý tồn kho hiệu quả
+- **Dự đoán giá bán**: Tối ưu hóa pricing strategy
+- **Dự đoán chi phí marketing**: Phân bổ ngân sách hiệu quả
+
+### 1.2 Quy trình giải quyết vấn đề kinh doanh với Machine Learning
+
+```
+Business Problem → Data Collection → Data Preparation → Model Building → Model Evaluation → Business Insights → Decision Making
+```
+
+**Ví dụ cụ thể**: Một công ty e-commerce muốn dự đoán doanh thu của khách hàng trong năm tới để:
+- Phân khúc khách hàng
+- Cá nhân hóa marketing campaigns
+- Tối ưu hóa customer service resources
+
+### 1.3 Xác định vấn đề và định nghĩa Success Metrics
+
+**Bước 1**: Định nghĩa rõ ràng vấn đề
+- Input: Thông tin lịch sử khách hàng (demographics, transaction history, behavior)
+- Output: Predicted revenue trong 12 tháng tới
+- Success metric: Mean Absolute Error (MAE), Root Mean Square Error (RMSE)
+
+**Bước 2**: Xác định tính khả thi
+- Liệu có đủ dữ liệu lịch sử không?
+- Chất lượng dữ liệu như thế nào?
+- Timeline cho project là bao lâu?
+
+---
+
+## Phần 2: Learn About Regression - A Supervised Learning Approach
+
+### 2.1 Supervised Learning Overview
+
+**Supervised Learning** là phương pháp machine learning sử dụng labeled data để training model.
+
+```python
+# Cấu trúc cơ bản của supervised learning
+X = features  # Input variables (age, income, purchase_frequency, etc.)
+y = target    # Output variable (customer_revenue)
+
+# Model learns the relationship: y = f(X)
+```
+
+### 2.2 Phân loại các loại Supervised Learning
+
+#### Classification vs Regression
+
+| **Classification** | **Regression** |
+|-------------------|----------------|
+| Predict categories/classes | Predict continuous quantities |
+| Output: Discrete values | Output: Continuous values |
+| Example: Email spam/not spam | Example: House price, customer revenue |
+| Metrics: Accuracy, Precision, Recall | Metrics: MAE, RMSE, R² |
+
+### 2.3 Khi nào sử dụng Regression?
+
+**Regression phù hợp khi**:
+- Target variable là continuous (doanh thu, giá cả, nhiệt độ)
+- Cần predict exact quantities
+- Quan tâm đến magnitude của prediction errors
+
+**Ví dụ thực tế**:
+```python
+# Regression problems
+customer_revenue = [1250.5, 2340.8, 890.2, 5670.1]  # Continuous values
+house_prices = [450000, 320000, 750000, 890000]     # Continuous values
+
+# Classification problems  
+customer_segment = ['High', 'Medium', 'Low', 'High']  # Discrete categories
+email_type = ['Spam', 'Not Spam', 'Spam', 'Not Spam'] # Discrete categories
+```
+
+### 2.4 Types of Regression
+
+- **Linear Regression**: Quan hệ tuyến tính
+- **Polynomial Regression**: Quan hệ phi tuyến
+- **Ridge/Lasso Regression**: Regularized linear regression
+- **Decision Tree Regression**: Non-parametric approach
+
+---
+
+## Phần 3: Explore Linear Regression - A Simple Yet Powerful Technique
+
+### 3.1 Mathematical Foundation
+
+Linear Regression tìm best-fit line thông qua dữ liệu:
+
+**Simple Linear Regression**: `y = β₀ + β₁x + ε`
+
+**Multiple Linear Regression**: `y = β₀ + β₁x₁ + β₂x₂ + ... + βₙxₙ + ε`
+
+Trong đó:
+- `y`: Target variable (customer revenue)
+- `β₀`: Intercept (bias term)
+- `β₁, β₂, ..., βₙ`: Coefficients (trọng số của features)
+- `x₁, x₂, ..., xₙ`: Features (age, income, etc.)
+- `ε`: Error term
+
+### 3.2 How Linear Regression Works
+
+**Objective**: Minimize Sum of Squared Errors (SSE)
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Ví dụ minh họa
+np.random.seed(42)
+x = np.random.randn(100)
+y = 2 * x + 3 + np.random.randn(100) * 0.5  # y = 2x + 3 + noise
+
+# Visualize relationship
+plt.figure(figsize=(10, 6))
+plt.scatter(x, y, alpha=0.6)
+plt.xlabel('Feature X')
+plt.ylabel('Target Y')
+plt.title('Linear Relationship Example')
+plt.grid(True, alpha=0.3)
+```
+
+### 3.3 Assumptions of Linear Regression
+
+1. **Linearity**: Quan hệ tuyến tính giữa features và target
+2. **Independence**: Các observations độc lập
+3. **Homoscedasticity**: Phương sai của errors constant
+4. **Normality**: Errors có phân phối chuẩn
+5. **No multicollinearity**: Features không có correlation cao
+
+### 3.4 Advantages và Limitations
+
+**Advantages**:
+- Simple và interpretable
+- Fast training và prediction
+- No hyperparameters tuning
+- Good baseline model
+- Works well với small datasets
+
+**Limitations**:
+- Assumes linear relationships
+- Sensitive to outliers
+- Requires feature scaling
+- Cannot capture complex patterns
+
+---
+
+## Phần 4: Feature Engineering và Data Cleaning
+
+### 4.1 Understanding the Dataset
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load dataset (giả sử ta có customer data)
+# Trong thực tế, bạn sẽ load từ file CSV hoặc database
+np.random.seed(42)
+n_customers = 1000
+
+# Tạo synthetic dataset cho demo
+data = {
+    'customer_id': range(1, n_customers + 1),
+    'age': np.random.randint(18, 70, n_customers),
+    'income': np.random.normal(50000, 15000, n_customers),
+    'tenure_months': np.random.randint(1, 60, n_customers),
+    'num_purchases': np.random.poisson(12, n_customers),
+    'avg_order_value': np.random.normal(100, 30, n_customers),
+    'customer_segment': np.random.choice(['Premium', 'Standard', 'Basic'], n_customers),
+    'marketing_channel': np.random.choice(['Email', 'Social', 'Search', 'Direct'], n_customers)
+}
+
+df = pd.DataFrame(data)
+
+# Tạo target variable với some logic
+df['annual_revenue'] = (
+    df['num_purchases'] * df['avg_order_value'] +
+    (df['income'] * 0.001) +
+    (df['tenure_months'] * 10) +
+    np.random.normal(0, 100, n_customers)
+)
+
+print("Dataset Overview:")
+print(df.head())
+print(f"\nDataset shape: {df.shape}")
+print(f"\nData types:\n{df.dtypes}")
+```
+
+### 4.2 Exploratory Data Analysis (EDA)
+
+```python
+# Basic statistics
+print("Descriptive Statistics:")
+print(df.describe())
+
+# Check for missing values
+print(f"\nMissing values:\n{df.isnull().sum()}")
+
+# Visualize target distribution
+plt.figure(figsize=(15, 5))
+
+plt.subplot(1, 3, 1)
+plt.hist(df['annual_revenue'], bins=30, alpha=0.7)
+plt.title('Distribution of Annual Revenue')
+plt.xlabel('Annual Revenue')
+plt.ylabel('Frequency')
+
+plt.subplot(1, 3, 2)
+plt.boxplot(df['annual_revenue'])
+plt.title('Annual Revenue Boxplot')
+plt.ylabel('Annual Revenue')
+
+plt.subplot(1, 3, 3)
+correlation_matrix = df.select_dtypes(include=[np.number]).corr()
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', center=0)
+plt.title('Correlation Matrix')
+
+plt.tight_layout()
+plt.show()
+```
+
+### 4.3 Data Cleaning Steps
+
+```python
+def clean_data(df):
+    """
+    Comprehensive data cleaning function
+    """
+    df_clean = df.copy()
+    
+    # 1. Handle missing values
+    print("Step 1: Handling missing values...")
+    numeric_columns = df_clean.select_dtypes(include=[np.number]).columns
+    categorical_columns = df_clean.select_dtypes(include=['object']).columns
+    
+    # Fill numeric columns with median
+    for col in numeric_columns:
+        if df_clean[col].isnull().sum() > 0:
+            df_clean[col].fillna(df_clean[col].median(), inplace=True)
+    
+    # Fill categorical columns with mode
+    for col in categorical_columns:
+        if df_clean[col].isnull().sum() > 0:
+            df_clean[col].fillna(df_clean[col].mode()[0], inplace=True)
+    
+    # 2. Handle outliers (using IQR method)
+    print("Step 2: Handling outliers...")
+    for col in numeric_columns:
+        if col != 'customer_id':  # Skip ID column
+            Q1 = df_clean[col].quantile(0.25)
+            Q3 = df_clean[col].quantile(0.75)
+            IQR = Q3 - Q1
+            lower_bound = Q1 - 1.5 * IQR
+            upper_bound = Q3 + 1.5 * IQR
+            
+            # Cap outliers instead of removing
+            df_clean[col] = np.where(df_clean[col] < lower_bound, lower_bound, df_clean[col])
+            df_clean[col] = np.where(df_clean[col] > upper_bound, upper_bound, df_clean[col])
+    
+    # 3. Data type conversions
+    print("Step 3: Data type conversions...")
+    # Ensure income is positive
+    df_clean['income'] = np.abs(df_clean['income'])
+    df_clean['avg_order_value'] = np.abs(df_clean['avg_order_value'])
+    
+    return df_clean
+
+# Apply cleaning
+df_clean = clean_data(df)
+print("Data cleaning completed!")
+```
+
+### 4.4 Feature Engineering
+
+```python
+def engineer_features(df):
+    """
+    Create new features for better model performance
+    """
+    df_engineered = df.copy()
+    
+    # 1. Numerical feature engineering
+    print("Creating numerical features...")
+    
+    # Revenue per purchase
+    df_engineered['revenue_per_purchase'] = df_engineered['annual_revenue'] / (df_engineered['num_purchases'] + 1)
+    
+    # Customer lifetime value indicator
+    df_engineered['clv_indicator'] = df_engineered['tenure_months'] * df_engineered['avg_order_value']
+    
+    # Age groups
+    df_engineered['age_group'] = pd.cut(df_engineered['age'], 
+                                       bins=[0, 25, 35, 50, 100], 
+                                       labels=['Young', 'Adult', 'Middle', 'Senior'])
+    
+    # Income categories
+    df_engineered['income_category'] = pd.cut(df_engineered['income'], 
+                                             bins=3, 
+                                             labels=['Low', 'Medium', 'High'])
+    
+    # 2. Categorical feature encoding
+    print("Encoding categorical features...")
+    
+    # One-hot encoding for categorical variables
+    categorical_features = ['customer_segment', 'marketing_channel', 'age_group', 'income_category']
+    
+    for feature in categorical_features:
+        if feature in df_engineered.columns:
+            dummies = pd.get_dummies(df_engineered[feature], prefix=feature, drop_first=True)
+            df_engineered = pd.concat([df_engineered, dummies], axis=1)
+    
+    # 3. Feature scaling preparation
+    numerical_features = ['age', 'income', 'tenure_months', 'num_purchases', 'avg_order_value', 
+                         'revenue_per_purchase', 'clv_indicator']
+    
+    return df_engineered, numerical_features, categorical_features
+
+df_featured, numerical_features, categorical_features = engineer_features(df_clean)
+print("Feature engineering completed!")
+print(f"New dataset shape: {df_featured.shape}")
+```
+
+---
+
+## Phần 5: Implement Linear Regression Models và Interpret Results
+
+### 5.1 Data Preparation for Modeling
+
+```python
+def prepare_for_modeling(df, target_column='annual_revenue'):
+    """
+    Prepare data for machine learning modeling
+    """
+    # Select features for modeling
+    feature_columns = [
+        'age', 'income', 'tenure_months', 'num_purchases', 'avg_order_value',
+        'revenue_per_purchase', 'clv_indicator'
+    ]
+    
+    # Add dummy variables
+    dummy_columns = [col for col in df.columns if any(prefix in col for prefix in 
+                    ['customer_segment_', 'marketing_channel_', 'age_group_', 'income_category_'])]
+    
+    all_features = feature_columns + dummy_columns
+    
+    # Prepare X and y
+    X = df[all_features].copy()
+    y = df[target_column].copy()
+    
+    # Handle any remaining missing values
+    X = X.fillna(X.mean())
+    
+    return X, y, all_features
+
+X, y, feature_names = prepare_for_modeling(df_featured)
+print(f"Features shape: {X.shape}")
+print(f"Target shape: {y.shape}")
+print(f"Feature names: {feature_names}")
+```
+
+### 5.2 Split Data và Scale Features
+
+```python
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=None
+)
+
+# Feature scaling
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+print("Data preparation completed:")
+print(f"Training set: {X_train_scaled.shape}")
+print(f"Test set: {X_test_scaled.shape}")
+```
+
+### 5.3 Train Linear Regression Model
+
+```python
+# Initialize và train model
+lr_model = LinearRegression()
+lr_model.fit(X_train_scaled, y_train)
+
+# Make predictions
+y_train_pred = lr_model.predict(X_train_scaled)
+y_test_pred = lr_model.predict(X_test_scaled)
+
+print("Model training completed!")
+print(f"Model intercept: {lr_model.intercept_:.2f}")
+print("Feature coefficients:")
+for feature, coef in zip(feature_names, lr_model.coef_):
+    print(f"  {feature}: {coef:.4f}")
+```
+
+### 5.4 Model Evaluation
+
+```python
+def evaluate_model(y_true, y_pred, set_name=""):
+    """
+    Comprehensive model evaluation
+    """
+    mae = mean_absolute_error(y_true, y_pred)
+    mse = mean_squared_error(y_true, y_pred)
+    rmse = np.sqrt(mse)
+    r2 = r2_score(y_true, y_pred)
+    
+    print(f"\n{set_name} Set Evaluation:")
+    print(f"  Mean Absolute Error (MAE): ${mae:.2f}")
+    print(f"  Root Mean Square Error (RMSE): ${rmse:.2f}")
+    print(f"  R² Score: {r2:.4f}")
+    
+    return {'MAE': mae, 'RMSE': rmse, 'R2': r2}
+
+# Evaluate on both sets
+train_metrics = evaluate_model(y_train, y_train_pred, "Training")
+test_metrics = evaluate_model(y_test, y_test_pred, "Test")
+
+# Check for overfitting
+print(f"\nOverfitting Check:")
+print(f"  Training R²: {train_metrics['R2']:.4f}")
+print(f"  Test R²: {test_metrics['R2']:.4f}")
+print(f"  Difference: {train_metrics['R2'] - test_metrics['R2']:.4f}")
+```
+
+### 5.5 Visualize Results
+
+```python
+# Create comprehensive visualization
+fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+
+# 1. Actual vs Predicted
+axes[0, 0].scatter(y_test, y_test_pred, alpha=0.6)
+axes[0, 0].plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2)
+axes[0, 0].set_xlabel('Actual Revenue')
+axes[0, 0].set_ylabel('Predicted Revenue')
+axes[0, 0].set_title('Actual vs Predicted Revenue')
+
+# 2. Residuals plot
+residuals = y_test - y_test_pred
+axes[0, 1].scatter(y_test_pred, residuals, alpha=0.6)
+axes[0, 1].axhline(y=0, color='r', linestyle='--')
+axes[0, 1].set_xlabel('Predicted Revenue')
+axes[0, 1].set_ylabel('Residuals')
+axes[0, 1].set_title('Residuals Plot')
+
+# 3. Feature importance
+feature_importance = pd.DataFrame({
+    'feature': feature_names,
+    'importance': np.abs(lr_model.coef_)
+}).sort_values('importance', ascending=True)
+
+axes[1, 0].barh(feature_importance['feature'][-10:], feature_importance['importance'][-10:])
+axes[1, 0].set_xlabel('Absolute Coefficient Value')
+axes[1, 0].set_title('Top 10 Most Important Features')
+
+# 4. Distribution of residuals
+axes[1, 1].hist(residuals, bins=30, alpha=0.7)
+axes[1, 1].set_xlabel('Residuals')
+axes[1, 1].set_ylabel('Frequency')
+axes[1, 1].set_title('Distribution of Residuals')
+
+plt.tight_layout()
+plt.show()
+```
+
+### 5.6 Business Insights và Interpretation
+
+```python
+def derive_business_insights(model, feature_names, scaler, test_metrics):
+    """
+    Extract actionable business insights from the model
+    """
+    print("=== BUSINESS INSIGHTS ===\n")
+    
+    # 1. Model Performance Insights
+    print("1. MODEL PERFORMANCE:")
+    print(f"   • Model explains {test_metrics['R2']*100:.1f}% of revenue variance")
+    print(f"   • Average prediction error: ${test_metrics['MAE']:.0f}")
+    print(f"   • Model is {'reliable' if test_metrics['R2'] > 0.7 else 'moderately reliable' if test_metrics['R2'] > 0.5 else 'needs improvement'}")
+    
+    # 2. Feature Impact Analysis
+    print("\n2. KEY REVENUE DRIVERS:")
+    feature_impact = pd.DataFrame({
+        'feature': feature_names,
+        'coefficient': model.coef_,
+        'abs_impact': np.abs(model.coef_)
+    }).sort_values('abs_impact', ascending=False)
+    
+    top_features = feature_impact.head(5)
+    for idx, row in top_features.iterrows():
+        direction = "increases" if row['coefficient'] > 0 else "decreases"
+        print(f"   • {row['feature']}: {direction} revenue (impact: {row['abs_impact']:.2f})")
+    
+    # 3. Strategic Recommendations
+    print("\n3. STRATEGIC RECOMMENDATIONS:")
+    
+    # Analyze coefficients for business recommendations
+    coef_dict = dict(zip(feature_names, model.coef_))
+    
+    if 'num_purchases' in coef_dict and coef_dict['num_purchases'] > 0:
+        print("   • Focus on increasing purchase frequency through loyalty programs")
+    
+    if 'avg_order_value' in coef_dict and coef_dict['avg_order_value'] > 0:
+        print("   • Implement upselling strategies to increase average order value")
+    
+    if 'tenure_months' in coef_dict and coef_dict['tenure_months'] > 0:
+        print("   • Invest in customer retention programs")
+    
+    if any('customer_segment_Premium' in f for f in feature_names):
+        premium_impact = coef_dict.get('customer_segment_Premium', 0)
+        if premium_impact > 0:
+            print("   • Premium customer segment shows higher revenue potential")
+    
+    # 4. Customer Segmentation Insights
+    print("\n4. CUSTOMER SEGMENTATION INSIGHTS:")
+    
+    # Example customer profiles
+    example_customers = pd.DataFrame({
+        'age': [25, 45, 35],
+        'income': [40000, 80000, 60000],
+        'tenure_months': [6, 36, 18],
+        'num_purchases': [5, 20, 12],
+        'avg_order_value': [80, 150, 100]
+    })
+    
+    print("   Sample customer revenue predictions:")
+    for i, customer in example_customers.iterrows():
+        # Simplified prediction (would need full feature engineering in practice)
+        pred_revenue = (customer['num_purchases'] * customer['avg_order_value'] + 
+                       customer['income'] * 0.001 + customer['tenure_months'] * 10)
+        print(f"   • Customer {i+1}: ${pred_revenue:.0f} predicted annual revenue")
+
+# Generate insights
+derive_business_insights(lr_model, feature_names, scaler, test_metrics)
+```
+
+---
+
+## Phần 6: Bài Tập Ứng Dụng
+
 ### Bài tập cơ bản
 
 #### **Exercise 5.01: Predicting Sales from Advertising Spend Using Linear Regression**
