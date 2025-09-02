@@ -1,4 +1,4 @@
-# Lab 03 Unsupervised Learning and Customer Segmentation
+# Lab 04 Unsupervised Learning and Customer Segmentation
 
 ## **Mục tiêu học tập**
 Sau khi hoàn thành bài học này, học viên sẽ có thể:
