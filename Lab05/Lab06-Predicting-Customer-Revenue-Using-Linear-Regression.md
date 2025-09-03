@@ -1,4 +1,4 @@
-# Lab 05 Predicting Customer Revenue Using Linear Regression
+# Lab 06 Predicting Customer Revenue Using Linear Regression
 
 ## **Mục tiêu học tập**
 Sau khi hoàn thành bài học này, học viên sẽ có thể:
