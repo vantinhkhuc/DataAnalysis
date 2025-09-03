@@ -1352,12 +1352,3 @@ sns.set_palette("husl")
 - Pandas Documentation: https://pandas.pydata.org/docs/
 - Seaborn Tutorial: https://seaborn.pydata.org/tutorial.html# Bài Tập Ứng Dụng: Data Exploration and Visualization với Python
 
-## Giới thiệu
-Bộ bài tập này được thiết kế để học viên làm chủ các kỹ năng khám phá, phân tích và trực quan hóa dữ liệu bằng Python. Các bài tập được chia thành 4 phần chính, từ cơ bản đến nâng cao.
-
-**Yêu cầu tiên quyết:**
-- Python cơ bản (biến, vòng lặp, hàm)
-- Kiến thức cơ bản về pandas và numpy
-- Jupyter Notebook hoặc IDE Python
-
----
