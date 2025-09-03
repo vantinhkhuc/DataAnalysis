@@ -1,4 +1,4 @@
-# Lab 04 Evaluating and Choosing the Best Segmentation Approach
+# Lab 05 Evaluating and Choosing the Best Segmentation Approach
 
 ## Mục Tiêu Học Tập
 - Nắm vững các kỹ thuật clustering hiện đại cho phân khúc khách hàng
