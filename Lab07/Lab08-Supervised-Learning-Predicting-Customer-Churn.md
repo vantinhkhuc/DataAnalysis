@@ -1,4 +1,4 @@
-<img width="468" height="104" alt="image" src="https://github.com/user-attachments/assets/0aeab263-0097-4108-ab46-f4ecf3625d54" /><img width="468" height="147" alt="image" src="https://github.com/user-attachments/assets/42e065d2-e8ad-4304-82c9-35ab0997996b" /><img width="468" height="119" alt="image" src="https://github.com/user-attachments/assets/9a056971-8d54-4d40-8678-60f82670ff4b" /><img width="468" height="121" alt="image" src="https://github.com/user-attachments/assets/8e7d35f9-cb0d-4447-9f5e-c6ba9b773110" /><img width="468" height="61" alt="image" src="https://github.com/user-attachments/assets/2f561525-aa7e-4402-8d1b-d52892b75823" /><img width="468" height="64" alt="image" src="https://github.com/user-attachments/assets/f0009667-427b-460a-b5fd-47f5e7e9b881" /><img width="468" height="37" alt="image" src="https://github.com/user-attachments/assets/0f2f7dd2-de66-4e22-a114-ba874ea43c07" /><img width="468" height="57" alt="image" src="https://github.com/user-attachments/assets/5c3505f5-0afc-4261-805e-5856a8e932f3" /><img width="468" height="215" alt="image" src="https://github.com/user-attachments/assets/53648c98-341a-433d-ba9a-fd4ec0d3014e" /><img width="468" height="160" alt="image" src="https://github.com/user-attachments/assets/2e76dc9b-15dc-4348-938e-f13be77e3f65" /><img width="468" height="34" alt="image" src="https://github.com/user-attachments/assets/524bfcb8-6f47-4419-bfca-48a54b4f9997" /><img width="468" height="119" alt="image" src="https://github.com/user-attachments/assets/8e7a8741-88cb-42ed-8530-baa3af0ac14c" /><img width="468" height="61" alt="image" src="https://github.com/user-attachments/assets/3b3af885-a24a-4df0-b136-67265c52b2d7" /><img width="468" height="75" alt="image" src="https://github.com/user-attachments/assets/d015d32a-992b-4e82-8bb5-9b0925ce6ec9" /><img width="468" height="61" alt="image" src="https://github.com/user-attachments/assets/bb13e115-1a0a-480a-b21e-84040536d032" /><img width="468" height="61" alt="image" src="https://github.com/user-attachments/assets/2206376d-4cb7-4b85-96af-2fb8e3eb61f5" /># Lab 08 Supervised Learning: Predicting Customer Churn
+<img width="468" height="18" alt="image" src="https://github.com/user-attachments/assets/45dc9308-4a4e-484e-abfa-9af38c76c98f" /><img width="468" height="66" alt="image" src="https://github.com/user-attachments/assets/648d9e13-04c7-494c-9231-5486b27e83d5" /><img width="468" height="44" alt="image" src="https://github.com/user-attachments/assets/197d3e84-5889-48b2-a319-7d7c2decdb10" /><img width="468" height="45" alt="image" src="https://github.com/user-attachments/assets/5d78768d-be16-4c39-a5cc-1651b7207d1f" /><img width="468" height="107" alt="image" src="https://github.com/user-attachments/assets/6b0b7b38-ebb7-43eb-a4b6-802c023f5c2f" /># Lab 08 Supervised Learning: Predicting Customer Churn
 
 ## **Mục tiêu học tập**
 Sau khi hoàn thành bài học này, học viên sẽ có thể:
@@ -74,30 +74,6 @@ print("Score on training dataset: {}, "\       "Score on testing dataset: {}"\  
 
 ```
 
----
-
-#### **Activity 6.01: Finding Important Variables for Predicting Responses to a Marketing Offer**
-You have been given some data regarding a company's marketing campaign, wherein discounts were offered for various products. You are interested in building a model that predicts the number of responses to an offer. It should also provide information about how much of a discount the offer included (offer_discount), how many customers the offer reached (offer_reach), and a value representing the offer quality that the marketing team assigned to that offer (offer_quality). You want to build a model that is accurate but does not contain unnecessary variables. Use the RMSE to evaluate how the model performs when all variables are included and compare this to what happens when each variable is dropped from the model. This will then help in finding the most important variables for predicting the number of responses to a marketing offer. Follow the steps given here:
-1. Import pandas, read in the data from offer_responses.csv, and use the head function to view the first five rows of the data. Your output should appear as follows:
-
-![Figure 6.7: The first five rows of the offer_responses data](images/Figure-6.7.jpg)
-
-2.	Import train_test_split from sklearn and use it to split the data into training and test sets, using responses as the y variable and all others as the predictor (X) variables. Use random_state=10 for the train-test split.
-
-3.	Import LinearRegression and mean_squared_error from sklearn. Fit the model to the training data (using all the predictors), get predictions from the model on the test data, and print out the calculated RMSE on the test data. The RMSE with all variables should be approximately 966.2461828577945.
-
-4.	Create X_train2 and X_test2 by dropping offer_quality from X_train and X_test. Train and evaluate the RMSE of the model using X_train2 and X_test2. The RMSE without offer_quality should be approximately 965.5346123758474.
-
-5.	Perform the same sequence of steps from step 4, but this time dropping offer_ discount instead of offer_quality. The RMSE without offer_discount should be approximately 1231.6766556327284.
-
-6.	Perform the same sequence of steps, but this time dropping offer_ reach. The RMSE without offer_reach should be approximately 1185.8456831644114.
-
-**Code:**
-
-```python
-```
-
----
 
 #### **Exercise 7.02: Obtaining the Data**
 In this exercise, you will import the banking data (Churn_Modelling.csv) provided by the bank and do some initial checks, such as seeing how many rows and columns are present. This will give you a quick peek into the real-life problem statements that a marketing analyst and a data scientist will work on, where the dataset is not always clean. The more time you spend improving and getting familiar with the dataset, the better the observations you can make about the trend will be:
@@ -118,21 +94,74 @@ len(data) data.shape
 
 ---
 
-#### **Activity 6.02: Using RFE to Choose Features for Predicting Customer Spend**
-You've been given the following information (features) regarding various customers: prev_year_spend: How much they spent in the previous year days_since_last_purchase: The number of days since their last purchase days_since_first_purchase: The number of days since their first purchase total_transactions: The total number of transactions age: The customer's age income: The customer's income
-engagement_score: A customer engagement score, which is a score created based on customers' engagement with previous marketing offers. 
-You are asked to investigate which of these is related to the customer spend in the current year (cur_year_spend). You'll also need to create a simple linear model to describe these relationships. 
-Follow the steps given here:
-1. Import pandas, use it to read in the data in customer_spend.csv, and use the head function to view the first five rows of data. The output should appear as follows:
+#### **Activity 7.01: Performing the OSE technique from OSEMN**
+A large telecom company wants to know why customers are churning. You are tasked with first finding out the reason behind the customer churn and then preparing a plan to reduce it. For this purpose, you have been provided with some data regarding the current bill amounts of customers (Current Bill Amt), the average number of calls made by each customer (Avg Calls), the average number of calls made by customers during weekdays (Avg Calls Weekdays), how long each account has been active (Account Age), and the average number of days the customer has defaulted on their bill payments (Avg Days Delinquent). To solve the first problem, you will use the OSE technique from OSEMN to carry out an initial exploration of the data.
+_ Follow these steps:_
 
-![Figure 6.10: The first five rows of customer_spend.csv](images/Figure-6.10.jpg)
+1.	Import the necessary libraries.
 
-2.	Use train_test_split from sklearn to split the data into training and test sets, with random_state=100 and cur_year_spend as the y variable:
-3.	Use RFE to obtain the three most important features and obtain the reduced versions of the training and test datasets by using only the selected columns.
-4.	Train a linear regression model on the reduced training dataset and calculate the RMSE value on the test dataset. 
-The RMSE value should be approximately 1075.9083016269915.
+2.	Download the dataset and save it in a file called **Telco_Churn_Data.csv**.
 
-   
+3.	Read the Telco_Churn_Data.csv dataset and look at the first few rows of the dataset. You should get the following output:
+
+![Figure 7.43: The first few rows of read.csv](images/Figure-7.43.jpg)
+
+4.	Check the length and shape of the data (the number of rows and columns). The length should be 4708 and the shape should be (4708, 15).
+
+5.	Rename all the columns in a readable format. Make the column names look consistent by separating them with _ instead of spaces, for example, rename 
+Target Code to Target_Code. Also, fix the typo in the  
+Avg_Hours_WorkOrderOpenned column. Your column names should finally look as follows.
+
+![Figure 7.44: Renamed column names](images/Figure-7.44.jpg)
+
+6.	Change the data type of the Target_Code,  
+Condition_of_Current_Handset, and Current_TechSupComplaints columns from continuous to the categorical object type.
+
+7.	Check for any missing values.
+
+8.	Perform data exploration by initially exploring the Target_Churn variable. You should get the following summary:
+
+![Figure 7.45: Summary of Target_Churn](images/Figure-7.45.jpg)
+
+9.	Find the correlation among different variables and explain the results. You should get the following statistics:
+
+![Figure 7.46: Correlation statistics of the variables](images/Figure-7.46.jpg)
+
+You should get the following plot:
+
+![Figure 7.47: Correlation plot of different features](images/Figure-7.47.jpg)
+
+10.	Perform univariate and bivariate analyses.
+For univariate analysis, use the following columns: Avg_Calls_Weekdays, Avg_Calls, and Current_Bill_Amt. You should get the following plots:
+
+![Figure 7.48: Univariate analysis](images/Figure-7.48.jpg)
+
+For bivariate analysis, you should get the following plots.
+First, the plot of Complaint_Code versus Target_Churn:
+
+![Figure 7.49: Customer complaint code distribution by churn](images/Figure-7.49.jpg)
+
+Then, the plot of Acct_Plan_Subtype versus Target_Churn:
+	
+![Figure 7.50: Customer account plan subtype distribution by churn](images/Figure-7.50.jpg)  
+
+Then, the plot of Current_TechSupComplaints versus Target_Churn:
+
+![Figure 7.51: Customer technical support complaints distribution by churn](images/Figure-7.51.jpg)  
+
+Next, the plot of Avg_Days_Delinquent versus Target_Code:
+
+![Figure 7.52: Distribution of the average number of days delinquent by churn](images/Figure-7.52.jpg)  
+
+Then, the plot of Account_Age versus Target_Code:
+
+![Figure 7.53: Distribution of account age by churn](images/Figure-7.53.jpg)  
+
+Lastly, the plot of Percent_Increase_MOM versus Target_Code:
+
+![Figure 7.54: Distribution of the percentage increase of month-on-month  usage by churn/no ](images/Figure-7.54.jpg)  
+
+
 **Code:**
 
 ```python
