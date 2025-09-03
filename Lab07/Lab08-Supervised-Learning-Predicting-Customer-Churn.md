@@ -1,4 +1,4 @@
-<img width="468" height="18" alt="image" src="https://github.com/user-attachments/assets/45dc9308-4a4e-484e-abfa-9af38c76c98f" /><img width="468" height="66" alt="image" src="https://github.com/user-attachments/assets/648d9e13-04c7-494c-9231-5486b27e83d5" /><img width="468" height="44" alt="image" src="https://github.com/user-attachments/assets/197d3e84-5889-48b2-a319-7d7c2decdb10" /><img width="468" height="45" alt="image" src="https://github.com/user-attachments/assets/5d78768d-be16-4c39-a5cc-1651b7207d1f" /><img width="468" height="107" alt="image" src="https://github.com/user-attachments/assets/6b0b7b38-ebb7-43eb-a4b6-802c023f5c2f" /># Lab 08 Supervised Learning: Predicting Customer Churn
+# Lab 08 Supervised Learning: Predicting Customer Churn
 
 ## **Mục tiêu học tập**
 Sau khi hoàn thành bài học này, học viên sẽ có thể:
@@ -94,82 +94,6 @@ len(data) data.shape
 
 ---
 
-#### **Activity 7.01: Performing the OSE technique from OSEMN**
-A large telecom company wants to know why customers are churning. You are tasked with first finding out the reason behind the customer churn and then preparing a plan to reduce it. For this purpose, you have been provided with some data regarding the current bill amounts of customers (Current Bill Amt), the average number of calls made by each customer (Avg Calls), the average number of calls made by customers during weekdays (Avg Calls Weekdays), how long each account has been active (Account Age), and the average number of days the customer has defaulted on their bill payments (Avg Days Delinquent). To solve the first problem, you will use the OSE technique from OSEMN to carry out an initial exploration of the data.
-_ Follow these steps:_
-
-1.	Import the necessary libraries.
-
-2.	Download the dataset and save it in a file called **Telco_Churn_Data.csv**.
-
-3.	Read the Telco_Churn_Data.csv dataset and look at the first few rows of the dataset. You should get the following output:
-
-![Figure 7.43: The first few rows of read.csv](images/Figure-7.43.jpg)
-
-4.	Check the length and shape of the data (the number of rows and columns). The length should be 4708 and the shape should be (4708, 15).
-
-5.	Rename all the columns in a readable format. Make the column names look consistent by separating them with _ instead of spaces, for example, rename 
-Target Code to Target_Code. Also, fix the typo in the  
-Avg_Hours_WorkOrderOpenned column. Your column names should finally look as follows.
-
-![Figure 7.44: Renamed column names](images/Figure-7.44.jpg)
-
-6.	Change the data type of the Target_Code,  
-Condition_of_Current_Handset, and Current_TechSupComplaints columns from continuous to the categorical object type.
-
-7.	Check for any missing values.
-
-8.	Perform data exploration by initially exploring the Target_Churn variable. You should get the following summary:
-
-![Figure 7.45: Summary of Target_Churn](images/Figure-7.45.jpg)
-
-9.	Find the correlation among different variables and explain the results. You should get the following statistics:
-
-![Figure 7.46: Correlation statistics of the variables](images/Figure-7.46.jpg)
-
-You should get the following plot:
-
-![Figure 7.47: Correlation plot of different features](images/Figure-7.47.jpg)
-
-10.	Perform univariate and bivariate analyses.
-For univariate analysis, use the following columns: Avg_Calls_Weekdays, Avg_Calls, and Current_Bill_Amt. You should get the following plots:
-
-![Figure 7.48: Univariate analysis](images/Figure-7.48.jpg)
-
-For bivariate analysis, you should get the following plots.
-First, the plot of Complaint_Code versus Target_Churn:
-
-![Figure 7.49: Customer complaint code distribution by churn](images/Figure-7.49.jpg)
-
-Then, the plot of Acct_Plan_Subtype versus Target_Churn:
-	
-![Figure 7.50: Customer account plan subtype distribution by churn](images/Figure-7.50.jpg)  
-
-Then, the plot of Current_TechSupComplaints versus Target_Churn:
-
-![Figure 7.51: Customer technical support complaints distribution by churn](images/Figure-7.51.jpg)  
-
-Next, the plot of Avg_Days_Delinquent versus Target_Code:
-
-![Figure 7.52: Distribution of the average number of days delinquent by churn](images/Figure-7.52.jpg)  
-
-Then, the plot of Account_Age versus Target_Code:
-
-![Figure 7.53: Distribution of account age by churn](images/Figure-7.53.jpg)  
-
-Lastly, the plot of Percent_Increase_MOM versus Target_Code:
-
-![Figure 7.54: Distribution of the percentage increase of month-on-month  usage by churn/no ](images/Figure-7.54.jpg)  
-
-
-**Code:**
-
-```python
-
-```
-
----
-
 #### **Exercise 7.03: Imputing Missing Values**
 After reading the banking data, you have to find any missing values in the data and perform imputation on the missing values:
 
@@ -218,6 +142,41 @@ data['Age']=data['Age'].fillna(mode_value[0])
 data.isnull().any()
 
 ```
+
+
+---
+
+#### **Exercise 7.04: Renaming Columns and Changing the Data Type**
+Scrubbing data also involves renaming columns in the right format and can include removing any special characters and spaces in the column names, shifting the target variable either to the extreme left or right for better visibility, and checking whether the data types of the columns are correct. In this exercise, you have to convert the column names into a more human-readable format. For example, you must have noticed column names such as ActMem and CredRate. These can be renamed to give a clearer idea of what the columns represent. The main reason behind doing this is that if someone else is going over your work, ambiguous column names can reduce the clarity. Therefore, in this exercise, you will rename some of the columns, change the data types, and shift the Churn column to the rightmost position. This will help differentiate the independent features from the dependent ones:
+
+
+**Code:**
+
+```python
+# 1.	Rename the CredRate, ActMem, Prod Number, and Exited columns using the following command:
+data = data.rename(columns={'CredRate': 'CreditScore',\                             'ActMem' : 'IsActiveMember',\
+                            'Prod Number': 'NumOfProducts',\
+                            'Exited':'Churn'}) 
+
+# 2.	Check that the preceding columns have been appropriately renamed using the columns command:
+data.columns
+
+# 3.	Move the Churn column to the right and drop the CustomerId column using the following code. You will need to drop the CustomerId column since it is unique for each entry and thus, does not provide any useful information:
+data.drop(labels=['CustomerId'], axis=1,inplace = True)
+column_churn = data['Churn'] data.drop(labels=['Churn'], axis=1,inplace = True) data.insert(len(data.columns), 'Churn', column_churn.values)
+
+# 4.	Check whether the order of the columns has been fixed using the following code:
+data.columns
+
+# 5.	Change the data type of the Geography, Gender, HasCrCard, Churn, and IsActiveMember columns to category as shown. Recall that these columns were initially strings or objects. However, since these are distinct values, you will need to convert them to categorical variables by converting the data type to category:
+data["Geography"] = data["Geography"].astype('category') data["Gender"] = data["Gender"].astype('category') data["HasCrCard"] = data["HasCrCard"].astype('category') data["Churn"] = data["Churn"].astype('category') data["IsActiveMember"] = data["IsActiveMember"]\
+                         .astype('category')
+
+# 6.	Now check whether the data types have been converted or not using the following code:
+data.dtypes
+
+```
+
 
 ---
 
@@ -293,37 +252,79 @@ plt.figure(figsize=(15,4)) ax=sns.kdeplot(data.loc[(data['Churn'] == 0),'CreditS
 
 ---
 
-#### **Exercise 7.04: Renaming Columns and Changing the Data Type**
-Scrubbing data also involves renaming columns in the right format and can include removing any special characters and spaces in the column names, shifting the target variable either to the extreme left or right for better visibility, and checking whether the data types of the columns are correct. In this exercise, you have to convert the column names into a more human-readable format. For example, you must have noticed column names such as ActMem and CredRate. These can be renamed to give a clearer idea of what the columns represent. The main reason behind doing this is that if someone else is going over your work, ambiguous column names can reduce the clarity. Therefore, in this exercise, you will rename some of the columns, change the data types, and shift the Churn column to the rightmost position. This will help differentiate the independent features from the dependent ones:
+#### **Activity 7.01: Performing the OSE technique from OSEMN**
+A large telecom company wants to know why customers are churning. You are tasked with first finding out the reason behind the customer churn and then preparing a plan to reduce it. For this purpose, you have been provided with some data regarding the current bill amounts of customers (Current Bill Amt), the average number of calls made by each customer (Avg Calls), the average number of calls made by customers during weekdays (Avg Calls Weekdays), how long each account has been active (Account Age), and the average number of days the customer has defaulted on their bill payments (Avg Days Delinquent). To solve the first problem, you will use the OSE technique from OSEMN to carry out an initial exploration of the data.
+_ Follow these steps:_
+
+1.	Import the necessary libraries.
+
+2.	Download the dataset and save it in a file called **Telco_Churn_Data.csv**.
+
+3.	Read the Telco_Churn_Data.csv dataset and look at the first few rows of the dataset. You should get the following output:
+
+![Figure 7.43: The first few rows of read.csv](images/Figure-7.43.jpg)
+
+4.	Check the length and shape of the data (the number of rows and columns). The length should be 4708 and the shape should be (4708, 15).
+
+5.	Rename all the columns in a readable format. Make the column names look consistent by separating them with _ instead of spaces, for example, rename 
+Target Code to Target_Code. Also, fix the typo in the  
+Avg_Hours_WorkOrderOpenned column. Your column names should finally look as follows.
+
+![Figure 7.44: Renamed column names](images/Figure-7.44.jpg)
+
+6.	Change the data type of the Target_Code,  
+Condition_of_Current_Handset, and Current_TechSupComplaints columns from continuous to the categorical object type.
+
+7.	Check for any missing values.
+
+8.	Perform data exploration by initially exploring the Target_Churn variable. You should get the following summary:
+
+![Figure 7.45: Summary of Target_Churn](images/Figure-7.45.jpg)
+
+9.	Find the correlation among different variables and explain the results. You should get the following statistics:
+
+![Figure 7.46: Correlation statistics of the variables](images/Figure-7.46.jpg)
+
+You should get the following plot:
+
+![Figure 7.47: Correlation plot of different features](images/Figure-7.47.jpg)
+
+10.	Perform univariate and bivariate analyses.
+For univariate analysis, use the following columns: Avg_Calls_Weekdays, Avg_Calls, and Current_Bill_Amt. You should get the following plots:
+
+![Figure 7.48: Univariate analysis](images/Figure-7.48.jpg)
+
+For bivariate analysis, you should get the following plots.
+First, the plot of Complaint_Code versus Target_Churn:
+
+![Figure 7.49: Customer complaint code distribution by churn](images/Figure-7.49.jpg)
+
+Then, the plot of Acct_Plan_Subtype versus Target_Churn:
+	
+![Figure 7.50: Customer account plan subtype distribution by churn](images/Figure-7.50.jpg)  
+
+Then, the plot of Current_TechSupComplaints versus Target_Churn:
+
+![Figure 7.51: Customer technical support complaints distribution by churn](images/Figure-7.51.jpg)  
+
+Next, the plot of Avg_Days_Delinquent versus Target_Code:
+
+![Figure 7.52: Distribution of the average number of days delinquent by churn](images/Figure-7.52.jpg)  
+
+Then, the plot of Account_Age versus Target_Code:
+
+![Figure 7.53: Distribution of account age by churn](images/Figure-7.53.jpg)  
+
+Lastly, the plot of Percent_Increase_MOM versus Target_Code:
+
+![Figure 7.54: Distribution of the percentage increase of month-on-month  usage by churn/no ](images/Figure-7.54.jpg)  
 
 
 **Code:**
 
 ```python
-# 1.	Rename the CredRate, ActMem, Prod Number, and Exited columns using the following command:
-data = data.rename(columns={'CredRate': 'CreditScore',\                             'ActMem' : 'IsActiveMember',\
-                            'Prod Number': 'NumOfProducts',\
-                            'Exited':'Churn'}) 
-
-# 2.	Check that the preceding columns have been appropriately renamed using the columns command:
-data.columns
-
-# 3.	Move the Churn column to the right and drop the CustomerId column using the following code. You will need to drop the CustomerId column since it is unique for each entry and thus, does not provide any useful information:
-data.drop(labels=['CustomerId'], axis=1,inplace = True)
-column_churn = data['Churn'] data.drop(labels=['Churn'], axis=1,inplace = True) data.insert(len(data.columns), 'Churn', column_churn.values)
-
-# 4.	Check whether the order of the columns has been fixed using the following code:
-data.columns
-
-# 5.	Change the data type of the Geography, Gender, HasCrCard, Churn, and IsActiveMember columns to category as shown. Recall that these columns were initially strings or objects. However, since these are distinct values, you will need to convert them to categorical variables by converting the data type to category:
-data["Geography"] = data["Geography"].astype('category') data["Gender"] = data["Gender"].astype('category') data["HasCrCard"] = data["HasCrCard"].astype('category') data["Churn"] = data["Churn"].astype('category') data["IsActiveMember"] = data["IsActiveMember"]\
-                         .astype('category')
-
-# 6.	Now check whether the data types have been converted or not using the following code:
-data.dtypes
 
 ```
-
 
 ---
 
