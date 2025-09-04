@@ -328,21 +328,120 @@ Lastly, the plot of Percent_Increase_MOM versus Target_Code:
 
 ---
 
-#### **Activity 6.03: Building the Best Regression Model for Customer Spend Based on Demographic Data**
-You are given data of customers' spend at your business and some basic demographic data regarding each customer (age, income, and years of education). You are asked to build the best predictive model possible that can predict, based on these demographic factors, how much a given customer will spend at your business. The following are these high-level steps to solve this activity:
-1. Import pandas, read the data in spend_age_income_ed.csv into a DataFrame, and use the head function to view the first five rows of the data. The output should be as follows:
+#### **Exercise 7.07: Performing Feature Selection**
+In this exercise, you will be performing feature selection using a tree-based selection method that performs well on classification tasks. By the end of this exercise, you will be able to extract the most relevant features that can then be used for model building. 
+You will be using a different kind of classifier called random forest in this exercise. While we will go into the details of this in the next chapter, the intention is to show how to perform feature selection using a given model. The process for using the random forest classifier is the same as logistic regression using scikit-learn, with the only difference being that instead of importing linear_model, you will need to use the sklearn.ensemble package to import RandomForestClassifier. The steps given in this exercise will provide more details about this.
 
-![Figure 6.20: The first five rows of the spend_age_income_ed data](images/Figure-6.20.jpg)
 
-2.	Perform a train-test split with random_state=10.
-3.	Fit a linear regression model to the training data.
-4.	Fit two regression tree models to the data, one with max_depth=2 and one with max_depth=5.
-5.	Fit two random forest models to the data, one with max_depth=2, one with max_depth=5, and random_state=10 for both.
-6.	Calculate and print out the RMSE on the test data for all five models.
-The following table summarizes the expected output for all the models. The values you get may not be an exact match with these expected values. You may get a deviation of within 5% of these values.
+**Code:**
 
-![Figure 6.21: Expected outputs for all five models](images/Figure-6.21.jpg)
+```python
+# 1.	Import RandomForestClassifier and train_test_split from the sklearn library:
+from sklearn.ensemble import RandomForestClassifier from sklearn.model_selection import train_test_split
 
+# 2.	Encode the categorical variable using the following code:
+data.dtypes ### Encoding the categorical variables data["Geography"] = data["Geography"].astype('category')\                     .cat.codes data["Gender"] = data["Gender"].astype('category').cat.codes data["HasCrCard"] = data["HasCrCard"].astype('category')\                     .cat.codes data["Churn"] = data["Churn"].astype('category').cat.codes
+
+# 3.	Split the data into training and testing sets as follows:
+target = 'Churn' X = data.drop('Churn', axis=1) y=data[target]
+X_train, X_test, y_train, y_test = train_test_split\                                    (X,y,test_size=0.15, \                                     random_state=123, \                                     stratify=y)
+
+# 4.	Fit the model using the random forest classifier for feature selection with the following code:
+forest=RandomForestClassifier(n_estimators=500,random_state=1)
+forest.fit(X_train,y_train)
+
+# 5.	Call the random forest feature_importances_ attribute to find the important features and store them in a variable named importances:
+importances=forest.feature_importances_
+
+# 6.	Create a variable named features to store all the columns, except the target Churn variable. Sort the important features present in the importances variable using NumPy's argsort function:
+features = data.drop(['Churn'],axis=1).columns
+indices = np.argsort(importances)[::-1]
+
+# 7.	Plot the important features obtained from the random forest using Matplotlib's plt attribute:
+plt.figure(figsize=(15,4)) plt.title("Feature importances using Random Forest") plt.bar(range(X_train.shape[1]), importances[indices],\         color="gray", align="center") plt.xticks(range(X_train.shape[1]), features[indices], \            rotation='vertical',fontsize=15) plt.xlim([-1, X_train.shape[1]]) plt.show()
+
+# 8. Place the features and their importance in a pandas DataFrame using the following code:
+feature_importance_df = pd.DataFrame({"Feature":features,\                                       "Importance":importances}) print(feature_importance_df)
+
+```
+---
+
+#### **Exercise 7.08: Building a Logistic Regression Model**
+
+In the previous exercise, you extracted the importance values of all the features. Next, you are asked to build a logistic regression model using the five most relevant features for predicting the churning of a customer. The customer's attributes are as follows:
+•	Age: 50
+•	EstimatedSalary: 100,000
+•	CreditScore: 600
+•	Balance: 100,000
+•	NumOfProducts: 2
+Logistic regression has been chosen as the base model for churn prediction because of its easy interpretability. 
+
+
+
+**Code:**
+
+```python
+# 1.	Import the statsmodel package and select only the top five features that you got from the previous exercise to fit your model. Use the following code:
+import statsmodels.api as sm 
+top5_features = ['Age','EstimatedSalary','CreditScore',\                  'Balance','NumOfProducts'] logReg = sm.Logit(y_train, X_train[top5_features]) logistic_regression = logReg.fit()
+
+# 2.	Once the model has been fitted, obtain the summary and your parameters:
+logistic_regression.summary logistic_regression.params
+
+# 3.	Create a function to compute the coefficients. This function will first multiply each feature by its coefficient (obtained in the previous step) and then finally add up the values for all the features in order to compute the final target value:
+coef = logistic_regression.params
+def y (coef, Age, EstimatedSalary, CreditScore, Balance, \        NumOfProducts) : return coef[0]*Age+ coef[1]\
+                        *EstimatedSalary+coef[2]*CreditScore\
+                        +coef[1]*Balance+coef[2]*NumOfProducts
+
+# 4.	Calculate the chance of a customer churning by inputting the following values: 
+Age: 50
+EstimatedSalary: 100,000
+CreditScore: 600
+Balance: 100,000
+NumOfProducts: 2
+Use the following code (here, we are implementing the formula we saw in Figure 7.4):
+import numpy as np y1 = y(coef, 50, 100000, 600,100000,2) p = np.exp(y1) / (1+np.exp(y1)) p
+
+# 5.	In the previous steps, you learned how to use the statsmodel package. In this step, you will implement scikit-learn's LogisticRegression module to build your classifier and predict on the test data to find out the accuracy of our model:
+from sklearn.linear_model import LogisticRegression
+
+# 6.	Fit the logistic regression model on the partitioned training data that was prepared previously:
+clf = LogisticRegression(random_state=0, solver='lbfgs')\
+      .fit(X_train[top5_features], y_train)
+
+# 7.	Call the predict and predict_proba functions on the test data:
+clf.predict(X_test[top5_features]) clf.predict_proba(X_test[top5_features])
+<img width="468" height="189" alt="image" src="https://github.com/user-attachments/assets/2b4610a3-0964-4e2f-946a-7dcf194983f0" />
+
+# 8. Calculate the accuracy of the model by calling the score function:
+clf.score(X_test[top5_features], y_test)
+
+```
+
+---
+
+#### **Activity 7.02: Performing the MN technique from OSEMN**
+You are working as a data scientist for a large telecom company. The marketing team wants to know the reasons behind customer churn. Using this information, they want to prepare a plan to reduce customer churn. Your task is to analyze the reasons behind the customer churn and present your findings.
+After you have reported your initial findings to the marketing team, they want you to build a machine learning model that can predict customer churn. With your results, the marketing team can send out discount coupons to customers who might otherwise churn. Use the MN technique from OSEMN to construct your model.
+
+
+1.	Import the necessary libraries.
+
+2.	Encode the Acct_Plan_Subtype and Complaint_Code columns using the the.astype('category').cat.codes command.
+
+3.	Split the data into training (80%) and testing sets (20%).
+
+4.	Perform feature selection using the random forest classifier. You should get the following output:
+
+![Figure 7.60: Feature importance using random forest](images/Figure-7.60.jpg)
+
+5.	Select the top seven features and save them in a variable named  top7_features. 
+
+6.	Fit a logistic regression using the statsmodel package.
+
+7.	Find out the probability that a customer will churn when the following data is used: Avg_Days_Delinquent: 40, Percent_Increase_MOM: 5,  Avg_Calls_Weekdays: 39000, Current_Bill_Amt: 12000,  Avg_Calls: 9000, Complaint_Code: 0, and Account_Age: 17.
+The given customer should have a value of around 81.939% likelihood of churning.
 
 ---
 ## Bài tập tổng hợp
