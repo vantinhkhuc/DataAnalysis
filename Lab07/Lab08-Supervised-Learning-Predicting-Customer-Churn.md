@@ -15,7 +15,7 @@ Sau khi hoàn thành bài học này, học viên sẽ có thể:
 ### Bài tập cơ bản
 
 #### **Exercise 7.01: Comparing Predictions by Linear and Logistic Regression on the Shill Bidding Dataset**
-Consider the Shill_Bidding_Dataset.csv dataset, which contains details regarding auctions done for various products on eBay.com. The target column, Class, provides information about the bidding behavior, 0 being normal and 1 being abnormal behavior. Abnormal behavior can be similar to malicious clicks or automatic bidding. You have been asked to develop a machine learning model that can predict whether the bidding behavior in a particular auction is normal (0) or not (1). Apply linear and logistic regression to predict the output and check which one of them is useful in this situation:
+Consider the **Shill_Bidding_Dataset.csv** dataset, which contains details regarding auctions done for various products on eBay.com. The target column, **Class**, provides information about the bidding behavior, **0** being normal and **1** being abnormal behavior. Abnormal behavior can be similar to malicious clicks or automatic bidding. You have been asked to develop a machine learning model that can predict whether the bidding behavior in a particular auction is normal (**0**) or not (**1**). Apply linear and logistic regression to predict the output and check which one of them is useful in this situation:
 
 
 _Perform the following steps to achieve the aim of the exercise:_
@@ -24,30 +24,42 @@ _Perform the following steps to achieve the aim of the exercise:_
 
 ```python
 # 1.	Import the pandas, numpy, sklearn, and matplotlib libraries using the following code:
-import pandas as pd import numpy as np from sklearn.model_selection import train_test_split from sklearn import linear_model import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn import linear_model
+import matplotlib.pyplot as plt
 
 # 2.	Create a new DataFrame and name it data. Look at the first few rows using the following code:
-data = pd.read_csv("Shill_Bidding_Dataset.csv") data.head()
+data = pd.read_csv("Shill_Bidding_Dataset.csv")
+data.head()
 
-# 3.	Next, remove the columns that are irrelevant to the case study; that is, remove the Record_ID, Auction_ID, and Bidder_ID columns. This is because these columns contain unique IDs and thus do not add any new information to the model:
-data.drop(["Record_ID","Auction_ID","Bidder_ID"],axis=1,\           inplace=True)
+# 3.	Next, remove the columns that are irrelevant to the case study; that is, remove the Record_ID, Auction_ID,
+# 		and Bidder_ID columns. This is because these columns contain unique IDs and thus do not add any new information
+# 		to the model:
+data.drop(["Record_ID","Auction_ID","Bidder_ID"],axis=1, inplace=True)
 
 # 4.	Now view the first five rows of the revised data:
 data.head()
 
-# 5.	Split the data into training and testing sets as follows. We are sticking to the default value for test data size (30% of the entire data). Moreover, to add reproducibility, we are using a random_state of 1, and to account for any class imbalance, we will use stratified splitting. Reproducibility will ensure that when someone else runs the code, they will get similar results. Stratified splitting will ensure that we take into account the class distribution of the target column while splitting the data into train and test sets:
-X = data.drop("Class",axis=1) y = data["Class"] # Split the dataset into training and testing sets 
-X_train,X_test,y_train,y_test = train_test_split\                                 (X,y,test_size=0.3,\                                  random_state=1, stratify=y)
+# 5.	Split the data into training and testing sets as follows. We are sticking to the default value for test data 
+# 		size (30% of the entire data). Moreover, to add reproducibility, we are using a random_state of 1, and to account  
+# 		for any class imbalance, we will use stratified splitting. Reproducibility will ensure that when someone else  
+# 		runs the code, they will get similar results. Stratified splitting will ensure that we take into account 
+# 		the class distribution of the target column while splitting the data into train and test sets:
+X = data.drop("Class",axis=1)
+y = data["Class"]
+
+# Split the dataset into training and testing sets 
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.3, random_state=1, stratify=y)
 
 # 6.	Print the size of training and testing datasets:
-print("Training dataset size: {}, Testing dataset size: {}"\       .format(X_train.shape,X_test.shape))
-The preceding code will generate the following output:
-Training dataset size: (4424, 9), Testing dataset size: (1897, 9)
+print("Training dataset size: {}, Testing dataset size: {}".format(X_train.shape,X_test.shape))
 
 # 7.	Fit the model using linear regression:
-linear = linear_model.LinearRegression() linear.fit(X_train,y_train)
-The preceding code will generate the following output. The output you get might vary slightly depending on your system:
-LinearRegression(copy_X=True, fit_intercept=True, n_jobs=None, normalize=False)
+linear = linear_model.LinearRegression()
+linear.fit(X_train,y_train)
+
 
 # 8.	Predict on the first 10 test data points using the following code:
 linear.predict(X_test)[:10]
@@ -56,21 +68,24 @@ linear.predict(X_test)[:10]
 y_test[:10].values
 
 # 10.	Evaluate the score of the linear regression model on the training and testing datasets:
-print("Score on training dataset: {}, "\       "Score on testing dataset: {}"\       .format(linear.score(X_train,y_train),\               linear.score(X_test,y_test)))
+print("Score on training dataset: {}, "\
+       "Score on testing dataset: {}"\
+       .format(linear.score(X_train,y_train), linear.score(X_test,y_test)))
 
 # 11.	Fit the model using logistic regression as follows:
-logit = linear_model.LogisticRegression() logit.fit(X_train,y_train)
+logit = linear_model.LogisticRegression()
+logit.fit(X_train,y_train)
 
 # 12.	Predict on the test data:
 logit.predict(X_test)[:10]
 
 # 13.	Check the actual target values with y_test[:10].values:
 y_test[:10].values
-You should get the following output:
-array([0, 0, 0, 0, 0, 1, 0, 0, 0, 0])
 
 # 14.	Similar to linear regression, find the score on the training and testing datasets as follows:
-print("Score on training dataset: {}, "\       "Score on testing dataset: {}"\       .format(logit.score(X_train,y_train),\               logit.score(X_test,y_test)))
+print("Score on training dataset: {}, "\
+       "Score on testing dataset: {}"\
+       .format(logit.score(X_train,y_train), logit.score(X_test,y_test)))
 
 ```
 
@@ -109,7 +124,8 @@ data.isnull().any()
 # 3.	Use describe function to explore the data in the Age and EstimatedSalary columns:
 data[["EstimatedSalary","Age"]].describe()
 
-# 4.	Now use describe function for the entire DataFrame as well. This will help in understanding the statistical description of the columns:
+# 4.	Now use describe function for the entire DataFrame as well.
+# 		This will help in understanding the statistical description of the columns:
 data.describe()
 
 # 5.	Now, check the count of 0s and 1s in this column using the following syntax:
@@ -124,17 +140,20 @@ round(data.isnull().sum()/len(data)*100,2)
 # 8. Check the data types of the missing columns:
 data[["Gender","Age","EstimatedSalary"]].dtypes
 
-# 9.	Now you need to impute the missing values. You can do that by dropping the rows that have missing values, filling in the missing values with a test statistic (such as mean, mode, or median), or predicting the missing values using a machine learning algorithm. For EstimatedSalary, fill in the missing values with the mean of the data in that column using the following code:
-mean_value=data['EstimatedSalary'].mean() data['EstimatedSalary']=data['EstimatedSalary']\
-                        .fillna(mean_value)
+# 9.	Now you need to impute the missing values. You can do that by dropping the rows that have missing values,
+# 		filling in the missing values with a test statistic (such as mean, mode, or median), or predicting
+# 		the missing values using a machine learning algorithm. For EstimatedSalary,
+# 		fill in the missing values with the mean of the data in that column using the following code:
+mean_value=data['EstimatedSalary'].mean()
+data['EstimatedSalary']=data['EstimatedSalary'].fillna(mean_value)
 
 # 10.	For Gender, use value_count() to see how many instances of each gender are present:
 data['Gender'].value_counts()
 
-data['Gender']=data['Gender'].fillna(data['Gender']\
-                             .value_counts().idxmax())
+data['Gender']=data['Gender'].fillna(data['Gender'].value_counts().idxmax())
 
-# 11.	For Age, use mode() to get the mode of the data, which is 37, and then replace the missing values with the mode of the values in the column using the following code:
+# 11.	For Age, use mode() to get the mode of the data, which is 37, and then replace the missing values with
+# 		the mode of the values in the column using the following code:
 data['Age'].mode() mode_value=data['Age'].mode()
 data['Age']=data['Age'].fillna(mode_value[0])
 
@@ -154,23 +173,31 @@ Scrubbing data also involves renaming columns in the right format and can includ
 
 ```python
 # 1.	Rename the CredRate, ActMem, Prod Number, and Exited columns using the following command:
-data = data.rename(columns={'CredRate': 'CreditScore',\                             'ActMem' : 'IsActiveMember',\
-                            'Prod Number': 'NumOfProducts',\
-                            'Exited':'Churn'}) 
+data = data.rename(columns={'CredRate': 'CreditScore', 'ActMem' : 'IsActiveMember',\
+                            'Prod Number': 'NumOfProducts', 'Exited':'Churn'}) 
 
 # 2.	Check that the preceding columns have been appropriately renamed using the columns command:
 data.columns
 
-# 3.	Move the Churn column to the right and drop the CustomerId column using the following code. You will need to drop the CustomerId column since it is unique for each entry and thus, does not provide any useful information:
+# 3.	Move the Churn column to the right and drop the CustomerId column using the following code.
+# 		You will need to drop the CustomerId column since it is unique for each entry and thus,
+# 		does not provide any useful information:
 data.drop(labels=['CustomerId'], axis=1,inplace = True)
-column_churn = data['Churn'] data.drop(labels=['Churn'], axis=1,inplace = True) data.insert(len(data.columns), 'Churn', column_churn.values)
+column_churn = data['Churn']
+data.drop(labels=['Churn'], axis=1,inplace = True)
+data.insert(len(data.columns), 'Churn', column_churn.values)
 
 # 4.	Check whether the order of the columns has been fixed using the following code:
 data.columns
 
-# 5.	Change the data type of the Geography, Gender, HasCrCard, Churn, and IsActiveMember columns to category as shown. Recall that these columns were initially strings or objects. However, since these are distinct values, you will need to convert them to categorical variables by converting the data type to category:
-data["Geography"] = data["Geography"].astype('category') data["Gender"] = data["Gender"].astype('category') data["HasCrCard"] = data["HasCrCard"].astype('category') data["Churn"] = data["Churn"].astype('category') data["IsActiveMember"] = data["IsActiveMember"]\
-                         .astype('category')
+# 5.	Change the data type of the Geography, Gender, HasCrCard, Churn, and IsActiveMember columns to category as 
+# 		shown. Recall that these columns were initially strings or objects. However, since these are distinct values,
+# 		you will need to convert them to categorical variables by converting the data type to category:
+data["Geography"] = data["Geography"].astype('category')
+data["Gender"] = data["Gender"].astype('category')
+data["HasCrCard"] = data["HasCrCard"].astype('category')
+data["Churn"] = data["Churn"].astype('category')
+data["IsActiveMember"] = data["IsActiveMember"].astype('category')
 
 # 6.	Now check whether the data types have been converted or not using the following code:
 data.dtypes
@@ -207,7 +234,10 @@ summary_churn = data.groupby('Churn') summary_churn.mean()
 summary_churn.median()
 
 # 7. Now use the seaborn library to plot the correlation plot using the following code:
-corr = data.corr() plt.figure(figsize=(15,8)) sns.heatmap(corr, \             xticklabels=corr.columns.values,\             yticklabels=corr.columns.values,\             annot=True,cmap='Greys_r') corr
+corr = data.corr()
+plt.figure(figsize=(15,8)) sns.heatmap(corr, xticklabels=corr.columns.values,\
+             yticklabels=corr.columns.values, annot=True,cmap='Greys_r')
+corr
 
 ```
 
@@ -221,32 +251,75 @@ In this exercise, you will perform EDA, which includes univariate analysis and b
 **Code:**
 
 ```python
-# 1. Start with univariate analysis. Plot the distribution graph of the customers for the EstimatedSalary, Age, and Balance variables using the following code:
+# 1.	Start with univariate analysis. Plot the distribution graph of the customers for
+# 		the EstimatedSalary, Age, and Balance variables using the following code:
 f, axes = plt.subplots(ncols=3, figsize=(15, 6)) 
-sns.distplot(data.EstimatedSalary, kde=True, color="gray", \              ax=axes[0]).set_title('EstimatedSalary') axes[0].set_ylabel('No of Customers')
-sns.distplot(data.Age, kde=True, color="gray", \              ax=axes[1]).set_title('Age') axes[1].set_ylabel('No of Customers') 
-sns.distplot(data.Balance, kde=True, color="gray", \              ax=axes[2]).set_title('Balance') axes[2].set_ylabel('No of Customers')
+sns.distplot(data.EstimatedSalary, kde=True, color="gray",  ax=axes[0]).set_title('EstimatedSalary')
+axes[0].set_ylabel('No of Customers')
 
-# 2. Now, move on to bivariate analysis. Inspect whether there is a difference in churn for Gender using bivariate analysis. Use the following code:
-plt.figure(figsize=(15,4)) p=sns.countplot(y="Gender", hue='Churn', data=data,\                 palette="Greys_r") legend = p.get_legend() legend_txt = legend.texts legend_txt[0].set_text("No Churn") legend_txt[1].set_text("Churn") 
+sns.distplot(data.Age, kde=True, color="gray",  ax=axes[1]).set_title('Age')
+axes[1].set_ylabel('No of Customers') 
+
+sns.distplot(data.Balance, kde=True, color="gray", 
+ax=axes[2]).set_title('Balance')
+axes[2].set_ylabel('No of Customers')
+
+# 2.	Now, move on to bivariate analysis. Inspect whether there is a difference in churn for
+# 		Gender using bivariate analysis. Use the following code:
+plt.figure(figsize=(15,4))
+p=sns.countplot(y="Gender", hue='Churn', data=data, palette="Greys_r")
+
+legend = p.get_legend()
+legend_txt = legend.texts
+legend_txt[0].set_text("No Churn")
+legend_txt[1].set_text("Churn") 
 p.set_title('Customer Churn Distribution by Gender')
 
 # 3. Plot Geography versus Churn:
-plt.figure(figsize=(15,4)) p=sns.countplot(x='Geography', hue='Churn', data=data, \                 palette="Greys_r") legend = p.get_legend() legend_txt = legend.texts legend_txt[0].set_text("No Churn") legend_txt[1].set_text("Churn") 
+plt.figure(figsize=(15,4))
+p=sns.countplot(x='Geography', hue='Churn', data=data, palette="Greys_r")
+
+legend = p.get_legend()
+legend_txt = legend.texts
+legend_txt[0].set_text("No Churn")
+legend_txt[1].set_text("Churn") 
 p.set_title('Customer Geography Distribution')
 
 # 4. Plot NumOfProducts versus Churn:
-plt.figure(figsize=(15,4)) p=sns.countplot(x='NumOfProducts', hue='Churn', data=data, \                 palette="Greys_r") legend = p.get_legend() legend_txt = legend.texts legend_txt[0].set_text("No Churn") legend_txt[1].set_text("Churn")
+plt.figure(figsize=(15,4))
+p=sns.countplot(x='NumOfProducts', hue='Churn', data=data, palette="Greys_r")
+
+legend = p.get_legend()
+legend_txt = legend.texts
+legend_txt[0].set_text("No Churn")
+legend_txt[1].set_text("Churn")
 p.set_title('Customer Distribution by Product')
 
 # 5. Inspect Churn versus Age:
-plt.figure(figsize=(15,4)) ax=sns.kdeplot(data.loc[(data['Churn'] == 0),'Age'] , \                color=sns.color_palette("Greys_r")[0],\                shade=True,label='no churn', \                linestyle='--') ax=sns.kdeplot(data.loc[(data['Churn'] == 1),'Age'] , \                color=sns.color_palette("Greys_r")[1],\                shade=True, label='churn') ax.set(xlabel='Customer Age', ylabel='Frequency') plt.title('Customer Age - churn vs no churn') plt.legend()
+plt.figure(figsize=(15,4))
+ax=sns.kdeplot(data.loc[(data['Churn'] == 0),'Age'] , color=sns.color_palette("Greys_r")[0], shade=True,label='no churn', linestyle='--')
+ax=sns.kdeplot(data.loc[(data['Churn'] == 1),'Age'] , color=sns.color_palette("Greys_r")[1], shade=True, label='churn')
+ax.set(xlabel='Customer Age', ylabel='Frequency')
+plt.title('Customer Age - churn vs no churn')
+plt.legend()
 
 # 6. Plot Balance versus Churn:
-plt.figure(figsize=(15,4)) ax=sns.kdeplot(data.loc[(data['Churn'] == 0),'Balance'] , \                color=sns.color_palette("Greys_r")[0],\                shade=True,label='no churn',linestyle='--') ax=sns.kdeplot(data.loc[(data['Churn'] == 1),'Balance'] , \                color=sns.color_palette("Greys_r")[1],\                shade=True, label='churn') ax.set(xlabel='Customer Balance', ylabel='Frequency') plt.title('Customer Balance - churn vs no churn') plt.legend()
+plt.figure(figsize=(15,4))
+ax=sns.kdeplot(data.loc[(data['Churn'] == 0),'Balance'] , color=sns.color_palette("Greys_r")[0], shade=True,label='no churn',linestyle='--')
+ax=sns.kdeplot(data.loc[(data['Churn'] == 1),'Balance'] , color=sns.color_palette("Greys_r")[1], shade=True, label='churn')
+ax.set(xlabel='Customer Balance', ylabel='Frequency')
+
+plt.title('Customer Balance - churn vs no churn')
+plt.legend()
 
 # 7. Plot CreditScore versus Churn:
-plt.figure(figsize=(15,4)) ax=sns.kdeplot(data.loc[(data['Churn'] == 0),'CreditScore'] , \                color=sns.color_palette("Greys_r")[0],\                shade=True,label='no churn',linestyle='--') ax=sns.kdeplot(data.loc[(data['Churn'] == 1),'CreditScore'] , \                color=sns.color_palette("Greys_r")[1],\                shade=True, label='churn') ax.set(xlabel='CreditScore', ylabel='Frequency') plt.title('Customer CreditScore - churn vs no churn') plt.legend()
+plt.figure(figsize=(15,4))
+ax=sns.kdeplot(data.loc[(data['Churn'] == 0),'CreditScore'] , color=sns.color_palette("Greys_r")[0], shade=True,label='no churn',linestyle='--')
+ax=sns.kdeplot(data.loc[(data['Churn'] == 1),'CreditScore'] ,  color=sns.color_palette("Greys_r")[1], shade=True, label='churn')
+ax.set(xlabel='CreditScore', ylabel='Frequency')
+
+plt.title('Customer CreditScore - churn vs no churn')
+plt.legend()
 
 ```
 
