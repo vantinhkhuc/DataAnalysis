@@ -1,13 +1,1960 @@
 # Chapter 07 Supervised Learning: Predicting Customer Churn
 
-## **Mục tiêu học tập**
-Sau khi hoàn thành bài học này, học viên sẽ có thể:
-- Hiểu rõ nhu cầu và tầm quan trọng của customer segmentation
-- Nắm vững thuật toán K-means và ứng dụng trong phân khúc khách hàng
-- Thực hiện phân tích thống kê mô tả và tổng hợp dữ liệu
-- Sử dụng các công cụ Python để thực hiện segmentation
-- Phân tích và diễn giải kết quả phân khúc khách hàng
-- Áp dụng các kỹ thuật nâng cao trong customer segmentation
+**Môn học:** Phân tích dữ liệu  
+**Ngôn ngữ:** Python  
+**Thời lượng:** 4-5 tiếng  
+**Prerequisite:** Lập trình Python căn bản
+
+## Mục tiêu học tập
+
+Sau khi hoàn thành bài học này, học viên sẽ có khả năng:
+
+1. **Hiểu và áp dụng Supervised Learning** cho bài toán classification
+2. **Thực hiện classification tasks** sử dụng logistic regression
+3. **Triển khai pipeline OSEMN** (Obtain, Scrub, Explore, Model, iNterpret) một cách hoàn chỉnh
+4. **Phân tích mối quan hệ** giữa biến target và explanatory variables thông qua data exploration
+5. **Lựa chọn features hiệu quả** để xây dựng predictive models
+6. **Xây dựng và đánh giá churn model** sử dụng logistic regression làm baseline
+7. **Giải thích business insights** từ kết quả mô hình
+
+---
+
+## Phần 1: Giới thiệu về Supervised Learning và Customer Churn
+
+### 1.1 Supervised Learning là gì?
+
+**Supervised Learning** là một nhánh của Machine Learning trong đó mô hình được huấn luyện trên dữ liệu có nhãn (labeled data) để dự đoán kết quả cho dữ liệu mới.
+
+**Đặc điểm:**
+- Có target variable (biến phụ thuộc) rõ ràng
+- Chia thành 2 loại chính: Classification và Regression
+- Đánh giá được performance thông qua so sánh prediction vs actual
+
+**Classification vs Regression:**
+- **Classification**: Dự đoán category/class (Yes/No, High/Medium/Low)
+- **Regression**: Dự đoán continuous value (giá nhà, doanh số)
+
+### 1.2 Customer Churn Problem
+
+**Customer Churn** (Khách hàng rời bỏ) là hiện tượng khách hàng ngừng sử dụng sản phẩm/dịch vụ của công ty.
+
+**Tại sao quan trọng:**
+- Chi phí giữ chân khách hàng cũ < Chi phí tìm khách hàng mới (5-25 lần)
+- Tác động trực tiếp đến revenue và growth
+- Có thể predict và prevent được
+
+**Business Impact:**
+- Định identify khách hàng có risk cao
+- Thiết kế retention campaigns
+- Optimize customer lifetime value
+
+### 1.3 Pipeline OSEMN Overview
+
+**OSEMN** là framework được sử dụng rộng rãi trong Data Science:
+
+1. **O**btain: Thu thập dữ liệu
+2. **S**crub: Làm sạch dữ liệu  
+3. **E**xplore: Khám phá dữ liệu (EDA)
+4. **M**odel: Xây dựng mô hình
+5. **iN**terpret: Giải thích kết quả
+
+---
+
+## Phần 2: OBTAIN - Thu thập và Load dữ liệu
+
+### 2.1 Setup Environment
+
+```python
+# Import essential libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+import warnings
+warnings.filterwarnings('ignore')
+
+# Machine Learning libraries
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (classification_report, confusion_matrix, 
+                           roc_auc_score, roc_curve, precision_recall_curve,
+                           accuracy_score, precision_score, recall_score, f1_score)
+
+# Set display options
+pd.set_option('display.max_columns', None)
+plt.style.use('seaborn-v0_8')
+sns.set_palette("husl")
+
+print("Environment setup completed!")
+```
+
+### 2.2 Data Generation và Understanding
+
+```python
+# Tạo realistic customer churn dataset
+np.random.seed(42)
+n_customers = 5000
+
+# Customer demographics
+customer_data = {
+    'CustomerID': range(1, n_customers + 1),
+    'Gender': np.random.choice(['Male', 'Female'], n_customers),
+    'Age': np.random.normal(40, 12, n_customers).clip(18, 80).astype(int),
+    'SeniorCitizen': np.random.choice([0, 1], n_customers, p=[0.84, 0.16]),
+    
+    # Account information  
+    'Tenure': np.random.exponential(scale=24, size=n_customers).clip(1, 72).astype(int),
+    'MonthlyCharges': np.random.normal(65, 20, n_customers).clip(18.25, 118.75),
+    
+    # Services
+    'PhoneService': np.random.choice(['Yes', 'No'], n_customers, p=[0.91, 0.09]),
+    'MultipleLines': np.random.choice(['Yes', 'No', 'No phone service'], n_customers, p=[0.42, 0.49, 0.09]),
+    'InternetService': np.random.choice(['DSL', 'Fiber optic', 'No'], n_customers, p=[0.34, 0.44, 0.22]),
+    'OnlineSecurity': np.random.choice(['Yes', 'No', 'No internet service'], n_customers, p=[0.29, 0.49, 0.22]),
+    'TechSupport': np.random.choice(['Yes', 'No', 'No internet service'], n_customers, p=[0.29, 0.49, 0.22]),
+    
+    # Contract details
+    'Contract': np.random.choice(['Month-to-month', 'One year', 'Two year'], n_customers, p=[0.55, 0.21, 0.24]),
+    'PaperlessBilling': np.random.choice(['Yes', 'No'], n_customers, p=[0.59, 0.41]),
+    'PaymentMethod': np.random.choice(['Electronic check', 'Mailed check', 'Bank transfer (automatic)', 'Credit card (automatic)'], 
+                                    n_customers, p=[0.34, 0.19, 0.22, 0.25])
+}
+
+# Create DataFrame
+df = pd.DataFrame(customer_data)
+
+# Calculate TotalCharges based on Tenure and MonthlyCharges
+df['TotalCharges'] = df['Tenure'] * df['MonthlyCharges'] + np.random.normal(0, 100, n_customers)
+df['TotalCharges'] = df['TotalCharges'].clip(lower=df['MonthlyCharges'])
+
+print("Dataset created successfully!")
+print(f"Dataset shape: {df.shape}")
+print("\nFirst 5 rows:")
+print(df.head())
+```
+
+### 2.3 Tạo Target Variable với Business Logic
+
+```python
+def create_churn_target(df):
+    """
+    Tạo target variable 'Churn' dựa trên business logic thực tế
+    """
+    # Initialize churn probability
+    churn_prob = np.zeros(len(df))
+    
+    # Age factor: Younger customers more likely to switch
+    age_factor = np.where(df['Age'] < 30, 0.15, 
+                 np.where(df['Age'] > 60, 0.10, 0.05))
+    
+    # Tenure factor: New customers more likely to churn
+    tenure_factor = np.where(df['Tenure'] <= 6, 0.40,
+                    np.where(df['Tenure'] <= 12, 0.25,
+                    np.where(df['Tenure'] <= 24, 0.15, 0.05)))
+    
+    # Contract factor: Month-to-month highest risk
+    contract_factor = np.where(df['Contract'] == 'Month-to-month', 0.35,
+                      np.where(df['Contract'] == 'One year', 0.15, 0.05))
+    
+    # Payment method factor: Electronic check higher risk  
+    payment_factor = np.where(df['PaymentMethod'] == 'Electronic check', 0.15, 0.05)
+    
+    # Service factor: No internet service lower risk
+    service_factor = np.where(df['InternetService'] == 'No', 0.02,
+                     np.where(df['InternetService'] == 'Fiber optic', 0.12, 0.08))
+    
+    # Monthly charges factor: Higher charges = higher risk
+    charges_factor = np.where(df['MonthlyCharges'] > 80, 0.20,
+                     np.where(df['MonthlyCharges'] > 60, 0.10, 0.05))
+    
+    # Tech support factor: No tech support = higher risk
+    tech_factor = np.where(df['TechSupport'] == 'No', 0.10, 0.02)
+    
+    # Combine all factors
+    churn_prob = (age_factor + tenure_factor + contract_factor + 
+                  payment_factor + service_factor + charges_factor + tech_factor)
+    
+    # Add some randomness and ensure probability bounds
+    churn_prob = np.clip(churn_prob + np.random.normal(0, 0.05, len(df)), 0, 1)
+    
+    # Generate actual churn based on probability
+    df['Churn'] = np.random.binomial(1, churn_prob)
+    
+    return df
+
+# Apply churn generation
+df = create_churn_target(df)
+
+# Display basic statistics
+print("Churn Distribution:")
+print(df['Churn'].value_counts())
+print(f"Churn Rate: {df['Churn'].mean():.2%}")
+```
+
+---
+
+## Phần 3: SCRUB - Data Cleaning và Preprocessing
+
+### 3.1 Data Quality Assessment
+
+```python
+def assess_data_quality(df):
+    """
+    Đánh giá chất lượng dữ liệu toàn diện
+    """
+    print("="*50)
+    print("DATA QUALITY ASSESSMENT")
+    print("="*50)
+    
+    # Basic info
+    print(f"\nDataset Shape: {df.shape}")
+    print(f"Memory Usage: {df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
+    
+    # Missing values
+    missing_data = df.isnull().sum()
+    missing_percent = (missing_data / len(df)) * 100
+    
+    if missing_data.sum() > 0:
+        missing_df = pd.DataFrame({
+            'Missing Count': missing_data,
+            'Missing Percentage': missing_percent
+        }).sort_values('Missing Count', ascending=False)
+        print("\nMISSING VALUES:")
+        print(missing_df[missing_df['Missing Count'] > 0])
+    else:
+        print("\n✓ No missing values found")
+    
+    # Data types
+    print("\nDATA TYPES:")
+    print(df.dtypes.value_counts())
+    
+    # Duplicate rows
+    duplicates = df.duplicated().sum()
+    print(f"\nDuplicate rows: {duplicates}")
+    
+    # Numerical columns statistics
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    if len(numeric_cols) > 0:
+        print(f"\nNUMERICAL COLUMNS STATISTICS:")
+        print(df[numeric_cols].describe().round(2))
+    
+    # Categorical columns
+    categorical_cols = df.select_dtypes(include=['object']).columns
+    if len(categorical_cols) > 0:
+        print(f"\nCATEGORICAL COLUMNS:")
+        for col in categorical_cols:
+            unique_count = df[col].nunique()
+            print(f"  {col}: {unique_count} unique values")
+            if unique_count <= 10:  # Show values if not too many
+                print(f"    Values: {list(df[col].unique())}")
+
+# Assess our dataset
+assess_data_quality(df)
+```
+
+### 3.2 Data Cleaning Steps
+
+```python
+def clean_data(df):
+    """
+    Thực hiện các bước làm sạch dữ liệu
+    """
+    df_clean = df.copy()
+    
+    print("Starting data cleaning process...")
+    
+    # 1. Handle data type issues
+    # Convert TotalCharges to numeric (if it contains spaces/empty strings)
+    if df_clean['TotalCharges'].dtype == 'object':
+        df_clean['TotalCharges'] = pd.to_numeric(df_clean['TotalCharges'], errors='coerce')
+    
+    # 2. Handle missing values
+    # Fill missing TotalCharges with Tenure * MonthlyCharges
+    missing_total_charges = df_clean['TotalCharges'].isnull()
+    if missing_total_charges.sum() > 0:
+        df_clean.loc[missing_total_charges, 'TotalCharges'] = (
+            df_clean.loc[missing_total_charges, 'Tenure'] * 
+            df_clean.loc[missing_total_charges, 'MonthlyCharges']
+        )
+        print(f"✓ Filled {missing_total_charges.sum()} missing TotalCharges values")
+    
+    # 3. Handle outliers
+    def remove_outliers_iqr(data, column):
+        Q1 = data[column].quantile(0.25)
+        Q3 = data[column].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        
+        outliers_mask = (data[column] < lower_bound) | (data[column] > upper_bound)
+        return data[~outliers_mask], outliers_mask.sum()
+    
+    # Remove outliers from numerical columns
+    original_size = len(df_clean)
+    numerical_cols = ['Age', 'Tenure', 'MonthlyCharges', 'TotalCharges']
+    
+    for col in numerical_cols:
+        df_clean, outliers_removed = remove_outliers_iqr(df_clean, col)
+        if outliers_removed > 0:
+            print(f"✓ Removed {outliers_removed} outliers from {col}")
+    
+    print(f"✓ Dataset size after cleaning: {len(df_clean)} (removed {original_size - len(df_clean)} rows)")
+    
+    # 4. Feature consistency checks
+    # Ensure MultipleLines consistency with PhoneService
+    inconsistent_lines = ((df_clean['PhoneService'] == 'No') & 
+                         (df_clean['MultipleLines'] != 'No phone service'))
+    if inconsistent_lines.sum() > 0:
+        df_clean.loc[inconsistent_lines, 'MultipleLines'] = 'No phone service'
+        print(f"✓ Fixed {inconsistent_lines.sum()} inconsistent MultipleLines values")
+    
+    # Ensure internet-dependent services consistency
+    internet_services = ['OnlineSecurity', 'TechSupport']
+    no_internet_mask = df_clean['InternetService'] == 'No'
+    
+    for service in internet_services:
+        inconsistent_mask = no_internet_mask & (df_clean[service] != 'No internet service')
+        if inconsistent_mask.sum() > 0:
+            df_clean.loc[inconsistent_mask, service] = 'No internet service'
+            print(f"✓ Fixed {inconsistent_mask.sum()} inconsistent {service} values")
+    
+    return df_clean
+
+# Clean the data
+df_clean = clean_data(df)
+print("\nData cleaning completed successfully!")
+```
+
+---
+
+## Phần 4: EXPLORE - Data Exploration và Analysis
+
+### 4.1 Univariate Analysis
+
+```python
+def perform_univariate_analysis(df):
+    """
+    Phân tích từng biến riêng lẻ
+    """
+    print("="*50)
+    print("UNIVARIATE ANALYSIS")
+    print("="*50)
+    
+    # Target variable analysis
+    print("\n1. TARGET VARIABLE ANALYSIS:")
+    churn_counts = df['Churn'].value_counts()
+    churn_pct = df['Churn'].value_counts(normalize=True)
+    
+    print("Churn Distribution:")
+    for i, (count, pct) in enumerate(zip(churn_counts, churn_pct)):
+        label = "No Churn" if i == 0 else "Churn"
+        print(f"  {label}: {count:,} ({pct:.2%})")
+    
+    # Visualization setup
+    fig = plt.figure(figsize=(20, 15))
+    
+    # 1. Target distribution
+    plt.subplot(3, 4, 1)
+    churn_counts.plot(kind='pie', autopct='%1.1f%%', labels=['No Churn', 'Churn'])
+    plt.title('Churn Distribution')
+    plt.ylabel('')
+    
+    # 2. Numerical variables
+    numerical_cols = ['Age', 'Tenure', 'MonthlyCharges', 'TotalCharges']
+    
+    for i, col in enumerate(numerical_cols):
+        plt.subplot(3, 4, i+2)
+        df[col].hist(bins=30, alpha=0.7, edgecolor='black')
+        plt.title(f'{col} Distribution')
+        plt.xlabel(col)
+        plt.ylabel('Frequency')
+        
+        # Add statistics
+        mean_val = df[col].mean()
+        median_val = df[col].median()
+        plt.axvline(mean_val, color='red', linestyle='--', label=f'Mean: {mean_val:.1f}')
+        plt.axvline(median_val, color='green', linestyle='--', label=f'Median: {median_val:.1f}')
+        plt.legend()
+    
+    # 3. Categorical variables
+    categorical_cols = ['Gender', 'SeniorCitizen', 'Contract', 'InternetService', 'PaymentMethod', 'PaperlessBilling']
+    
+    for i, col in enumerate(categorical_cols):
+        plt.subplot(3, 4, i+6)
+        value_counts = df[col].value_counts()
+        value_counts.plot(kind='bar')
+        plt.title(f'{col} Distribution')
+        plt.xticks(rotation=45)
+        plt.ylabel('Count')
+        
+        # Add percentages
+        total = len(df)
+        for j, v in enumerate(value_counts.values):
+            plt.text(j, v + total*0.01, f'{v/total:.1%}', ha='center')
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Print numerical statistics
+    print("\n2. NUMERICAL VARIABLES STATISTICS:")
+    print(df[numerical_cols].describe().round(2))
+
+# Perform univariate analysis
+perform_univariate_analysis(df_clean)
+```
+
+### 4.2 Bivariate Analysis - Mối quan hệ với Target Variable
+
+```python
+def analyze_target_relationships(df):
+    """
+    Phân tích mối quan hệ giữa features và target variable
+    Đây là phần quan trọng để hiểu data và select features
+    """
+    print("="*50)
+    print("BIVARIATE ANALYSIS - RELATIONSHIP WITH TARGET")
+    print("="*50)
+    
+    # Numerical variables vs Churn
+    numerical_cols = ['Age', 'Tenure', 'MonthlyCharges', 'TotalCharges']
+    
+    print("\n1. NUMERICAL VARIABLES vs CHURN:")
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    axes = axes.ravel()
+    
+    for i, col in enumerate(numerical_cols):
+        # Box plot
+        df.boxplot(column=col, by='Churn', ax=axes[i])
+        axes[i].set_title(f'{col} by Churn Status')
+        
+        # Statistical test
+        churn_group = df[df['Churn'] == 1][col]
+        no_churn_group = df[df['Churn'] == 0][col]
+        
+        # T-test
+        t_stat, p_value = stats.ttest_ind(churn_group, no_churn_group)
+        
+        # Statistics summary
+        churn_mean = churn_group.mean()
+        no_churn_mean = no_churn_group.mean()
+        
+        print(f"\n{col}:")
+        print(f"  No Churn Mean: {no_churn_mean:.2f}")
+        print(f"  Churn Mean: {churn_mean:.2f}")
+        print(f"  Difference: {churn_mean - no_churn_mean:.2f}")
+        print(f"  T-test p-value: {p_value:.6f}")
+        print(f"  Significant: {'Yes' if p_value < 0.05 else 'No'}")
+    
+    plt.suptitle('Numerical Variables vs Churn', y=1.02)
+    plt.tight_layout()
+    plt.show()
+    
+    # Categorical variables vs Churn
+    print("\n2. CATEGORICAL VARIABLES vs CHURN:")
+    categorical_cols = ['Gender', 'SeniorCitizen', 'Contract', 'InternetService', 
+                       'PaymentMethod', 'PaperlessBilling', 'PhoneService']
+    
+    # Calculate churn rates for each category
+    churn_analysis = {}
+    
+    for col in categorical_cols:
+        churn_rate = df.groupby(col)['Churn'].agg(['count', 'sum', 'mean']).round(3)
+        churn_rate.columns = ['Total_Customers', 'Churned_Customers', 'Churn_Rate']
+        churn_analysis[col] = churn_rate
+        
+        print(f"\n{col}:")
+        print(churn_rate)
+        
+        # Chi-square test
+        contingency_table = pd.crosstab(df[col], df['Churn'])
+        chi2, p_value, dof, expected = stats.chi2_contingency(contingency_table)
+        print(f"  Chi-square p-value: {p_value:.6f}")
+        print(f"  Significant association: {'Yes' if p_value < 0.05 else 'No'}")
+    
+    # Visualization of categorical variables
+    fig, axes = plt.subplots(3, 3, figsize=(18, 15))
+    axes = axes.ravel()
+    
+    for i, col in enumerate(categorical_cols):
+        if i < len(axes):
+            # Churn rate by category
+            churn_rate = df.groupby(col)['Churn'].mean()
+            churn_rate.plot(kind='bar', ax=axes[i], color='skyblue', edgecolor='black')
+            axes[i].set_title(f'Churn Rate by {col}')
+            axes[i].set_ylabel('Churn Rate')
+            axes[i].tick_params(axis='x', rotation=45)
+            
+            # Add percentage labels on bars
+            for j, v in enumerate(churn_rate.values):
+                axes[i].text(j, v + 0.01, f'{v:.2%}', ha='center')
+    
+    # Remove empty subplots
+    for i in range(len(categorical_cols), len(axes)):
+        fig.delaxes(axes[i])
+    
+    plt.tight_layout()
+    plt.show()
+    
+    return churn_analysis
+
+# Analyze relationships with target
+churn_analysis_results = analyze_target_relationships(df_clean)
+```
+
+### 4.3 Feature Correlation Analysis
+
+```python
+def analyze_feature_correlations(df):
+    """
+    Phân tích correlation giữa các features
+    """
+    print("="*50)
+    print("FEATURE CORRELATION ANALYSIS")
+    print("="*50)
+    
+    # Encode categorical variables for correlation analysis
+    df_encoded = df.copy()
+    
+    # Label encoding for categorical variables
+    le = LabelEncoder()
+    categorical_cols = df.select_dtypes(include=['object']).columns
+    
+    for col in categorical_cols:
+        df_encoded[col] = le.fit_transform(df[col])
+    
+    # Calculate correlation matrix
+    correlation_matrix = df_encoded.corr()
+    
+    # Correlation with target variable
+    target_corr = correlation_matrix['Churn'].abs().sort_values(ascending=False)
+    print("CORRELATION WITH TARGET VARIABLE (absolute values):")
+    print(target_corr.round(3))
+    
+    # Visualization
+    plt.figure(figsize=(12, 10))
+    
+    # Full correlation matrix
+    plt.subplot(1, 2, 1)
+    sns.heatmap(correlation_matrix, annot=True, cmap='RdYlBu_r', center=0, 
+                fmt='.2f', square=True)
+    plt.title('Full Correlation Matrix')
+    
+    # Target correlations
+    plt.subplot(1, 2, 2)
+    target_corr_df = target_corr.drop('Churn').to_frame()
+    target_corr_df.columns = ['Correlation']
+    
+    # Color mapping for positive/negative correlations
+    colors = ['red' if x < 0 else 'blue' for x in correlation_matrix['Churn'].drop('Churn')]
+    
+    plt.barh(range(len(target_corr_df)), target_corr_df['Correlation'], color=colors, alpha=0.7)
+    plt.yticks(range(len(target_corr_df)), target_corr_df.index)
+    plt.xlabel('Absolute Correlation with Churn')
+    plt.title('Feature Importance by Correlation')
+    plt.gca().invert_yaxis()
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # High correlation pairs (potential multicollinearity)
+    print("\nHIGH CORRELATION PAIRS (|correlation| > 0.7):")
+    high_corr_pairs = []
+    
+    for i in range(len(correlation_matrix.columns)):
+        for j in range(i+1, len(correlation_matrix.columns)):
+            corr_value = correlation_matrix.iloc[i, j]
+            if abs(corr_value) > 0.7:
+                high_corr_pairs.append({
+                    'Feature1': correlation_matrix.columns[i],
+                    'Feature2': correlation_matrix.columns[j],
+                    'Correlation': corr_value
+                })
+    
+    if high_corr_pairs:
+        high_corr_df = pd.DataFrame(high_corr_pairs)
+        print(high_corr_df.round(3))
+    else:
+        print("No high correlation pairs found.")
+    
+    return correlation_matrix, target_corr
+
+# Analyze correlations
+correlation_matrix, target_correlations = analyze_feature_correlations(df_clean)
+```
+
+---
+
+## Phần 5: Feature Selection và Engineering
+
+### 5.1 Feature Selection dựa trên EDA Results
+
+```python
+def select_features_based_on_analysis(df, target_correlations, churn_analysis_results):
+    """
+    Lựa chọn features dựa trên kết quả phân tích EDA
+    """
+    print("="*50)
+    print("FEATURE SELECTION BASED ON EDA")
+    print("="*50)
+    
+    # 1. Features with high correlation with target
+    high_corr_features = target_correlations[target_correlations.abs() > 0.1].index.tolist()
+    if 'Churn' in high_corr_features:
+        high_corr_features.remove('Churn')
+    
+    print("1. HIGH CORRELATION FEATURES (|correlation| > 0.1):")
+    for feature in high_corr_features:
+        corr_value = target_correlations[feature]
+        print(f"  {feature}: {corr_value:.3f}")
+    
+    # 2. Categorical features with significant churn rate differences
+    significant_categorical = []
+    
+    print("\n2. CATEGORICAL FEATURES WITH SIGNIFICANT CHURN DIFFERENCES:")
+    for col, analysis in churn_analysis_results.items():
+        churn_rates = analysis['Churn_Rate'].values
+        if len(churn_rates) > 1:
+            # Check if there's substantial difference in churn rates
+            churn_range = churn_rates.max() - churn_rates.min()
+            if churn_range > 0.1:  # 10% difference threshold
+                significant_categorical.append(col)
+                print(f"  {col}: Range = {churn_range:.3f} (Max: {churn_rates.max():.3f}, Min: {churn_rates.min():.3f})")
+    
+    # 3. Business importance (domain knowledge)
+    business_important = ['Tenure', 'Contract', 'MonthlyCharges', 'PaymentMethod']
+    
+    print("\n3. BUSINESS IMPORTANT FEATURES:")
+    for feature in business_important:
+        print(f"  {feature}")
+    
+    # Combine all selected features
+    selected_features = list(set(high_corr_features + significant_categorical + business_important))
+    selected_features = [f for f in selected_features if f in df.columns and f != 'Churn']
+    
+    print(f"\n4. FINAL SELECTED FEATURES ({len(selected_features)}):")
+    for i, feature in enumerate(selected_features, 1):
+        print(f"  {i:2d}. {feature}")
+    
+    return selected_features
+
+# Select features
+selected_features = select_features_based_on_analysis(df_clean, target_correlations, churn_analysis_results)
+```
+
+### 5.2 Feature Engineering
+
+```python
+def engineer_features(df, selected_features):
+    """
+    Tạo các features mới từ dữ liệu hiện có
+    """
+    print("="*50)
+    print("FEATURE ENGINEERING")
+    print("="*50)
+    
+    df_eng = df.copy()
+    
+    # 1. Tenure-based features
+    print("1. TENURE-BASED FEATURES:")
+    
+    # Tenure groups
+    df_eng['TenureGroup'] = pd.cut(df_eng['Tenure'], 
+                                  bins=[0, 12, 24, 48, 100], 
+                                  labels=['0-12', '12-24', '24-48', '48+'])
+    print("  ✓ TenureGroup created")
+    
+    # New customer indicator
+    df_eng['IsNewCustomer'] = (df_eng['Tenure'] <= 6).astype(int)
+    print("  ✓ IsNewCustomer created")
+    
+    # 2. Charges-based features
+    print("\n2. CHARGES-BASED FEATURES:")
+    
+    # Average monthly spending
+    df_eng['AvgMonthlySpending'] = df_eng['TotalCharges'] / (df_eng['Tenure'] + 1)
+    print("  ✓ AvgMonthlySpending created")
+    
+    # High value customer
+    monthly_charges_75th = df_eng['MonthlyCharges'].quantile(0.75)
+    df_eng['IsHighValueCustomer'] = (df_eng['MonthlyCharges'] > monthly_charges_75th).astype(int)
+    print(f"  ✓ IsHighValueCustomer created (threshold: ${monthly_charges_75th:.2f})")
+    
+    # Charges ratio
+    df_eng['ChargesRatio'] = df_eng['MonthlyCharges'] / (df_eng['AvgMonthlySpending'] + 1)
+    print("  ✓ ChargesRatio created")
+    
+    # 3. Contract-based features
+    print("\n3. CONTRACT-BASED FEATURES:")
+    
+    # Contract risk score
+    contract_risk = {'Month-to-month': 3, 'One year': 2, 'Two year': 1}
+    df_eng['ContractRisk'] = df_eng['Contract'].map(contract_risk)
+    print("  ✓ ContractRisk created")
+    
+    # 4. Service-based features
+    print("\n4. SERVICE-BASED FEATURES:")
+    
+    # Count of additional services
+    service_cols = ['PhoneService', 'MultipleLines', 'OnlineSecurity', 'TechSupport']
+    df_eng['ServiceCount'] = 0
+    
+    for col in service_cols:
+        if col in df_eng.columns:
+            df_eng['ServiceCount'] += (df_eng[col] == 'Yes').astype(int)
+    
+    print("  ✓ ServiceCount created")
+    
+    # Internet service score
+    internet_score = {'No': 0, 'DSL': 1, 'Fiber optic': 2}
+    df_eng['InternetServiceScore'] = df_eng['InternetService'].map(internet_score)
+    print("  ✓ InternetServiceScore created")
+    
+    # 5. Payment-based features
+    print("\n5. PAYMENT-BASED FEATURES:")
+    
+    # Payment risk score (based on EDA results)
+    payment_risk = {
+        'Electronic check': 3,
+        'Mailed check': 2,
+        'Bank transfer (automatic)': 1,
+        'Credit card (automatic)': 1
+    }
+    df_eng['PaymentRisk'] = df_eng['PaymentMethod'].map(payment_risk)
+    print("  ✓ PaymentRisk created")
+    
+    # 6. Demographic features
+    print("\n6. DEMOGRAPHIC FEATURES:")
+    
+    # Age groups
+    df_eng['AgeGroup'] = pd.cut(df_eng['Age'], 
+                               bins=[0, 30, 50, 65, 100], 
+                               labels=['18-30', '30-50', '50-65', '65+'])
+    print("  ✓ AgeGroup created")
+    
+    # Senior citizen flag (if not already binary)
+    if df_eng['SeniorCitizen'].dtype == 'object':
+        df_eng['SeniorCitizen'] = (df_eng['SeniorCitizen'] == 'Yes').astype(int)
+    
+    # List all engineered features
+    engineered_features = [
+        'TenureGroup', 'IsNewCustomer', 'AvgMonthlySpending', 'IsHighValueCustomer',
+        'ChargesRatio', 'ContractRisk', 'ServiceCount', 'InternetServiceScore',
+        'PaymentRisk', 'AgeGroup'
+    ]
+    
+    print(f"\n✓ Total engineered features: {len(engineered_features)}")
+    
+    # Update selected features with engineered ones
+    updated_features = selected_features + engineered_features
+    updated_features = [f for f in updated_features if f in df_eng.columns and f != 'Churn']
+    
+    return df_eng, updated_features
+
+# Engineer features
+df_engineered, final_features = engineer_features(df_clean, selected_features)
+```
+
+---
+
+## Phần 6: MODEL - Xây dựng Logistic Regression Model
+
+### 6.1 Data Preparation cho Modeling
+
+```python
+def prepare_modeling_data(df, features):
+    """
+    Chuẩn bị dữ liệu cho quá trình modeling
+    """
+    print("="*50)
+    print("DATA PREPARATION FOR MODELING")
+    print("="*50)
+    
+    # Create feature matrix
+    df_model = df.copy()
+    
+    # Separate numerical and categorical features
+    numerical_features = []
+    categorical_features = []
+    
+    for feature in features:
+        if df_model[feature].dtype in ['int64', 'float64']:
+            numerical_features.append(feature)
+        else:
+            categorical_features.append(feature)
+    
+    print(f"Numerical features ({len(numerical_features)}): {numerical_features}")
+    print(f"Categorical features ({len(categorical_features)}): {categorical_features}")
+    
+    # Create feature matrix X
+    X = pd.DataFrame()
+    
+    # Add numerical features
+    for feature in numerical_features:
+        X[feature] = df_model[feature]
+    
+    # One-hot encode categorical features
+    for feature in categorical_features:
+        # Get dummies
+        dummies = pd.get_dummies(df_model[feature], prefix=feature, drop_first=True)
+        X = pd.concat([X, dummies], axis=1)
+    
+    # Target variable
+    y = df_model['Churn']
+    
+    print(f"\nFeature matrix shape: {X.shape}")
+    print(f"Target variable shape: {y.shape}")
+    print(f"Final features: {list(X.columns)}")
+    
+    # Check for any remaining missing values
+    if X.isnull().sum().sum() > 0:
+        print("\nWarning: Missing values detected!")
+        print(X.isnull().sum()[X.isnull().sum() > 0])
+        X = X.fillna(X.mean())  # Simple imputation
+        print("Missing values filled with mean.")
+    
+    return X, y, numerical_features, categorical_features
+
+# Prepare data for modeling
+X, y, num_features, cat_features = prepare_modeling_data(df_engineered, final_features)
+```
+
+### 6.2 Train-Test Split và Data Scaling
+
+```python
+def split_and_scale_data(X, y):
+    """
+    Chia dữ liệu và chuẩn hóa
+    """
+    print("="*50)
+    print("TRAIN-TEST SPLIT AND SCALING")
+    print("="*50)
+    
+    # Split the data
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, 
+        test_size=0.2, 
+        random_state=42, 
+        stratify=y
+    )
+    
+    print(f"Training set: {X_train.shape[0]} samples")
+    print(f"Test set: {X_test.shape[0]} samples")
+    
+    # Check target distribution
+    print(f"\nTraining set churn rate: {y_train.mean():.3f}")
+    print(f"Test set churn rate: {y_test.mean():.3f}")
+    
+    # Scale the features
+    scaler = StandardScaler()
+    
+    # Fit on training data and transform both sets
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    
+    # Convert back to DataFrame for easier handling
+    X_train_scaled = pd.DataFrame(X_train_scaled, columns=X.columns, index=X_train.index)
+    X_test_scaled = pd.DataFrame(X_test_scaled, columns=X.columns, index=X_test.index)
+    
+    print("✓ Features scaled using StandardScaler")
+    
+    return X_train_scaled, X_test_scaled, y_train, y_test, scaler
+
+# Split and scale data
+X_train, X_test, y_train, y_test, scaler = split_and_scale_data(X, y)
+```
+
+### 6.3 Baseline Logistic Regression Model
+
+```python
+def train_baseline_logistic_regression(X_train, y_train):
+    """
+    Huấn luyện baseline Logistic Regression model
+    """
+    print("="*50)
+    print("BASELINE LOGISTIC REGRESSION MODEL")
+    print("="*50)
+    
+    # Initialize the model
+    lr_baseline = LogisticRegression(
+        random_state=42,
+        max_iter=1000,
+        solver='liblinear'  # Good for small datasets
+    )
+    
+    # Train the model
+    print("Training logistic regression model...")
+    lr_baseline.fit(X_train, y_train)
+    
+    # Model parameters
+    print(f"✓ Model trained successfully!")
+    print(f"Number of features: {len(lr_baseline.coef_[0])}")
+    print(f"Intercept: {lr_baseline.intercept_[0]:.4f}")
+    
+    # Training accuracy
+    train_accuracy = lr_baseline.score(X_train, y_train)
+    print(f"Training accuracy: {train_accuracy:.4f}")
+    
+    return lr_baseline
+
+# Train baseline model
+baseline_model = train_baseline_logistic_regression(X_train, y_train)
+```
+
+### 6.4 Model Predictions và Probabilities
+
+```python
+def generate_predictions(model, X_train, X_test, y_train, y_test):
+    """
+    Tạo predictions và probabilities
+    """
+    print("="*50)
+    print("GENERATING PREDICTIONS")
+    print("="*50)
+    
+    # Generate predictions
+    y_train_pred = model.predict(X_train)
+    y_test_pred = model.predict(X_test)
+    
+    # Generate prediction probabilities
+    y_train_prob = model.predict_proba(X_train)[:, 1]
+    y_test_prob = model.predict_proba(X_test)[:, 1]
+    
+    print("✓ Predictions generated for training and test sets")
+    
+    # Quick accuracy check
+    train_acc = accuracy_score(y_train, y_train_pred)
+    test_acc = accuracy_score(y_test, y_test_pred)
+    
+    print(f"Training accuracy: {train_acc:.4f}")
+    print(f"Test accuracy: {test_acc:.4f}")
+    
+    # Prediction distribution
+    print(f"\nPrediction distribution:")
+    print(f"Training - No Churn: {(y_train_pred == 0).sum()}, Churn: {(y_train_pred == 1).sum()}")
+    print(f"Test - No Churn: {(y_test_pred == 0).sum()}, Churn: {(y_test_pred == 1).sum()}")
+    
+    return y_train_pred, y_test_pred, y_train_prob, y_test_prob
+
+# Generate predictions
+y_train_pred, y_test_pred, y_train_prob, y_test_prob = generate_predictions(
+    baseline_model, X_train, X_test, y_train, y_test
+)
+```
+
+---
+
+## Phần 7: INTERPRET - Model Evaluation và Business Insights
+
+### 7.1 Comprehensive Model Evaluation
+
+```python
+def comprehensive_model_evaluation(model, X_train, X_test, y_train, y_test, 
+                                 y_train_pred, y_test_pred, y_train_prob, y_test_prob):
+    """
+    Đánh giá toàn diện hiệu suất mô hình
+    """
+    print("="*60)
+    print("COMPREHENSIVE MODEL EVALUATION")
+    print("="*60)
+    
+    # 1. Classification Metrics
+    def print_classification_metrics(y_true, y_pred, y_prob, dataset_name):
+        print(f"\n{dataset_name.upper()} SET METRICS:")
+        print("-" * 40)
+        
+        accuracy = accuracy_score(y_true, y_pred)
+        precision = precision_score(y_true, y_pred)
+        recall = recall_score(y_true, y_pred)
+        f1 = f1_score(y_true, y_pred)
+        auc = roc_auc_score(y_true, y_prob)
+        
+        print(f"Accuracy:  {accuracy:.4f}")
+        print(f"Precision: {precision:.4f}")
+        print(f"Recall:    {recall:.4f}")
+        print(f"F1-Score:  {f1:.4f}")
+        print(f"AUC-ROC:   {auc:.4f}")
+        
+        return {
+            'Accuracy': accuracy, 'Precision': precision, 'Recall': recall, 
+            'F1-Score': f1, 'AUC-ROC': auc
+        }
+    
+    # Calculate metrics for both sets
+    train_metrics = print_classification_metrics(y_train, y_train_pred, y_train_prob, "training")
+    test_metrics = print_classification_metrics(y_test, y_test_pred, y_test_prob, "test")
+    
+    # 2. Confusion Matrices
+    print(f"\nCONFUSION MATRICES:")
+    print("-" * 40)
+    
+    cm_train = confusion_matrix(y_train, y_train_pred)
+    cm_test = confusion_matrix(y_test, y_test_pred)
+    
+    print("Training Set:")
+    print(cm_train)
+    print("\nTest Set:")
+    print(cm_test)
+    
+    # 3. Detailed Classification Reports
+    print(f"\nDETAILED CLASSIFICATION REPORTS:")
+    print("-" * 40)
+    print("Training Set:")
+    print(classification_report(y_train, y_train_pred, target_names=['No Churn', 'Churn']))
+    
+    print("Test Set:")
+    print(classification_report(y_test, y_test_pred, target_names=['No Churn', 'Churn']))
+    
+    # 4. Visualizations
+    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+    
+    # Confusion Matrices
+    sns.heatmap(cm_train, annot=True, fmt='d', ax=axes[0,0], cmap='Blues')
+    axes[0,0].set_title('Training Set - Confusion Matrix')
+    axes[0,0].set_xlabel('Predicted')
+    axes[0,0].set_ylabel('Actual')
+    
+    sns.heatmap(cm_test, annot=True, fmt='d', ax=axes[0,1], cmap='Blues')
+    axes[0,1].set_title('Test Set - Confusion Matrix')
+    axes[0,1].set_xlabel('Predicted')
+    axes[0,1].set_ylabel('Actual')
+    
+    # ROC Curves
+    fpr_train, tpr_train, _ = roc_curve(y_train, y_train_prob)
+    fpr_test, tpr_test, _ = roc_curve(y_test, y_test_prob)
+    
+    axes[0,2].plot(fpr_train, tpr_train, label=f'Training AUC = {train_metrics["AUC-ROC"]:.3f}')
+    axes[0,2].plot(fpr_test, tpr_test, label=f'Test AUC = {test_metrics["AUC-ROC"]:.3f}')
+    axes[0,2].plot([0, 1], [0, 1], 'k--', label='Random Classifier')
+    axes[0,2].set_xlabel('False Positive Rate')
+    axes[0,2].set_ylabel('True Positive Rate')
+    axes[0,2].set_title('ROC Curve')
+    axes[0,2].legend()
+    axes[0,2].grid(True)
+    
+    # Precision-Recall Curves
+    precision_train, recall_train, _ = precision_recall_curve(y_train, y_train_prob)
+    precision_test, recall_test, _ = precision_recall_curve(y_test, y_test_prob)
+    
+    axes[1,0].plot(recall_train, precision_train, label='Training')
+    axes[1,0].plot(recall_test, precision_test, label='Test')
+    axes[1,0].set_xlabel('Recall')
+    axes[1,0].set_ylabel('Precision')
+    axes[1,0].set_title('Precision-Recall Curve')
+    axes[1,0].legend()
+    axes[1,0].grid(True)
+    
+    # Prediction Probability Distributions
+    axes[1,1].hist(y_train_prob[y_train==0], alpha=0.7, bins=30, label='No Churn (Train)', density=True)
+    axes[1,1].hist(y_train_prob[y_train==1], alpha=0.7, bins=30, label='Churn (Train)', density=True)
+    axes[1,1].set_xlabel('Predicted Probability')
+    axes[1,1].set_ylabel('Density')
+    axes[1,1].set_title('Training Set - Probability Distribution')
+    axes[1,1].legend()
+    
+    axes[1,2].hist(y_test_prob[y_test==0], alpha=0.7, bins=30, label='No Churn (Test)', density=True)
+    axes[1,2].hist(y_test_prob[y_test==1], alpha=0.7, bins=30, label='Churn (Test)', density=True)
+    axes[1,2].set_xlabel('Predicted Probability')
+    axes[1,2].set_ylabel('Density')
+    axes[1,2].set_title('Test Set - Probability Distribution')
+    axes[1,2].legend()
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # 5. Model Performance Summary
+    metrics_df = pd.DataFrame([train_metrics, test_metrics], 
+                             index=['Training', 'Test']).round(4)
+    
+    print(f"\nMODEL PERFORMANCE SUMMARY:")
+    print("-" * 40)
+    print(metrics_df)
+    
+    # 6. Overfitting Check
+    print(f"\nOVERFITTING ANALYSIS:")
+    print("-" * 40)
+    
+    train_test_diff = train_metrics['Accuracy'] - test_metrics['Accuracy']
+    if train_test_diff > 0.05:
+        print(f"⚠️  Potential overfitting detected!")
+        print(f"   Training accuracy ({train_metrics['Accuracy']:.4f}) > Test accuracy ({test_metrics['Accuracy']:.4f})")
+        print(f"   Difference: {train_test_diff:.4f}")
+    else:
+        print(f"✓ Model generalizes well")
+        print(f"  Training-Test accuracy difference: {train_test_diff:.4f}")
+    
+    return train_metrics, test_metrics, metrics_df
+
+# Perform comprehensive evaluation
+train_metrics, test_metrics, performance_summary = comprehensive_model_evaluation(
+    baseline_model, X_train, X_test, y_train, y_test,
+    y_train_pred, y_test_pred, y_train_prob, y_test_prob
+)
+```
+
+### 7.2 Feature Importance Analysis
+
+```python
+def analyze_feature_importance(model, feature_names):
+    """
+    Phân tích tầm quan trọng của các features
+    """
+    print("="*60)
+    print("FEATURE IMPORTANCE ANALYSIS")
+    print("="*60)
+    
+    # Get coefficients from the logistic regression model
+    coefficients = model.coef_[0]
+    intercept = model.intercept_[0]
+    
+    # Create feature importance DataFrame
+    feature_importance_df = pd.DataFrame({
+        'Feature': feature_names,
+        'Coefficient': coefficients,
+        'Abs_Coefficient': np.abs(coefficients),
+        'Odds_Ratio': np.exp(coefficients)
+    }).sort_values('Abs_Coefficient', ascending=False)
+    
+    print(f"Model Intercept: {intercept:.4f}")
+    print(f"\nTOP 15 MOST IMPORTANT FEATURES:")
+    print("-" * 60)
+    print(feature_importance_df.head(15).round(4))
+    
+    # Interpretation guide
+    print(f"\nINTERPRETATION GUIDE:")
+    print("-" * 40)
+    print("• Positive coefficient: Increases churn probability")
+    print("• Negative coefficient: Decreases churn probability")
+    print("• Larger |coefficient|: Stronger impact")
+    print("• Odds ratio > 1: Increases odds of churn")
+    print("• Odds ratio < 1: Decreases odds of churn")
+    
+    # Visualizations
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+    
+    # Top 10 features by absolute coefficient
+    top_10 = feature_importance_df.head(10)
+    
+    colors = ['red' if coef < 0 else 'blue' for coef in top_10['Coefficient']]
+    ax1.barh(range(len(top_10)), top_10['Coefficient'], color=colors, alpha=0.7)
+    ax1.set_yticks(range(len(top_10)))
+    ax1.set_yticklabels(top_10['Feature'])
+    ax1.set_xlabel('Coefficient Value')
+    ax1.set_title('Top 10 Features by Coefficient')
+    ax1.axvline(x=0, color='black', linestyle='-', alpha=0.3)
+    ax1.grid(True, axis='x', alpha=0.3)
+    ax1.invert_yaxis()
+    
+    # Odds ratios for top 10 features
+    ax2.barh(range(len(top_10)), top_10['Odds_Ratio'], color='green', alpha=0.7)
+    ax2.set_yticks(range(len(top_10)))
+    ax2.set_yticklabels(top_10['Feature'])
+    ax2.set_xlabel('Odds Ratio')
+    ax2.set_title('Top 10 Features by Odds Ratio')
+    ax2.axvline(x=1, color='black', linestyle='-', alpha=0.3)
+    ax2.grid(True, axis='x', alpha=0.3)
+    ax2.invert_yaxis()
+    
+    # Distribution of coefficients
+    ax3.hist(coefficients, bins=20, alpha=0.7, edgecolor='black')
+    ax3.axvline(x=0, color='red', linestyle='--', label='Zero coefficient')
+    ax3.set_xlabel('Coefficient Value')
+    ax3.set_ylabel('Frequency')
+    ax3.set_title('Distribution of Feature Coefficients')
+    ax3.legend()
+    ax3.grid(True, alpha=0.3)
+    
+    # Positive vs Negative impact features
+    positive_features = (coefficients > 0).sum()
+    negative_features = (coefficients < 0).sum()
+    zero_features = (coefficients == 0).sum()
+    
+    impact_data = [positive_features, negative_features, zero_features]
+    impact_labels = ['Positive Impact\n(Increase Churn)', 'Negative Impact\n(Decrease Churn)', 'No Impact']
+    colors = ['red', 'blue', 'gray']
+    
+    ax4.pie(impact_data, labels=impact_labels, colors=colors, autopct='%1.1f%%', startangle=90)
+    ax4.set_title('Feature Impact Distribution')
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Business insights from top features
+    print(f"\nBUSINESS INSIGHTS FROM TOP FEATURES:")
+    print("-" * 50)
+    
+    # Features that increase churn
+    increase_churn = feature_importance_df[feature_importance_df['Coefficient'] > 0].head(5)
+    print("Features that INCREASE churn probability:")
+    for _, row in increase_churn.iterrows():
+        print(f"  • {row['Feature']}: {row['Coefficient']:.3f} (OR: {row['Odds_Ratio']:.3f})")
+    
+    # Features that decrease churn  
+    decrease_churn = feature_importance_df[feature_importance_df['Coefficient'] < 0].head(5)
+    print(f"\nFeatures that DECREASE churn probability:")
+    for _, row in decrease_churn.iterrows():
+        print(f"  • {row['Feature']}: {row['Coefficient']:.3f} (OR: {row['Odds_Ratio']:.3f})")
+    
+    return feature_importance_df
+
+# Analyze feature importance
+feature_importance = analyze_feature_importance(baseline_model, X.columns)
+```
+
+### 7.3 Customer Segmentation và Risk Analysis
+
+```python
+def customer_risk_segmentation(df_original, model, scaler, X_columns):
+    """
+    Phân khúc khách hàng theo risk level
+    """
+    print("="*60)
+    print("CUSTOMER RISK SEGMENTATION")
+    print("="*60)
+    
+    # Prepare data for prediction
+    df_segment = df_original.copy()
+    
+    # Get the same features used in modeling
+    X_all, _, _, _ = prepare_modeling_data(df_segment, final_features)
+    X_all = X_all.reindex(columns=X_columns, fill_value=0)  # Ensure same column order
+    
+    # Scale the features
+    X_all_scaled = scaler.transform(X_all)
+    
+    # Get churn probabilities
+    churn_probabilities = model.predict_proba(X_all_scaled)[:, 1]
+    df_segment['ChurnProbability'] = churn_probabilities
+    df_segment['PredictedChurn'] = model.predict(X_all_scaled)
+    
+    # Create risk segments
+    df_segment['RiskSegment'] = pd.cut(df_segment['ChurnProbability'], 
+                                      bins=[0, 0.3, 0.7, 1.0], 
+                                      labels=['Low Risk', 'Medium Risk', 'High Risk'])
+    
+    # Segment analysis
+    segment_analysis = df_segment.groupby('RiskSegment').agg({
+        'CustomerID': 'count',
+        'ChurnProbability': ['mean', 'min', 'max'],
+        'Tenure': 'mean',
+        'MonthlyCharges': 'mean',
+        'TotalCharges': 'mean',
+        'Churn': 'mean'  # Actual churn rate
+    }).round(3)
+    
+    # Flatten column names
+    segment_analysis.columns = ['_'.join(col).strip() if col[1] else col[0] for col in segment_analysis.columns.values]
+    segment_analysis = segment_analysis.rename(columns={
+        'CustomerID_count': 'Customer_Count',
+        'ChurnProbability_mean': 'Avg_Churn_Prob',
+        'ChurnProbability_min': 'Min_Churn_Prob',
+        'ChurnProbability_max': 'Max_Churn_Prob',
+        'Tenure_mean': 'Avg_Tenure',
+        'MonthlyCharges_mean': 'Avg_Monthly_Charges',
+        'TotalCharges_mean': 'Avg_Total_Charges',
+        'Churn_mean': 'Actual_Churn_Rate'
+    })
+    
+    print("CUSTOMER RISK SEGMENTS:")
+    print("-" * 40)
+    print(segment_analysis)
+    
+    # Visualizations
+    fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+    
+    # Risk segment distribution
+    risk_counts = df_segment['RiskSegment'].value_counts()
+    axes[0,0].pie(risk_counts.values, labels=risk_counts.index, autopct='%1.1f%%', 
+                  colors=['green', 'orange', 'red'])
+    axes[0,0].set_title('Customer Risk Distribution')
+    
+    # Churn probability distribution by segment
+    for segment in ['Low Risk', 'Medium Risk', 'High Risk']:
+        data = df_segment[df_segment['RiskSegment'] == segment]['ChurnProbability']
+        axes[0,1].hist(data, alpha=0.7, label=segment, bins=20)
+    axes[0,1].set_xlabel('Churn Probability')
+    axes[0,1].set_ylabel('Frequency')
+    axes[0,1].set_title('Churn Probability Distribution by Risk Segment')
+    axes[0,1].legend()
+    
+    # Actual vs Predicted churn rate by segment
+    segment_comparison = df_segment.groupby('RiskSegment').agg({
+        'Churn': 'mean',
+        'ChurnProbability': 'mean'
+    })
+    
+    x_pos = np.arange(len(segment_comparison.index))
+    width = 0.35
+    
+    axes[0,2].bar(x_pos - width/2, segment_comparison['Churn'], width, 
+                  label='Actual Churn Rate', alpha=0.7)
+    axes[0,2].bar(x_pos + width/2, segment_comparison['ChurnProbability'], width, 
+                  label='Predicted Churn Prob', alpha=0.7)
+    axes[0,2].set_xlabel('Risk Segment')
+    axes[0,2].set_ylabel('Rate')
+    axes[0,2].set_title('Actual vs Predicted Churn by Segment')
+    axes[0,2].set_xticks(x_pos)
+    axes[0,2].set_xticklabels(segment_comparison.index)
+    axes[0,2].legend()
+    
+    # Business metrics by segment
+    metrics = ['Avg_Tenure', 'Avg_Monthly_Charges', 'Avg_Total_Charges']
+    segment_metrics = segment_analysis[metrics]
+    
+    for i, metric in enumerate(metrics):
+        axes[1,i].bar(segment_metrics.index, segment_metrics[metric], 
+                      color=['green', 'orange', 'red'], alpha=0.7)
+        axes[1,i].set_title(f'{metric} by Risk Segment')
+        axes[1,i].set_ylabel(metric.replace('_', ' '))
+        axes[1,i].tick_params(axis='x', rotation=45)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # High-risk customer analysis
+    high_risk_customers = df_segment[df_segment['RiskSegment'] == 'High Risk']
+    
+    print(f"\nHIGH RISK CUSTOMERS ANALYSIS:")
+    print("-" * 40)
+    print(f"Total high-risk customers: {len(high_risk_customers):,}")
+    print(f"Average churn probability: {high_risk_customers['ChurnProbability'].mean():.3f}")
+    print(f"Actual churn rate: {high_risk_customers['Churn'].mean():.3f}")
+    
+    # Top characteristics of high-risk customers
+    print(f"\nTOP CHARACTERISTICS OF HIGH-RISK CUSTOMERS:")
+    categorical_cols = ['Contract', 'PaymentMethod', 'InternetService', 'TechSupport']
+    
+    for col in categorical_cols:
+        if col in high_risk_customers.columns:
+            top_category = high_risk_customers[col].mode().iloc[0]
+            percentage = (high_risk_customers[col] == top_category).mean()
+            print(f"  • {col}: {top_category} ({percentage:.1%})")
+    
+    return df_segment, segment_analysis
+
+# Perform customer risk segmentation
+df_with_risk, risk_analysis = customer_risk_segmentation(df_engineered, baseline_model, scaler, X.columns)
+```
+
+### 7.4 Business Recommendations và Action Plan
+
+```python
+def generate_business_recommendations(feature_importance, risk_analysis, performance_metrics):
+    """
+    Tạo business recommendations dựa trên kết quả phân tích
+    """
+    print("="*60)
+    print("BUSINESS RECOMMENDATIONS & ACTION PLAN")
+    print("="*60)
+    
+    # Model performance summary
+    print("1. MODEL PERFORMANCE OVERVIEW:")
+    print("-" * 40)
+    test_auc = performance_metrics['AUC-ROC']
+    test_accuracy = performance_metrics['Accuracy']
+    
+    if test_auc >= 0.8:
+        performance_level = "Excellent"
+    elif test_auc >= 0.7:
+        performance_level = "Good"
+    elif test_auc >= 0.6:
+        performance_level = "Fair"
+    else:
+        performance_level = "Poor"
+    
+    print(f"  • Model Performance: {performance_level}")
+    print(f"  • AUC-ROC Score: {test_auc:.3f}")
+    print(f"  • Accuracy: {test_accuracy:.3f}")
+    print(f"  • Business Readiness: {'Ready for deployment' if test_auc >= 0.7 else 'Needs improvement'}")
+    
+    # Key risk factors
+    print(f"\n2. KEY CHURN RISK FACTORS:")
+    print("-" * 40)
+    top_risk_factors = feature_importance[feature_importance['Coefficient'] > 0].head(5)
+    
+    for i, (_, row) in enumerate(top_risk_factors.iterrows(), 1):
+        impact = "High" if row['Abs_Coefficient'] > 0.5 else "Medium" if row['Abs_Coefficient'] > 0.2 else "Low"
+        print(f"  {i}. {row['Feature']}")
+        print(f"     Impact: {impact} (Coefficient: {row['Coefficient']:.3f})")
+        print(f"     Odds Ratio: {row['Odds_Ratio']:.3f}")
+    
+    # Protective factors
+    print(f"\n3. CHURN PROTECTION FACTORS:")
+    print("-" * 40)
+    protection_factors = feature_importance[feature_importance['Coefficient'] < 0].head(5)
+    
+    for i, (_, row) in enumerate(protection_factors.iterrows(), 1):
+        impact = "High" if row['Abs_Coefficient'] > 0.5 else "Medium" if row['Abs_Coefficient'] > 0.2 else "Low"
+        print(f"  {i}. {row['Feature']}")
+        print(f"     Protection Level: {impact} (Coefficient: {row['Coefficient']:.3f})")
+        print(f"     Odds Ratio: {row['Odds_Ratio']:.3f}")
+    
+    # Customer segment insights
+    print(f"\n4. CUSTOMER SEGMENT INSIGHTS:")
+    print("-" * 40)
+    
+    total_customers = risk_analysis['Customer_Count'].sum()
+    high_risk_customers = risk_analysis.loc['High Risk', 'Customer_Count']
+    high_risk_percentage = (high_risk_customers / total_customers) * 100
+    
+    print(f"  • Total Customers: {total_customers:,}")
+    print(f"  • High Risk Customers: {high_risk_customers:,} ({high_risk_percentage:.1f}%)")
+    print(f"  • Estimated Revenue at Risk: ${high_risk_customers * risk_analysis.loc['High Risk', 'Avg_Monthly_Charges'] * 12:,.0f}")
+    
+    # Actionable recommendations
+    print(f"\n5. ACTIONABLE RECOMMENDATIONS:")
+    print("-" * 40)
+    
+    print("A. IMMEDIATE ACTIONS (High Priority):")
+    print("   1. HIGH-RISK CUSTOMER INTERVENTION:")
+    print("      • Implement proactive retention campaigns for high-risk customers")
+    print("      • Offer contract upgrades with attractive incentives")
+    print("      • Provide dedicated customer success management")
+    print("      • Consider temporary discounts or service upgrades")
+    
+    print("   2. CONTRACT OPTIMIZATION:")
+    print("      • Focus on converting month-to-month customers to longer contracts")
+    print("      • Develop attractive annual/biennial contract packages")
+    print("      • Implement early renewal incentives")
+    
+    print("   3. PAYMENT METHOD IMPROVEMENTS:")
+    print("      • Encourage automatic payment methods")
+    print("      • Provide incentives for credit card/bank transfer payments")
+    print("      • Simplify payment processes")
+    
+    print("\nB. SHORT-TERM INITIATIVES (3-6 months):")
+    print("   1. SERVICE ENHANCEMENT:")
+    print("      • Improve technical support quality and accessibility")
+    print("      • Develop self-service options for common issues")
+    print("      • Implement proactive service monitoring")
+    
+    print("   2. NEW CUSTOMER EXPERIENCE:")
+    print("      • Enhance onboarding process for new customers")
+    print("      • Implement early engagement programs")
+    print("      • Provide extra support during first 6 months")
+    
+    print("   3. PRICING STRATEGY:")
+    print("      • Review pricing structure for high-risk segments")
+    print("      • Develop value-based pricing packages")
+    print("      • Consider loyalty rewards program")
+    
+    print("\nC. LONG-TERM STRATEGIC INITIATIVES (6+ months):")
+    print("   1. PREDICTIVE ANALYTICS:")
+    print("      • Deploy real-time churn prediction system")
+    print("      • Implement automated intervention triggers")
+    print("      • Develop customer lifetime value optimization")
+    
+    print("   2. PRODUCT DEVELOPMENT:")
+    print("      • Enhance service offerings based on churn factors")
+    print("      • Develop sticky features that increase switching costs")
+    print("      • Create customer community and engagement platforms")
+    
+    print("   3. ORGANIZATIONAL CAPABILITIES:")
+    print("      • Train customer service teams on retention techniques")
+    print("      • Implement customer success metrics and KPIs")
+    print("      • Develop data-driven decision making culture")
+    
+    # ROI estimation
+    print(f"\n6. ESTIMATED ROI OF RETENTION EFFORTS:")
+    print("-" * 40)
+    
+    avg_monthly_revenue = risk_analysis.loc['High Risk', 'Avg_Monthly_Charges']
+    customer_lifetime_months = 24  # Assume 2 years average
+    
+    # Conservative estimates
+    retention_program_cost_per_customer = 50
+    retention_success_rate = 0.3  # 30% success rate
+    
+    revenue_saved = high_risk_customers * retention_success_rate * avg_monthly_revenue * customer_lifetime_months
+    program_cost = high_risk_customers * retention_program_cost_per_customer
+    net_roi = revenue_saved - program_cost
+    roi_percentage = (net_roi / program_cost) * 100
+    
+    print(f"  • Revenue at Risk: ${high_risk_customers * avg_monthly_revenue * customer_lifetime_months:,.0f}")
+    print(f"  • Estimated Program Cost: ${program_cost:,.0f}")
+    print(f"  • Expected Revenue Saved: ${revenue_saved:,.0f}")
+    print(f"  • Net ROI: ${net_roi:,.0f}")
+    print(f"  • ROI Percentage: {roi_percentage:.1f}%")
+    
+    # Implementation timeline
+    print(f"\n7. IMPLEMENTATION TIMELINE:")
+    print("-" * 40)
+    print("  Week 1-2:  Setup high-risk customer identification system")
+    print("  Week 3-4:  Launch immediate retention campaigns")
+    print("  Month 2:   Implement contract optimization programs")
+    print("  Month 3:   Deploy payment method improvement initiatives")
+    print("  Month 4-6: Execute service enhancement projects")
+    print("  Month 6+:  Monitor results and iterate strategies")
+    
+    # KPIs to track
+    print(f"\n8. KEY PERFORMANCE INDICATORS TO TRACK:")
+    print("-" * 40)
+    print("  • Monthly churn rate by risk segment")
+    print("  • Model accuracy and prediction stability")
+    print("  • Customer retention rate after interventions")
+    print("  • Revenue impact of retention programs")
+    print("  • Customer satisfaction scores")
+    print("  • Contract conversion rates")
+    print("  • Payment method adoption rates")
+
+# Generate comprehensive business recommendations
+generate_business_recommendations(feature_importance, risk_analysis, test_metrics)
+```
+
+---
+
+## Phần 8: Model Improvement và Advanced Techniques
+
+### 8.1 Hyperparameter Tuning
+
+```python
+def hyperparameter_tuning(X_train, y_train):
+    """
+    Tối ưu hyperparameters cho Logistic Regression
+    """
+    print("="*60)
+    print("HYPERPARAMETER TUNING")
+    print("="*60)
+    
+    # Define parameter grid
+    param_grid = {
+        'C': [0.01, 0.1, 1, 10, 100],
+        'penalty': ['l1', 'l2', 'elasticnet'],
+        'solver': ['liblinear', 'saga'],
+        'max_iter': [1000, 2000]
+    }
+    
+    # Handle solver-penalty compatibility
+    param_combinations = []
+    for C in param_grid['C']:
+        for penalty in param_grid['penalty']:
+            for solver in param_grid['solver']:
+                for max_iter in param_grid['max_iter']:
+                    # Check compatibility
+                    if penalty == 'elasticnet' and solver not in ['saga']:
+                        continue
+                    if penalty == 'l1' and solver not in ['liblinear', 'saga']:
+                        continue
+                    if penalty == 'l2' and solver not in ['liblinear', 'saga']:
+                        continue
+                    
+                    param_combinations.append({
+                        'C': C,
+                        'penalty': penalty,
+                        'solver': solver,
+                        'max_iter': max_iter
+                    })
+    
+    print(f"Total parameter combinations to test: {len(param_combinations)}")
+    
+    # Grid search with cross-validation
+    lr_tuned = LogisticRegression(random_state=42)
+    
+    grid_search = GridSearchCV(
+        estimator=lr_tuned,
+        param_grid=param_combinations,
+        scoring='roc_auc',
+        cv=5,
+        n_jobs=-1,
+        verbose=1
+    )
+    
+    print("Performing grid search...")
+    grid_search.fit(X_train, y_train)
+    
+    # Results
+    print(f"✓ Grid search completed!")
+    print(f"Best parameters: {grid_search.best_params_}")
+    print(f"Best cross-validation score: {grid_search.best_score_:.4f}")
+    print(f"Improvement over baseline: {grid_search.best_score_ - baseline_model.score(X_train, y_train):.4f}")
+    
+    # Top 5 parameter combinations
+    results_df = pd.DataFrame(grid_search.cv_results_)
+    top_results = results_df.nlargest(5, 'mean_test_score')[['params', 'mean_test_score', 'std_test_score']]
+    
+    print(f"\nTOP 5 PARAMETER COMBINATIONS:")
+    print("-" * 50)
+    for i, (_, row) in enumerate(top_results.iterrows(), 1):
+        print(f"{i}. Score: {row['mean_test_score']:.4f} (±{row['std_test_score']:.4f})")
+        print(f"   Parameters: {row['params']}")
+    
+    return grid_search.best_estimator_, grid_search.best_params_
+
+# Perform hyperparameter tuning
+best_model, best_params = hyperparameter_tuning(X_train, y_train)
+```
+
+### 8.2 Cross-Validation Analysis
+
+```python
+def cross_validation_analysis(model, X_train, y_train):
+    """
+    Phân tích hiệu suất mô hình qua cross-validation
+    """
+    print("="*60)
+    print("CROSS-VALIDATION ANALYSIS")
+    print("="*60)
+    
+    # Perform cross-validation with multiple metrics
+    scoring_metrics = ['accuracy', 'precision', 'recall', 'f1', 'roc_auc']
+    
+    cv_results = {}
+    for metric in scoring_metrics:
+        scores = cross_val_score(model, X_train, y_train, cv=5, scoring=metric)
+        cv_results[metric] = {
+            'scores': scores,
+            'mean': scores.mean(),
+            'std': scores.std()
+        }
+        
+        print(f"{metric.upper()}:")
+        print(f"  Mean: {scores.mean():.4f}")
+        print(f"  Std:  {scores.std():.4f}")
+        print(f"  Range: [{scores.min():.4f}, {scores.max():.4f}]")
+        print()
+    
+    # Visualization
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+    
+    # Box plot of cross-validation scores
+    cv_scores_df = pd.DataFrame({metric: cv_results[metric]['scores'] for metric in scoring_metrics})
+    cv_scores_df.boxplot(ax=ax1)
+    ax1.set_title('Cross-Validation Scores Distribution')
+    ax1.set_ylabel('Score')
+    ax1.tick_params(axis='x', rotation=45)
+    ax1.grid(True, alpha=0.3)
+    
+    # Mean scores with error bars
+    means = [cv_results[metric]['mean'] for metric in scoring_metrics]
+    stds = [cv_results[metric]['std'] for metric in scoring_metrics]
+    
+    ax2.bar(scoring_metrics, means, yerr=stds, alpha=0.7, capsize=5)
+    ax2.set_title('Cross-Validation Mean Scores with Standard Deviation')
+    ax2.set_ylabel('Score')
+    ax2.tick_params(axis='x', rotation=45)
+    ax2.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Model stability analysis
+    print("MODEL STABILITY ANALYSIS:")
+    print("-" * 40)
+    
+    stability_threshold = 0.05  # 5% threshold for stability
+    
+    for metric in scoring_metrics:
+        std_score = cv_results[metric]['std']
+        if std_score < stability_threshold:
+            stability = "Stable"
+        elif std_score < stability_threshold * 2:
+            stability = "Moderately Stable"
+        else:
+            stability = "Unstable"
+        
+        print(f"  {metric}: {stability} (std: {std_score:.4f})")
+    
+    return cv_results
+
+# Perform cross-validation analysis
+cv_results = cross_validation_analysis(best_model, X_train, y_train)
+```
+
+---
+
+## Phần 9: Bài tập thực hành
+
+### Bài tập 1: Model Comparison và Ensemble
+
+**Mục tiêu:** So sánh Logistic Regression với các thuật toán khác và tạo ensemble model
+
+```python
+# Hướng dẫn thực hiện:
+
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
+
+def compare_models_exercise():
+    """
+    Bài tập: So sánh multiple algorithms
+    """
+    print("="*60)
+    print("BÀI TẬP 1: MODEL COMPARISON")
+    print("="*60)
+    
+    # TODO: Implement các models sau
+    models = {
+        'Logistic Regression': LogisticRegression(random_state=42, max_iter=1000),
+        'Random Forest': RandomForestClassifier(n_estimators=100, random_state=42),
+        'Gradient Boosting': GradientBoostingClassifier(random_state=42),
+        'SVM': SVC(probability=True, random_state=42),
+        'Naive Bayes': GaussianNB()
+    }
+    
+    # TODO: Train each model và evaluate
+    results = {}
+    
+    for name, model in models.items():
+        print(f"Training {name}...")
+        # TODO: Fit model
+        # TODO: Make predictions  
+        # TODO: Calculate metrics
+        # TODO: Store results
+    
+    # TODO: Create comparison DataFrame
+    # TODO: Visualize results
+    # TODO: Identify best performing model
+    
+    print("Exercise 1 completed!")
+
+# Gợi ý thực hiện:
+# 1. Train từng model trên training set
+# 2. Evaluate trên test set với multiple metrics
+# 3. So sánh AUC-ROC, Precision, Recall, F1
+# 4. Analyze trade-offs giữa interpretability và performance
+# 5. Create ensemble prediction từ top 3 models
+```
+
+### Bài tập 2: Feature Engineering Advanced
+
+**Mục tiêu:** Tạo thêm features mới và đánh giá impact
+
+```python
+def advanced_feature_engineering_exercise():
+    """
+    Bài tập: Advanced Feature Engineering
+    """
+    print("="*60)
+    print("BÀI TẬP 2: ADVANCED FEATURE ENGINEERING")
+    print("="*60)
+    
+    # TODO: Implement advanced feature engineering techniques
+    
+    # 1. Polynomial Features
+    # TODO: Create polynomial combinations of numerical features
+    
+    # 2. Interaction Features  
+    # TODO: Create interaction terms between important features
+    
+    # 3. Binning và Discretization
+    # TODO: Create optimal bins for continuous variables
+    
+    # 4. Domain-specific Features
+    # TODO: Create business logic based features như:
+    #   - Customer loyalty score
+    #   - Service utilization ratio
+    #   - Payment behavior patterns
+    
+    # 5. Time-based Features (if available)
+    # TODO: Seasonality, trends, recency features
+    
+    # 6. Feature Selection
+    # TODO: Use statistical tests để select best features
+    # TODO: Implement recursive feature elimination
+    
+    # 7. Evaluation
+    # TODO: Compare performance before/after feature engineering
+    
+    print("Exercise 2 completed!")
+
+# Gợi ý:
+# - Sử dụng sklearn.preprocessing.PolynomialFeatures
+# - Implement custom feature transformations
+# - Use feature_selection modules
+# - Validate với cross-validation
+```
+
+### Bài tập 3: Threshold Optimization
+
+**Mục tiêu:** Tối ưu decision threshold cho business objectives
+
+```python
+def threshold_optimization_exercise():
+    """
+    Bài tập: Optimize Decision Threshold
+    """
+    print("="*60)
+    print("BÀI TẬP 3: THRESHOLD OPTIMIZATION")
+    print("="*60)
+    
+    # TODO: Implement threshold optimization
+    
+    # 1. Business Cost Analysis
+    # TODO: Define costs of false positives và false negatives
+    # Cost of wrongly predicting churn (false positive)
+    # Cost of missing actual churn (false negative)
+    
+    # 2. Threshold Analysis
+    # TODO: Test different thresholds từ 0.1 to 0.9
+    # TODO: Calculate metrics for each threshold
+    
+    # 3. ROC Analysis
+    # TODO: Find optimal threshold using ROC curve
+    # TODO: Calculate Youden's Index
+    
+    # 4. Precision-Recall Analysis
+    # TODO: Find optimal threshold using PR curve
+    
+    # 5. Business Impact Analysis
+    # TODO: Calculate expected profit/loss for each threshold
+    # TODO: Find threshold that maximizes business value
+    
+    # 6. Visualization
+    # TODO: Plot metrics vs threshold
+    # TODO: Highlight optimal thresholds
+    
+    print("Exercise 3 completed!")
+
+# Business scenario:
+# - Cost of retention campaign: $50 per customer
+# - Value of retained customer: $500 (annual value)
+# - Find threshold that maximizes ROI
+```
+
+### Bài tập 4: Real-time Prediction System
+
+**Mục tiêu:** Xây dựng system để predict churn cho khách hàng mới
+
+```python
+def prediction_system_exercise():
+    """
+    Bài tập: Build Prediction System
+    """
+    print("="*60)
+    print("BÀI TẬP 4: REAL-TIME PREDICTION SYSTEM")
+    print("="*60)
+    
+    # TODO: Create production-ready prediction system
+    
+    class ChurnPredictor:
+        def __init__(self):
+            self.model = None
+            self.scaler = None
+            self.feature_columns = None
+            self.is_trained = False
+        
+        def train(self, X_train, y_train):
+            """Train the model"""
+            # TODO: Implement training logic
+            pass
+        
+        def predict_single_customer(self, customer_data):
+            """Predict churn for single customer"""
+            # TODO: Implement single prediction
+            # TODO: Handle data preprocessing
+            # TODO: Return probability và risk category
+            pass
+        
+        def predict_batch(self, customers_data):
+            """Predict churn for multiple customers"""
+            # TODO: Implement batch prediction
+            pass
+        
+        def get_feature_importance(self):
+            """Return feature importance explanation"""
+            # TODO: Return interpretable feature importance
+            pass
+        
+        def save_model(self, filepath):
+            """Save trained model"""
+            # TODO: Implement model persistence
+            pass
+        
+        def load_model(self, filepath):
+            """Load trained model"""
+            # TODO: Implement model loading
+            pass
+    
+    # TODO: Test the system với sample data
+    # TODO: Create API endpoint simulation
+    # TODO: Implement input validation
+    # TODO: Add logging và monitoring
+    
+    print("Exercise 4 completed!")
+
+# Requirements:
+# - Input validation
+# - Error handling  
+# - Model versioning
+# - Performance monitoring
+# - Explanation capability
+```
+
+### Bài tập 5: A/B Testing Framework
+
+**Mục tiêu:** Thiết kế A/B test để validate retention strategies
+
+```python
+def ab_testing_framework_exercise():
+    """
+    Bài tập: A/B Testing for Retention Strategies
+    """
+    print("="*60)
+    print("BÀI TẬP 5: A/B TESTING FRAMEWORK")
+    print("="*60)
+    
+    # TODO: Design A/B testing framework
+    
+    # 1. Experimental Design
+    # TODO: Define control và treatment groups
+    # TODO: Calculate sample size requirements
+    # TODO: Define success metrics
+    
+    # 2. Customer Segmentation for Testing
+    # TODO: Stratify customers by risk level
+    # TODO: Ensure balanced groups
+    
+    # 3. Treatment Strategies
+    # TODO: Design different retention interventions:
+    #   - Discount offers
+    #   - Service upgrades  
+    #   - Personalized communications
+    #   - Contract incentives
+    
+    # 4. Statistical Testing
+    # TODO: Implement hypothesis testing
+    # TODO: Calculate statistical significance
+    # TODO: Estimate effect sizes
+    
+    # 5. Simulation Framework
+    # TODO: Simulate different scenarios
+    # TODO: Test power analysis
+    
+    def design_experiment(treatment_effect=0.05, alpha=0.05, power=0.8):
+        """Design A/B test experiment"""
+        # TODO: Calculate required sample size
+        # TODO: Define randomization strategy
+        # TODO: Set up tracking metrics
+        pass
+    
+    def analyze_results(control_group, treatment_group):
+        """Analyze A/B test results"""
+        # TODO: Statistical significance testing
+        # TODO: Confidence intervals
+        # TODO: Business impact estimation
+        pass
+    
+    print("Exercise 5 completed!")
+
+# Scenario:
+# Test effectiveness of different retention campaigns
+# Target: Reduce churn by 20% for high-risk customers
+# Budget: $10,000 for testing
+# Timeline: 3 months
+```
+
+---
+
+**Lưu ý cho giáo viên:**
+
+- Encourage students để explore data thoroughly trước khi jump vào modeling
+- Emphasize business context và practical applications
+- Use real examples và case studies khi possible
+- Promote iterative approach - start simple, then enhance
+- Focus on interpretability và actionable insights
+- Assign different datasets cho students để practice independently
 
 ---
 
@@ -2393,31 +4340,54 @@ class AdvancedSegmentationArsenal:
                 segment_data = {
                     'customer_id': range(customer_id, customer_id + size),
                     'age_group': np.random
-## Hướng dẫn chấm điểm và đánh giá
+```
 
-### Rubric cho các bài tập:
+---
 
-**Bài Tập 1 (Cơ bản)**:
-- Code functionality (40%)
-- Data analysis quality (30%) 
-- Business insights (20%)
-- Presentation (10%)
+## Tóm tắt và Key Takeaways
 
-**Bài Tập 2 (Trung bình)**:
-- Technical implementation (35%)
-- RFM analysis depth (25%)
-- Method comparison (20%) 
-- Strategic recommendations (20%)
+### Những điểm quan trọng đã học:
 
-**Bài Tập 3 (Nâng cao)**:
-- Advanced techniques usage (30%)
-- Feature engineering creativity (25%)
-- Business impact analysis (25%)
-- Innovation and insights (20%)
+1. **OSEMN Pipeline** là framework chuẩn cho data science projects
+2. **Data Exploration** là bước quan trọng nhất để understand business problem
+3. **Feature Engineering** có thể significantly improve model performance  
+4. **Logistic Regression** là excellent baseline model cho classification
+5. **Model Interpretation** quan trọng hơn raw performance trong business context
+6. **Customer Segmentation** enables targeted business strategies
+7. **ROI Analysis** essential để justify data science investments
 
-### Tiêu chí đánh giá chung:
-- **Xuất sắc (90-100%)**: Vượt expectation, có insights độc đáo
-- **Tốt (80-89%)**: Hoàn thành tốt tất cả requirements  
-- **Khá (70-79%)**: Hoàn thành cơ bản với một số thiếu sót
-- **Trung bình (60-69%)**: Hoàn thành một phần, thiếu insights
-- **Yếu (<60%)
+### Best Practices:
+
+- Always start với thorough EDA trước khi modeling
+- Use business logic để create meaningful features
+- Cross-validate để ensure model stability
+- Focus on actionable insights, không chỉ model metrics
+- Consider deployment và maintenance từ early stages
+- Document everything để ensure reproducibility
+
+### Next Steps:
+
+1. Practice với real-world datasets
+2. Learn advanced algorithms (XGBoost, Neural Networks)
+3. Study MLOps và model deployment
+4. Develop business acumen và domain expertise
+5. Learn experiment design và causal inference
+
+---
+
+## Tài liệu tham khảo
+
+### Libraries Documentation:
+- **Pandas**: https://pandas.pydata.org/docs/
+- **Scikit-learn**: https://scikit-learn.org/stable/
+- **Matplotlib/Seaborn**: https://matplotlib.org/, https://seaborn.pydata.org/
+
+### Books:
+- "Hands-On Machine Learning" by Aurélien Géron
+- "Python for Data Analysis" by Wes McKinney  
+- "Feature Engineering for Machine Learning" by Alice Zheng
+
+### Online Courses:
+- Coursera Machine Learning Course
+- Kaggle Learn Modules
+- Fast.ai Practical Deep Learning
