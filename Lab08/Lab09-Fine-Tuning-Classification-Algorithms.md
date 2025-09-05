@@ -17,13 +17,19 @@ Sau khi hoàn thành bài học này, học viên sẽ có thể:
 
 #### **Exercise 8.01: Training an SVM Algorithm Over a Dataset**
 In this exercise, you will work with the Shill Bidding dataset, the file for which is 
-named **Shill_Bidding_Dataset.csv**. This is the same dataset you were introduced to in Exercise 7.01, Comparing Predictions by Linear and Logistic Regression on the Shill Bidding Dataset. Your objective is to use this information to predict whether an auction depicts normal behavior or not (0 means normal behavior and 1 means abnormal behavior). You will use the SVM algorithm to build your model:
+named **Shill_Bidding_Dataset.csv**. This is the same dataset you were introduced to in _Exercise 7.01, Comparing Predictions by Linear and Logistic Regression_ on the Shill Bidding Dataset. Your objective is to use this information to predict whether an auction depicts normal behavior or not (**0** means normal behavior and **1** means abnormal behavior). 
+
+_You will use the SVM algorithm to build your model:_
 
 **Code:**
 
 ```python
 # 1.	Import pandas, numpy, train_test_split, cross_val_score, and svm from the sklearn library:
-import pandas as pd from sklearn.model_selection import train_test_split from sklearn import svm from sklearn.model_selection import cross_val_score import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn import svm
+from sklearn.model_selection import cross_val_score
+import numpy as np
 
 # 2.	Read the dataset into a DataFrame named data using pandas, as shown in the following snippet,
 # 		and look at the first few rows of the data:
@@ -33,21 +39,24 @@ data=pd.read_csv("Shill_Bidding_Dataset.csv")
 # 		These are ID columns and thus will be unique to every entry.
 # 		Because of their uniqueness, they won't add any value to the model and thus can be dropped:
 # 		Drop irrelevant columns
-data.drop(["Record_ID","Auction_ID","Bidder_ID"],axis=1,\           inplace=True) 
+data.drop(["Record_ID","Auction_ID","Bidder_ID"],axis=1, inplace=True) 
 data.head()
 
-# 4. Check the data types, as follows: 
+# 4.	Check the data types, as follows: 
 data.dtypes
 
-
-# 5. Look for any missing values using the following code:
+# 5.	Look for any missing values using the following code:
 data.isnull().sum()   ### Check for missing values
 
 # 6.	Split the data into train and test sets and save them as X_train, X_test,  y_train, and y_test as shown:
-target = 'Class' X = data.drop(target,axis=1) y = data[target] X_train, X_test, y_train, y_test = train_test_split\                                    (X.values,y,test_size=0.50,\                                     random_state=123, \                                     stratify=y)
+target = 'Class'
+X = data.drop(target,axis=1)
+y = data[target]
+X_train, X_test, y_train, y_test = train_test_split(X.values,y,test_size=0.50,random_state=123, stratify=y)
 
 # 7.	Fit a linear SVM model with C=1:
-clf_svm=svm.SVC(kernel='linear', C=1) clf_svm.fit(X_train,y_train)
+clf_svm=svm.SVC(kernel='linear', C=1)
+clf_svm.fit(X_train,y_train)
 
 # 8.	Calculate the accuracy score using the following code:
 clf_svm.score(X_test, y_test)
@@ -65,13 +74,23 @@ In this exercise, you will use decision trees to build a model over the same auc
 
 ```python
 # 1.	Import tree, graphviz, StringIO, Image, export_graphviz, and pydotplus:
-import graphviz from sklearn import tree from sklearn.externals.six import StringIO from IPython.display import Image  from sklearn.tree import export_graphviz import pydotplus 
+import graphviz
+from sklearn import tree
+from sklearn.externals.six import StringIO
+from IPython.display import Image
+from sklearn.tree import export_graphviz
+import pydotplus 
 
 # 2.	Fit the decision tree classifier using the following code:
-clf_tree = tree.DecisionTreeClassifier() clf_tree = clf_tree.fit(X_train, y_train)
+clf_tree = tree.DecisionTreeClassifier()
+clf_tree = clf_tree.fit(X_train, y_train)
 
-# 3.	Plot the decision tree using a graph. In this plot, you will be using  export_graphviz to visualize the decision tree. You will use the output of your decision tree classifier as your input clf. The target variable will be the class_names, that is, Normal or Abnormal. 
-dot_data = StringIO() export_graphviz(clf_tree, out_file=dot_data,\                 filled=True, rounded=True,\                 class_names=['Normal','Abnormal'],\                 max_depth = 3,                 special_characters=True,\                 feature_names=X.columns.values)
+# 3.	Plot the decision tree using a graph. In this plot, you will be using  export_graphviz to visualize
+# 		the decision tree. You will use the output of your decision tree classifier as your input clf.
+# 		The target variable will be the class_names, that is, Normal or Abnormal. 
+dot_data = StringIO()
+export_graphviz(clf_tree, out_file=dot_data, filled=True, rounded=True, class_names=['Normal','Abnormal'], 
+              max_depth = 3,  special_characters=True, feature_names=X.columns.values)
 graph = pydotplus.graph_from_dot_data(dot_data.getvalue()) 
 Image(graph.create_png())
 
@@ -92,171 +111,11 @@ In this exercise, you will use a random forest to build a model over the same au
 from sklearn.ensemble import RandomForestClassifier
 
 # 2.	Fit the random forest classifier to the training data using the following code:
-clf = RandomForestClassifier(n_estimators=20, max_depth=None,\                             min_samples_split=7, random_state=0) clf.fit(X_train,y_train)
+clf = RandomForestClassifier(n_estimators=20, max_depth=None, min_samples_split=7, random_state=0)
+clf.fit(X_train,y_train)
 
 # 3.	Calculate the accuracy score:
 clf.score(X_test, y_test)
-
-
-```
-
----
-
-#### **Exercise 7.04: Renaming Columns and Changing the Data Type**
-Scrubbing data also involves renaming columns in the right format and can include removing any special characters and spaces in the column names, shifting the target variable either to the extreme left or right for better visibility, and checking whether the data types of the columns are correct. In this exercise, you have to convert the column names into a more human-readable format. For example, you must have noticed column names such as ActMem and CredRate. These can be renamed to give a clearer idea of what the columns represent. The main reason behind doing this is that if someone else is going over your work, ambiguous column names can reduce the clarity. Therefore, in this exercise, you will rename some of the columns, change the data types, and shift the Churn column to the rightmost position. This will help differentiate the independent features from the dependent ones:
-
-
-**Code:**
-
-```python
-# 1.	Rename the CredRate, ActMem, Prod Number, and Exited columns using the following command:
-data = data.rename(columns={'CredRate': 'CreditScore', 'ActMem' : 'IsActiveMember',\
-                            'Prod Number': 'NumOfProducts', 'Exited':'Churn'}) 
-
-# 2.	Check that the preceding columns have been appropriately renamed using the columns command:
-data.columns
-
-# 3.	Move the Churn column to the right and drop the CustomerId column using the following code.
-# 		You will need to drop the CustomerId column since it is unique for each entry and thus,
-# 		does not provide any useful information:
-data.drop(labels=['CustomerId'], axis=1,inplace = True)
-column_churn = data['Churn']
-data.drop(labels=['Churn'], axis=1,inplace = True)
-data.insert(len(data.columns), 'Churn', column_churn.values)
-
-# 4.	Check whether the order of the columns has been fixed using the following code:
-data.columns
-
-# 5.	Change the data type of the Geography, Gender, HasCrCard, Churn, and IsActiveMember columns to category as 
-# 		shown. Recall that these columns were initially strings or objects. However, since these are distinct values,
-# 		you will need to convert them to categorical variables by converting the data type to category:
-data["Geography"] = data["Geography"].astype('category')
-data["Gender"] = data["Gender"].astype('category')
-data["HasCrCard"] = data["HasCrCard"].astype('category')
-data["Churn"] = data["Churn"].astype('category')
-data["IsActiveMember"] = data["IsActiveMember"].astype('category')
-
-# 6.	Now check whether the data types have been converted or not using the following code:
-data.dtypes
-
-```
-
-
----
-
-#### **Exercise 7.05: Obtaining the Statistical Overview and Correlation Plot**
-You are requested to find out the number of customers that churned using basic exploration techniques. The churn column has two attributes: 0 indicates that the customer did not churn and 1 implies that the customer churned. You will be required to obtain the percentage of customers who churned, the percentage of customers who have a credit card, and more. This information will be valuable at a later stage to make inferences about consumer behavior. You are also required to plot the correlation matrix, which will give you a basic understanding of the relationship between the target variable and the rest of the variables.
-
-**Code:**
-
-```python
-# 1.	Inspect the target variable to see how many of the customers have churned using the following code:
-data['Churn'].value_counts(0)
-
-# 2.	Inspect the percentage of customers who left the bank using the following code:
-data['Churn'].value_counts(1)*100
-
-# 3.	Inspect the percentage of customers that have a credit card using the following code:
-data['HasCrCard'].value_counts(1)*100
-
-# 4.	Get a statistical overview of the data:
-data.describe()
-
-
-# 5.	Inspect the mean attributes of customers who churned compared to those who did not churn:
-summary_churn = data.groupby('Churn') summary_churn.mean()
-
-
-# 6. Also, find the median attributes of the customers:
-summary_churn.median()
-
-# 7. Now use the seaborn library to plot the correlation plot using the following code:
-corr = data.corr()
-plt.figure(figsize=(15,8)) sns.heatmap(corr, xticklabels=corr.columns.values,\
-             yticklabels=corr.columns.values, annot=True,cmap='Greys_r')
-corr
-
-```
-
-
----
-
-#### **Exercise 7.06: Performing Exploratory Data Analysis (EDA)**
-In this exercise, you will perform EDA, which includes univariate analysis and bivariate analysis, on the Churn_Modelling.csv dataset. You will use this analysis to come up with inferences regarding the dataset, and the relationship between features such as geography, customer age, customer bank balance, and more with respect to churn:
-
-
-**Code:**
-
-```python
-# 1.	Start with univariate analysis. Plot the distribution graph of the customers for
-# 		the EstimatedSalary, Age, and Balance variables using the following code:
-f, axes = plt.subplots(ncols=3, figsize=(15, 6)) 
-sns.distplot(data.EstimatedSalary, kde=True, color="gray",  ax=axes[0]).set_title('EstimatedSalary')
-axes[0].set_ylabel('No of Customers')
-
-sns.distplot(data.Age, kde=True, color="gray",  ax=axes[1]).set_title('Age')
-axes[1].set_ylabel('No of Customers') 
-
-sns.distplot(data.Balance, kde=True, color="gray", 
-ax=axes[2]).set_title('Balance')
-axes[2].set_ylabel('No of Customers')
-
-# 2.	Now, move on to bivariate analysis. Inspect whether there is a difference in churn for
-# 		Gender using bivariate analysis. Use the following code:
-plt.figure(figsize=(15,4))
-p=sns.countplot(y="Gender", hue='Churn', data=data, palette="Greys_r")
-
-legend = p.get_legend()
-legend_txt = legend.texts
-legend_txt[0].set_text("No Churn")
-legend_txt[1].set_text("Churn") 
-p.set_title('Customer Churn Distribution by Gender')
-
-# 3. Plot Geography versus Churn:
-plt.figure(figsize=(15,4))
-p=sns.countplot(x='Geography', hue='Churn', data=data, palette="Greys_r")
-
-legend = p.get_legend()
-legend_txt = legend.texts
-legend_txt[0].set_text("No Churn")
-legend_txt[1].set_text("Churn") 
-p.set_title('Customer Geography Distribution')
-
-# 4. Plot NumOfProducts versus Churn:
-plt.figure(figsize=(15,4))
-p=sns.countplot(x='NumOfProducts', hue='Churn', data=data, palette="Greys_r")
-
-legend = p.get_legend()
-legend_txt = legend.texts
-legend_txt[0].set_text("No Churn")
-legend_txt[1].set_text("Churn")
-p.set_title('Customer Distribution by Product')
-
-# 5. Inspect Churn versus Age:
-plt.figure(figsize=(15,4))
-ax=sns.kdeplot(data.loc[(data['Churn'] == 0),'Age'] , color=sns.color_palette("Greys_r")[0], shade=True,label='no churn', linestyle='--')
-ax=sns.kdeplot(data.loc[(data['Churn'] == 1),'Age'] , color=sns.color_palette("Greys_r")[1], shade=True, label='churn')
-ax.set(xlabel='Customer Age', ylabel='Frequency')
-plt.title('Customer Age - churn vs no churn')
-plt.legend()
-
-# 6. Plot Balance versus Churn:
-plt.figure(figsize=(15,4))
-ax=sns.kdeplot(data.loc[(data['Churn'] == 0),'Balance'] , color=sns.color_palette("Greys_r")[0], shade=True,label='no churn',linestyle='--')
-ax=sns.kdeplot(data.loc[(data['Churn'] == 1),'Balance'] , color=sns.color_palette("Greys_r")[1], shade=True, label='churn')
-ax.set(xlabel='Customer Balance', ylabel='Frequency')
-
-plt.title('Customer Balance - churn vs no churn')
-plt.legend()
-
-# 7. Plot CreditScore versus Churn:
-plt.figure(figsize=(15,4))
-ax=sns.kdeplot(data.loc[(data['Churn'] == 0),'CreditScore'] , color=sns.color_palette("Greys_r")[0], shade=True,label='no churn',linestyle='--')
-ax=sns.kdeplot(data.loc[(data['Churn'] == 1),'CreditScore'] ,  color=sns.color_palette("Greys_r")[1], shade=True, label='churn')
-ax.set(xlabel='CreditScore', ylabel='Frequency')
-
-plt.title('Customer CreditScore - churn vs no churn')
-plt.legend()
 
 ```
 
@@ -312,7 +171,8 @@ scaler.mean
 # 5.	Now check the scaled values:
 scaler.scale
 
-# 6.	Apply the transform function to the X_train data. This function performs standardization by centering and scaling the training data:
+# 6.	Apply the transform function to the X_train data. This function performs standardization by centering and
+# 		scaling the training data:
 X_train_scalar=scaler.transform(X_train[top5_features])
 
 # 7.	Next, apply the transform function to the X_test data and check the output:
@@ -320,15 +180,23 @@ X_test_scalar=scaler.transform(X_test[top5_features])
 X_train_scalar
 
 
-# 6.	Create a variable named features to store all the columns, except the target Churn variable. Sort the important features present in the importances variable using NumPy's argsort function:
+# 6.	Create a variable named features to store all the columns, except the target Churn variable.
+# 		Sort the important features present in
+# 		the importances variable using NumPy's argsort function:
 features = data.drop(['Churn'],axis=1).columns
 indices = np.argsort(importances)[::-1]
 
 # 7.	Plot the important features obtained from the random forest using Matplotlib's plt attribute:
-plt.figure(figsize=(15,4)) plt.title("Feature importances using Random Forest") plt.bar(range(X_train.shape[1]), importances[indices],\         color="gray", align="center") plt.xticks(range(X_train.shape[1]), features[indices], \            rotation='vertical',fontsize=15) plt.xlim([-1, X_train.shape[1]]) plt.show()
+plt.figure(figsize=(15,4))
+plt.title("Feature importances using Random Forest")
+plt.bar(range(X_train.shape[1]), importances[indices], color="gray", align="center")
+plt.xticks(range(X_train.shape[1]), features[indices],  rotation='vertical',fontsize=15)
+plt.xlim([-1, X_train.shape[1]])
+plt.show()
 
 # 8. Place the features and their importance in a pandas DataFrame using the following code:
-feature_importance_df = pd.DataFrame({"Feature":features,\                                       "Importance":importances}) print(feature_importance_df)
+feature_importance_df = pd.DataFrame({"Feature":features, "Importance":importances})
+print(feature_importance_df)
 
 ```
 ---
@@ -359,27 +227,251 @@ X_test_min_max=min_max.transform(X_test[top5_features])
 
 ---
 
-#### **Activity 7.02: Performing the MN technique from OSEMN**
-You are working as a data scientist for a large telecom company. The marketing team wants to know the reasons behind customer churn. Using this information, they want to prepare a plan to reduce customer churn. Your task is to analyze the reasons behind the customer churn and present your findings.
-After you have reported your initial findings to the marketing team, they want you to build a machine learning model that can predict customer churn. With your results, the marketing team can send out discount coupons to customers who might otherwise churn. Use the MN technique from OSEMN to construct your model.
+#### **Exercise 8.06: Performing Normalization on Data**
+
+In this exercise, you are required to normalize data after feature selection. You will use the same bank churn prediction data for normalizing. Continue using the same Jupyter notebook as the one used in the preceding exercise:
+
+**Code:**
+
+```python
+# 1.	Fit the Normalizer() on the training data:
+normalize = preprocessing.Normalizer()\
+                         .fit(X_train[top5_features]) 
+
+# 2.	Check the normalize function:
+normalize
+
+# 3.	Transform the training and testing data using normalize:
+X_train_normalize=normalize.transform(X_train[top5_features]) 
+X_test_normalize=normalize.transform(X_test[top5_features]) 
+ 
+You can verify that the norm has now changed to 1 using the following code:
+np.sqrt(np.sum(X_train_normalize**2, axis=1))
+
+# 4.	Similarly, you can also evaluate the norm of the normalized test dataset:
+np.sqrt(np.sum(X_test_normalize**2, axis=1))
+
+```
 
 
-1.	Import the necessary libraries.
+---
 
-2.	Encode the Acct_Plan_Subtype and Complaint_Code columns using the the.astype('category').cat.codes command.
+#### **Exercise 8.07: Stratified K-fold**
 
-3.	Split the data into training (80%) and testing sets (20%).
+In this exercise, you will fit the stratified k-fold function of scikit-learn to the bank churn prediction data and use the logistic regression classifier from the previous exercise to fit our k-fold data. Along with that, you will also implement the scikit-learn k-fold cross-validation scorer function:
 
-4.	Perform feature selection using the random forest classifier. You should get the following output:
 
-![Figure 7.60: Feature importance using random forest](images/Figure-7.60.jpg)
+**Code:**
 
-5.	Select the top seven features and save them in a variable named  top7_features. 
+```python
+# 1.	Import StratifiedKFold from sklearn:
+from sklearn.model_selection import StratifiedKFold
 
-6.	Fit a logistic regression using the statsmodel package.
+# 2.	Fit the classifier on the training and testing data with n_splits=10:
+skf = StratifiedKFold(n_splits=10)\
+      .split(X_train[top5_features].values,y_train.values)
 
-7.	Find out the probability that a customer will churn when the following data is used: Avg_Days_Delinquent: 40, Percent_Increase_MOM: 5,  Avg_Calls_Weekdays: 39000, Current_Bill_Amt: 12000,  Avg_Calls: 9000, Complaint_Code: 0, and Account_Age: 17.
-The given customer should have a value of around 81.939% likelihood of churning.
+# 3.	Calculate the k-cross fold validation score:
+results=[] for i, (train,test) in enumerate(skf):
+clf.fit(X_train[top5_features].values[train], y_train.values[train])
+fit_result=clf.score(X_train[top5_features].values[test], y_train.values[test])
+results.append(fit_result)
+print('k-fold: %2d, Class Ratio: %s, Accuracy: %.4f'\
+          % (i,np.bincount(y_train.values[train]),fit_result))
+
+# 4.	Find the accuracy:
+print('accuracy for CV is:%.3f' % np.mean(results))
+
+# 		You will get an output showing an accuracy close to 0.790.
+
+# 5.	Import the scikit-learn cross_val_score function:
+from sklearn.model_selection import cross_val_score
+
+# 6.	Fit the classifier and print the accuracy:
+results_cross_val_score=cross_val_score(estimator=clf, X=X_train[top5_features].values, y=y_train.values,cv=10,n_jobs=1)
+print('accuracy for CV is:%.3f '% np.mean(results_cross_val_score))
+
+```
+
+
+---
+
+#### **Exercise 8.08: Fine-Tuning a Model**
+
+In this exercise, you will implement a grid search to find out the best parameters for an SVM on the bank churn prediction data. You will continue using the same notebook as in the preceding exercise:
+
+**Code:**
+
+```python
+# 1.	Import SVM, GridSearchCV, and StratifiedKfold:
+from sklearn import svm
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import StratifiedKFold
+
+# 2.	Specify the parameters for the grid search as follows:
+parameters = [{'kernel': ['linear'], 'C':[0.1, 1]}, {'kernel': ['rbf'], 'C':[0.1, 1]}]
+
+# 3.	Fit the grid search with StratifiedKFold, setting the parameter as  n_splits = 3. 
+clf = GridSearchCV(svm.SVC(), parameters,  cv = StratifiedKFold(n_splits = 3), verbose=4,n_jobs=-1)
+clf.fit(X_train[top5_features], y_train)
+
+# 4. Print the best score and the best parameters:
+print('best score train:', clf.best_score_)
+print('best parameters train: ', clf.best_params_)
+
+```
+
+---
+
+#### **Activity 8.02: Tuning and Optimizing the Model**
+
+The models you built in the previous activity produced good results, especially the random forest model, which produced an accuracy score of more than 80%. You now need to improve the accuracy of the random forest model and generalize it. Tuning the model using different preprocessing steps, cross-validation, and grid search will improve the accuracy of the model. You will be using the same Jupyter notebook as the one used in the preceding activity. Follow these steps:
+
+
+1.	Store five out of seven features, that is, Avg_Calls_Weekdays,  
+Current_Bill_Amt, Avg_Calls, Account_Age, and  
+Avg_Days_Delinquent, in a variable called top5_features. Store the other two features, Percent_Increase_MOM and Complaint_Code, in a variable called top2_features. These features have values in the range of −1 to 7, whereas the other five features have values in the range of 0 to 374457. 
+Hence, you can leave these features and standardize the remaining five features.
+
+2.	Use StandardScalar to standardize the five features.
+
+3.	Create a variable called X_train_scalar_combined, and combine the standardized five features with the two features (Percent_Increase_MOM and Complaint_Code) that were not standardized.
+
+4.	Apply the same scalar standardization to the test data  
+(X_test_scalar_combined).
+
+5.	Fit the random forest model.
+
+6.	Score the random forest model. You should get a value close to 0.81.
+
+7.	Import the library for grid search and use the following parameters: 
+parameters = [ {'min_samples_split': [9,10], \                 'n_estimators':[100,150,160]
+                'max_depth': [5,7]}]
+
+8.	Use grid search cross-validation with stratified k-fold to find out the best parameters. Use StratifiedKFold(n_splits = 3) and RandomForestClassifier().
+
+9.	Print the best score and the best parameters. You should get the following values:
+
+![Figure 8.43: Best score and best parameters](images/Figure-8.43.jpg)
+
+10. Score the model using the test data. You should get a score close to 0.824. 
+Combining the results of the accuracy score obtained in Activity 8.01, Implementing Different Classification Algorithms and Activity 8.02, Tuning and Optimizing the Model, here are the results for the random forest implementations:
+
+![Figure 8.44: Comparing the accuracy of the random forest using different methods](images/Figure-8.44.jpg)
+
+
+---
+
+#### **Exercise 8.09: Evaluating the Performance Metrics for a Model**
+
+In this exercise, you will calculate the F1 score and the accuracy of our random forest model for the bank churn prediction dataset. Continue using the same notebook as the one used in the preceding exercise: 
+
+**Code:**
+
+```python
+# 1.	Import RandomForestClassifier, metrics, classification_reprt, confusion matrix, and accuracy_score:
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report,confusion_ matrix,accuracy_score
+from sklearn import metrics
+
+# 2.	Fit the random forest classifier using the following code over the training data:
+clf_random = RandomForestClassifier(n_estimators=20, max_depth=None, min_samples_split=7, random_state=0)
+clf_random.fit(X_train[top5_features],y_train)
+
+# 3.	Predict on the test data the classifier:
+y_pred=clf_random.predict(X_test[top5_features])
+
+# 4.	Print the classification report:
+target_names = ['No Churn', 'Churn']
+print(classification_report(y_test, y_pred,  target_names=target_names))
+
+# 5.	Fit the confusion matrix and save it into a pandas DataFrame named cm_df:
+cm = confusion_matrix(y_test, y_pred)
+cm_df = pd.DataFrame(cm, index = ['No Churn','Churn'], columns = ['No Churn','Churn'])
+
+# 6.	Plot the confusion matrix using the following code:
+plt.figure(figsize=(8,6))
+sns.heatmap(cm_df, annot=True,fmt='g',cmap='Greys_r')
+
+plt.title('Random Forest \nAccuracy:{0:.3f}'.format(accuracy_score(y_test, y_pred)))
+plt.ylabel('True Values') plt.xlabel('Predicted Values')
+plt.show()
+
+```
+
+---
+
+#### **Exercise 8.10: Plotting the ROC Curve**
+
+
+In this exercise, you will plot the ROC curve for the random forest model from the previous exercise on the bank churn prediction data. Continue with the same Jupyter notebook as the one used in the preceding exercise:
+
+**Code:**
+
+```python
+# 1.	Import roc_curve,auc:
+from sklearn.metrics import roc_curve,auc
+
+# 2.	Calculate the TPR, FPR, and threshold using the following code:
+fpr, tpr, thresholds = roc_curve(y_test, y_pred, pos_label=1)
+roc_auc = metrics.auc(fpr, tpr)
+
+# 3.	Plot the ROC curve using the following code:
+plt.figure()
+plt.title('Receiver Operating Characteristic')
+plt.plot(fpr, tpr, label='%s AUC = %0.2f' % ('Random Forest', roc_auc, color = 'gray'))
+plt.plot([0, 1], [0, 1],'k--') plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.ylabel('Sensitivity(True Positive Rate)')
+plt.xlabel('1-Specificity(False Positive Rate)')
+plt.title('Receiver Operating Characteristic')
+plt.legend(loc="lower right")
+plt.show()
+
+```
+
+---
+
+#### **Activity 8.03: Comparison of the Models**
+
+In the previous activity, you improved the accuracy score of the random forest model score to 0.82. However, you were not using the correct performance metrics. In this activity, you will have to find out the F1 score of the random forest model trained in the previous activities and also compare the ROC curve of different machine learning models created in Activity 8.01, Implementing Different Classification Algorithms. 
+Ensure that you use the same Jupyter notebook as the one used in the preceding activity. Follow these steps:
+
+
+1.	Import the required libraries.
+2.	Fit the random forest classifier with the parameters obtained from grid search in the preceding activity. Use the clf_random_grid variable.
+3.	Predict on the standardized scalar test data, X_test_scalar_combined.
+4.	Fit the classification report. You should get the following output:
+
+![Figure 8.56: Classification report](images/Figure-8.56.jpg)
+
+5. Plot the confusion matrix. Your output should be as follows:
+
+![Figure 8.57: Confusion matrix](images/Figure-8.57.jpg)
+
+6.	Import the library for the AUC and ROC curve.
+7.	Use the classifiers that were created in _Activity 8.01, Implementing Different Classification Algorithms_, that is, **clf_logistic, clf_svm, clf_decision, and clf_random_grid**. Create a dictionary of all these models.
+8.	Plot the ROC curve. The following for loop can be used as a hint:
+
+```python
+for m in models:
+    model = m['model']
+    ------ FIT THE MODEL
+    ------ PREDICT
+    ------ FIND THE FPR, TPR AND THRESHOLD
+    roc_auc =FIND THE AUC
+    plt.plot(fpr, tpr, label='%s AUC = %0.2f' % (m['label'], roc_auc))
+plt.plot([0, 1], [0, 1],'r--')
+plt.xlim([0.0, 1.0]) plt.ylim([0.0, 1.05])
+plt.ylabel('Sensitivity(True Positive Rate)')
+plt.xlabel('1-Specificity(False Positive Rate)')
+plt.title('Receiver Operating Characteristic')
+plt.legend(loc="lower right")
+plt.show()
+```
+You plot should look as follows:
+
+![Figure 8.58: ROC curve](images/Figure-8.58.jpg)
 
 ---
 ## Bài tập tổng hợp
