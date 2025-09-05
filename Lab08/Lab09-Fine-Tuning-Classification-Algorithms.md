@@ -1,4 +1,5 @@
-# Lab 09 Supervised Learning: Predicting Customer Churn
+<img width="468" height="37" alt="image" src="https://github.com/user-attachments/assets/0e6030c1-c3f5-417b-b521-b4ed6bf6ed3f" /><img width="468" height="63" alt="image" src="https://github.com/user-attachments/assets/a7998c11-61de-4956-9b23-afc759a41b4d" /><img width="468" height="37" alt="image" src="https://github.com/user-attachments/assets/aae9b4fc-16a9-4bbc-a3e9-6cdc75f8efd3" /><img width="468" height="31" alt="image" src="https://github.com/user-attachments/assets/b95ed980-dce3-4beb-8d89-6461645ada69" /><img width="468" height="195" alt="image" src="https://github.com/user-attachments/assets/753f29bf-75da-49c9-8dbb-674c5db4df76" /><img width="468" height="128" alt="image" src="https://github.com/user-attachments/assets/e3901d68-a161-443b-b582-5c5cc57ccb98" /><img width="468" height="215" alt="image" src="https://github.com/user-attachments/assets/3bd65c2c-a3fa-4ce2-bf9a-bcc3c552c77e" /><img width="468" height="51" alt="image" src="https://github.com/user-attachments/assets/8f03f896-b780-4bf1-bfa6-6fb92d2e38ef" /><img width="468" height="336" alt="image" src="https://github.com/user-attachments/assets/a244c200-0f8c-48d2-9014-4a6ab9e11096" /><img width="468" height="61" alt="image" src="https://github.com/user-attachments/assets/ead4b220-29a5-41cc-8c28-9ef5871e1cf3" /><img width="468" height="131" alt="image" src="https://github.com/user-attachments/assets/b8e599f1-d5d3-4a43-a91f-54fc8e574080" /><img width="468" height="135" alt="image" src="https://github.com/user-attachments/assets/05d1269a-d7ae-4644-8337-2d85e7175d04" /># Lab 09 Fine-Tuning Classification Algorithms
+
 
 ## **Mục tiêu học tập**
 Sau khi hoàn thành bài học này, học viên sẽ có thể:
@@ -14,154 +15,90 @@ Sau khi hoàn thành bài học này, học viên sẽ có thể:
 ## **Bài tập Thực hành**
 ### Bài tập cơ bản
 
-#### **Exercise 7.01: Comparing Predictions by Linear and Logistic Regression on the Shill Bidding Dataset**
-Consider the **Shill_Bidding_Dataset.csv** dataset, which contains details regarding auctions done for various products on eBay.com. The target column, **Class**, provides information about the bidding behavior, **0** being normal and **1** being abnormal behavior. Abnormal behavior can be similar to malicious clicks or automatic bidding. You have been asked to develop a machine learning model that can predict whether the bidding behavior in a particular auction is normal (**0**) or not (**1**). Apply linear and logistic regression to predict the output and check which one of them is useful in this situation:
-
-
-_Perform the following steps to achieve the aim of the exercise:_
+#### **Exercise 8.01: Training an SVM Algorithm Over a Dataset**
+In this exercise, you will work with the Shill Bidding dataset, the file for which is 
+named **Shill_Bidding_Dataset.csv**. This is the same dataset you were introduced to in Exercise 7.01, Comparing Predictions by Linear and Logistic Regression on the Shill Bidding Dataset. Your objective is to use this information to predict whether an auction depicts normal behavior or not (0 means normal behavior and 1 means abnormal behavior). You will use the SVM algorithm to build your model:
 
 **Code:**
 
 ```python
-# 1.	Import the pandas, numpy, sklearn, and matplotlib libraries using the following code:
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-from sklearn import linear_model
-import matplotlib.pyplot as plt
+# 1.	Import pandas, numpy, train_test_split, cross_val_score, and svm from the sklearn library:
+import pandas as pd from sklearn.model_selection import train_test_split from sklearn import svm from sklearn.model_selection import cross_val_score import numpy as np
 
-# 2.	Create a new DataFrame and name it data. Look at the first few rows using the following code:
-data = pd.read_csv("Shill_Bidding_Dataset.csv")
+# 2.	Read the dataset into a DataFrame named data using pandas, as shown in the following snippet,
+# 		and look at the first few rows of the data:
+data=pd.read_csv("Shill_Bidding_Dataset.csv")
+
+# 3.	First, remove the columns that are irrelevant to the case study.
+# 		These are ID columns and thus will be unique to every entry.
+# 		Because of their uniqueness, they won't add any value to the model and thus can be dropped:
+# 		Drop irrelevant columns
+data.drop(["Record_ID","Auction_ID","Bidder_ID"],axis=1,\           inplace=True) 
 data.head()
 
-# 3.	Next, remove the columns that are irrelevant to the case study; that is, remove the Record_ID, Auction_ID,
-# 		and Bidder_ID columns. This is because these columns contain unique IDs and thus do not add any new information
-# 		to the model:
-data.drop(["Record_ID","Auction_ID","Bidder_ID"],axis=1, inplace=True)
-
-# 4.	Now view the first five rows of the revised data:
-data.head()
-
-# 5.	Split the data into training and testing sets as follows. We are sticking to the default value for test data 
-# 		size (30% of the entire data). Moreover, to add reproducibility, we are using a random_state of 1, and to account  
-# 		for any class imbalance, we will use stratified splitting. Reproducibility will ensure that when someone else  
-# 		runs the code, they will get similar results. Stratified splitting will ensure that we take into account 
-# 		the class distribution of the target column while splitting the data into train and test sets:
-X = data.drop("Class",axis=1)
-y = data["Class"]
-
-# Split the dataset into training and testing sets 
-X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.3, random_state=1, stratify=y)
-
-# 6.	Print the size of training and testing datasets:
-print("Training dataset size: {}, Testing dataset size: {}".format(X_train.shape,X_test.shape))
-
-# 7.	Fit the model using linear regression:
-linear = linear_model.LinearRegression()
-linear.fit(X_train,y_train)
+# 4. Check the data types, as follows: 
+data.dtypes
 
 
-# 8.	Predict on the first 10 test data points using the following code:
-linear.predict(X_test)[:10]
+# 5. Look for any missing values using the following code:
+data.isnull().sum()   ### Check for missing values
 
-# 9.	Now check the actual target values using y_test[:10].values:
-y_test[:10].values
+# 6.	Split the data into train and test sets and save them as X_train, X_test,  y_train, and y_test as shown:
+target = 'Class' X = data.drop(target,axis=1) y = data[target] X_train, X_test, y_train, y_test = train_test_split\                                    (X.values,y,test_size=0.50,\                                     random_state=123, \                                     stratify=y)
 
-# 10.	Evaluate the score of the linear regression model on the training and testing datasets:
-print("Score on training dataset: {}, "\
-       "Score on testing dataset: {}"\
-       .format(linear.score(X_train,y_train), linear.score(X_test,y_test)))
+# 7.	Fit a linear SVM model with C=1:
+clf_svm=svm.SVC(kernel='linear', C=1) clf_svm.fit(X_train,y_train)
 
-# 11.	Fit the model using logistic regression as follows:
-logit = linear_model.LogisticRegression()
-logit.fit(X_train,y_train)
-
-# 12.	Predict on the test data:
-logit.predict(X_test)[:10]
-
-# 13.	Check the actual target values with y_test[:10].values:
-y_test[:10].values
-
-# 14.	Similar to linear regression, find the score on the training and testing datasets as follows:
-print("Score on training dataset: {}, "\
-       "Score on testing dataset: {}"\
-       .format(logit.score(X_train,y_train), logit.score(X_test,y_test)))
-
-```
-
-
-#### **Exercise 7.02: Obtaining the Data**
-In this exercise, you will import the banking data (Churn_Modelling.csv) provided by the bank and do some initial checks, such as seeing how many rows and columns are present. This will give you a quick peek into the real-life problem statements that a marketing analyst and a data scientist will work on, where the dataset is not always clean. The more time you spend improving and getting familiar with the dataset, the better the observations you can make about the trend will be:
-
-**Code:**
-
-```python
-# 1.	Import the pandas, numpy, matplotlib, and seaborn libraries:
-import pandas as pd import numpy as np import matplotlib.pyplot as plt import seaborn as sns
-
-# 2.	Read the data into a pandas DataFrame named data. Also, view the first five rows of the dataset:
-data= pd.read_csv('Churn_Modelling.csv') data.head(5)
-
-# 3. Check the number of rows and columns in the dataset:
-len(data) data.shape
+# 8.	Calculate the accuracy score using the following code:
+clf_svm.score(X_test, y_test)
 
 ```
 
 ---
 
-#### **Exercise 7.03: Imputing Missing Values**
-After reading the banking data, you have to find any missing values in the data and perform imputation on the missing values:
+#### **Exercise 8.02: Implementing a Decision Tree Algorithm over a Dataset**
+
+In this exercise, you will use decision trees to build a model over the same auction dataset that you used in the previous exercise. This practice of training different classifiers on the same dataset is very common whenever you are working on any classification task. Training multiple classifiers of different types makes it easier to pick the right classifier for a task.
+
 
 **Code:**
 
 ```python
-# 1.	Check for any missing values first using the following code:
-data.isnull().values.any()
+# 1.	Import tree, graphviz, StringIO, Image, export_graphviz, and pydotplus:
+import graphviz from sklearn import tree from sklearn.externals.six import StringIO from IPython.display import Image  from sklearn.tree import export_graphviz import pydotplus 
 
-# 2.	Explore the columns that have these missing values by using the following code:
-data.isnull().any()
+# 2.	Fit the decision tree classifier using the following code:
+clf_tree = tree.DecisionTreeClassifier() clf_tree = clf_tree.fit(X_train, y_train)
 
-# 3.	Use describe function to explore the data in the Age and EstimatedSalary columns:
-data[["EstimatedSalary","Age"]].describe()
+# 3.	Plot the decision tree using a graph. In this plot, you will be using  export_graphviz to visualize the decision tree. You will use the output of your decision tree classifier as your input clf. The target variable will be the class_names, that is, Normal or Abnormal. 
+dot_data = StringIO() export_graphviz(clf_tree, out_file=dot_data,\                 filled=True, rounded=True,\                 class_names=['Normal','Abnormal'],\                 max_depth = 3,                 special_characters=True,\                 feature_names=X.columns.values)
+graph = pydotplus.graph_from_dot_data(dot_data.getvalue()) 
+Image(graph.create_png())
 
-# 4.	Now use describe function for the entire DataFrame as well.
-# 		This will help in understanding the statistical description of the columns:
-data.describe()
-
-# 5.	Now, check the count of 0s and 1s in this column using the following syntax:
-data['HasCrCard'].value_counts()
-
-# 6.	Use the following syntax to find out the total number of missing values:
-data.isnull().sum()
-
-# 7.	Find out the percentage of missing values using the following code:
-round(data.isnull().sum()/len(data)*100,2)
-
-# 8. Check the data types of the missing columns:
-data[["Gender","Age","EstimatedSalary"]].dtypes
-
-# 9.	Now you need to impute the missing values. You can do that by dropping the rows that have missing values,
-# 		filling in the missing values with a test statistic (such as mean, mode, or median), or predicting
-# 		the missing values using a machine learning algorithm. For EstimatedSalary,
-# 		fill in the missing values with the mean of the data in that column using the following code:
-mean_value=data['EstimatedSalary'].mean()
-data['EstimatedSalary']=data['EstimatedSalary'].fillna(mean_value)
-
-# 10.	For Gender, use value_count() to see how many instances of each gender are present:
-data['Gender'].value_counts()
-
-data['Gender']=data['Gender'].fillna(data['Gender'].value_counts().idxmax())
-
-# 11.	For Age, use mode() to get the mode of the data, which is 37, and then replace the missing values with
-# 		the mode of the values in the column using the following code:
-data['Age'].mode() mode_value=data['Age'].mode()
-data['Age']=data['Age'].fillna(mode_value[0])
-
-# 12.	Check whether the missing values have been imputed:
-data.isnull().any()
+# 4. Calculate the accuracy score using the following code:
+clf_tree.score(X_test, y_test)
 
 ```
 
+---
+
+#### **Exercise 8.03: Implementing a Random Forest Model over a Dataset**
+In this exercise, you will use a random forest to build a model over the same auction dataset used previously. Ensure that you use the same Jupyter notebook as the one used for the preceding exercise:
+
+**Code:**
+
+```python
+# 1.	Import the random forest classifier:
+from sklearn.ensemble import RandomForestClassifier
+
+# 2.	Fit the random forest classifier to the training data using the following code:
+clf = RandomForestClassifier(n_estimators=20, max_depth=None,\                             min_samples_split=7, random_state=0) clf.fit(X_train,y_train)
+
+# 3.	Calculate the accuracy score:
+clf.score(X_test, y_test)
+
+
+```
 
 ---
 
@@ -325,73 +262,23 @@ plt.legend()
 
 ---
 
-#### **Activity 7.01: Performing the OSE technique from OSEMN**
-A large telecom company wants to know why customers are churning. You are tasked with first finding out the reason behind the customer churn and then preparing a plan to reduce it. For this purpose, you have been provided with some data regarding the current bill amounts of customers (Current Bill Amt), the average number of calls made by each customer (Avg Calls), the average number of calls made by customers during weekdays (Avg Calls Weekdays), how long each account has been active (Account Age), and the average number of days the customer has defaulted on their bill payments (Avg Days Delinquent). To solve the first problem, you will use the OSE technique from OSEMN to carry out an initial exploration of the data.
-_ Follow these steps:_
+#### **Activity 8.01: Implementing Different Classification Algorithms**
 
-1.	Import the necessary libraries.
+In this activity, you will continue working with the telecom dataset  
+(Telco_Churn_Data.csv) that you used in the previous chapter and will build different models from this dataset using the scikit-learn API. Your marketing team was impressed with the initial findings, and they now want you to build a machine learning model that can predict customer churn. This model will be used by the marketing team to send out discount coupons to customers who may churn. To build the best prediction model, it is important to try different algorithms and come up with the best-performing algorithm for the marketing team to use. In this activity, you will use the logistic regression, SVM, and random forest algorithms and compare the accuracies obtained from the three classifiers.
 
-2.	Download the dataset and save it in a file called **Telco_Churn_Data.csv**.
+_Follow these steps:_
 
-3.	Read the Telco_Churn_Data.csv dataset and look at the first few rows of the dataset. You should get the following output:
+1.	Import the libraries for the logistic regression, decision tree, SVM, and random forest algorithms.
 
-![Figure 7.43: The first few rows of read.csv](images/Figure-7.43.jpg)
+2.	Fit individual models to the clf_logistic, clf_svm, clf_decision, and clf_random variables.
+Use the following parameters to ensure your results are more or less close to ours: for the logistic regression model, use random_state=0 and solver='lbfgs'; for the SVM, use kernel='linear' and C=1; and for the random forest model, use n_estimators=20, max_depth=None,  min_samples_split=7, and random_state=0.
 
-4.	Check the length and shape of the data (the number of rows and columns). The length should be 4708 and the shape should be (4708, 15).
+3.	Use the score function to get the accuracy for each of the algorithms.
+You should get accuracy scores similar to the ones listed in the following figure for each of the models at the end of this activity:
 
-5.	Rename all the columns in a readable format. Make the column names look consistent by separating them with _ instead of spaces, for example, rename 
-Target Code to Target_Code. Also, fix the typo in the  
-Avg_Hours_WorkOrderOpenned column. Your column names should finally look as follows.
 
-![Figure 7.44: Renamed column names](images/Figure-7.44.jpg)
-
-6.	Change the data type of the Target_Code,  
-Condition_of_Current_Handset, and Current_TechSupComplaints columns from continuous to the categorical object type.
-
-7.	Check for any missing values.
-
-8.	Perform data exploration by initially exploring the Target_Churn variable. You should get the following summary:
-
-![Figure 7.45: Summary of Target_Churn](images/Figure-7.45.jpg)
-
-9.	Find the correlation among different variables and explain the results. You should get the following statistics:
-
-![Figure 7.46: Correlation statistics of the variables](images/Figure-7.46.jpg)
-
-You should get the following plot:
-
-![Figure 7.47: Correlation plot of different features](images/Figure-7.47.jpg)
-
-10.	Perform univariate and bivariate analyses.
-For univariate analysis, use the following columns: Avg_Calls_Weekdays, Avg_Calls, and Current_Bill_Amt. You should get the following plots:
-
-![Figure 7.48: Univariate analysis](images/Figure-7.48.jpg)
-
-For bivariate analysis, you should get the following plots.
-First, the plot of Complaint_Code versus Target_Churn:
-
-![Figure 7.49: Customer complaint code distribution by churn](images/Figure-7.49.jpg)
-
-Then, the plot of Acct_Plan_Subtype versus Target_Churn:
-	
-![Figure 7.50: Customer account plan subtype distribution by churn](images/Figure-7.50.jpg)  
-
-Then, the plot of Current_TechSupComplaints versus Target_Churn:
-
-![Figure 7.51: Customer technical support complaints distribution by churn](images/Figure-7.51.jpg)  
-
-Next, the plot of Avg_Days_Delinquent versus Target_Code:
-
-![Figure 7.52: Distribution of the average number of days delinquent by churn](images/Figure-7.52.jpg)  
-
-Then, the plot of Account_Age versus Target_Code:
-
-![Figure 7.53: Distribution of account age by churn](images/Figure-7.53.jpg)  
-
-Lastly, the plot of Percent_Increase_MOM versus Target_Code:
-
-![Figure 7.54: Distribution of the percentage increase of month-on-month  usage by churn/no ](images/Figure-7.54.jpg)  
-
+![Figure 8.33: Comparison of different algorithm accuracies on the telecom dataset](images/Figure-8.33.jpg)
 
 **Code:**
 
@@ -401,30 +288,37 @@ Lastly, the plot of Percent_Increase_MOM versus Target_Code:
 
 ---
 
-#### **Exercise 7.07: Performing Feature Selection**
-In this exercise, you will be performing feature selection using a tree-based selection method that performs well on classification tasks. By the end of this exercise, you will be able to extract the most relevant features that can then be used for model building. 
-You will be using a different kind of classifier called random forest in this exercise. While we will go into the details of this in the next chapter, the intention is to show how to perform feature selection using a given model. The process for using the random forest classifier is the same as logistic regression using scikit-learn, with the only difference being that instead of importing linear_model, you will need to use the sklearn.ensemble package to import RandomForestClassifier. The steps given in this exercise will provide more details about this.
+#### **Exercise 8.04: Standardizing Data**
 
+For this exercise, you will use the bank churn prediction data that was used in Chapter 7, Supervised Learning: Predicting Customer Churn. In the previous chapter, you performed feature selection using a random forest. The features selected for your bank churn prediction data are **Age, EstimatedSalary, CreditScore, Balance, and NumOfProducts**.
+In this exercise, your objective will be to standardize the data after you have carried out feature selection. On exploring the previous chapter, it was clear that data is not standardized; therefore in this exercise, you will implement StandardScalar to standardize the data to zero mean and unit variance. Ensure that you use the same notebook as the one used for the preceding two exercises. 
 
 **Code:**
 
 ```python
-# 1.	Import RandomForestClassifier and train_test_split from the sklearn library:
-from sklearn.ensemble import RandomForestClassifier from sklearn.model_selection import train_test_split
+# 1.	Import the preprocessing library:
+from sklearn import preprocessing
 
-# 2.	Encode the categorical variable using the following code:
-data.dtypes ### Encoding the categorical variables data["Geography"] = data["Geography"].astype('category')\                     .cat.codes data["Gender"] = data["Gender"].astype('category').cat.codes data["HasCrCard"] = data["HasCrCard"].astype('category')\                     .cat.codes data["Churn"] = data["Churn"].astype('category').cat.codes
+# 2.	View the first five rows, which have the Age, EstimatedSalary, CreditScore, Balance, and NumOfProducts features:
+X_train[top5_features].head()
 
-# 3.	Split the data into training and testing sets as follows:
-target = 'Churn' X = data.drop('Churn', axis=1) y=data[target]
-X_train, X_test, y_train, y_test = train_test_split\                                    (X,y,test_size=0.15, \                                     random_state=123, \                                     stratify=y)
+# 3.	Fit the StandardScalar function on the X_train data using the following code:
+scaler = preprocessing.StandardScaler()\
+                      .fit(X_train[top5_features])
 
-# 4.	Fit the model using the random forest classifier for feature selection with the following code:
-forest=RandomForestClassifier(n_estimators=500,random_state=1)
-forest.fit(X_train,y_train)
+# 4.	Check the mean and scaled values. Use the following code to show the mean values of the five columns:
+scaler.mean
 
-# 5.	Call the random forest feature_importances_ attribute to find the important features and store them in a variable named importances:
-importances=forest.feature_importances_
+# 5.	Now check the scaled values:
+scaler.scale
+
+# 6.	Apply the transform function to the X_train data. This function performs standardization by centering and scaling the training data:
+X_train_scalar=scaler.transform(X_train[top5_features])
+
+# 7.	Next, apply the transform function to the X_test data and check the output:
+X_test_scalar=scaler.transform(X_test[top5_features])
+X_train_scalar
+
 
 # 6.	Create a variable named features to store all the columns, except the target Churn variable. Sort the important features present in the importances variable using NumPy's argsort function:
 features = data.drop(['Churn'],axis=1).columns
@@ -439,56 +333,27 @@ feature_importance_df = pd.DataFrame({"Feature":features,\                      
 ```
 ---
 
-#### **Exercise 7.08: Building a Logistic Regression Model**
+#### **Exercise 8.05: Scaling Data After Feature Selection**
 
-In the previous exercise, you extracted the importance values of all the features. Next, you are asked to build a logistic regression model using the five most relevant features for predicting the churning of a customer. The customer's attributes are as follows:
-•	Age: 50
-•	EstimatedSalary: 100,000
-•	CreditScore: 600
-•	Balance: 100,000
-•	NumOfProducts: 2
-Logistic regression has been chosen as the base model for churn prediction because of its easy interpretability. 
+In this exercise, your objective is to scale data after feature selection. You will use the same bank churn prediction data to perform scaling. Ensure that you continue using the same Jupyter notebook. You can refer to Figure 8.35 to examine the top five features:
 
-
+![Figure 8.35: First few rows of top5_features](images/Figure-8.35.jpg)
 
 **Code:**
 
 ```python
-# 1.	Import the statsmodel package and select only the top five features that you got from the previous exercise to fit your model. Use the following code:
-import statsmodels.api as sm 
-top5_features = ['Age','EstimatedSalary','CreditScore',\                  'Balance','NumOfProducts'] logReg = sm.Logit(y_train, X_train[top5_features]) logistic_regression = logReg.fit()
+# 1.	Fit the min_max scaler on the training data:
+min_max = preprocessing.MinMaxScaler().fit(X_train[top5_features])
 
-# 2.	Once the model has been fitted, obtain the summary and your parameters:
-logistic_regression.summary logistic_regression.params
+# 2.	Check the minimum and scaled values:
+min_max.min_
 
-# 3.	Create a function to compute the coefficients. This function will first multiply each feature by its coefficient (obtained in the previous step) and then finally add up the values for all the features in order to compute the final target value:
-coef = logistic_regression.params
-def y (coef, Age, EstimatedSalary, CreditScore, Balance, \        NumOfProducts) : return coef[0]*Age+ coef[1]\
-                        *EstimatedSalary+coef[2]*CreditScore\
-                        +coef[1]*Balance+coef[2]*NumOfProducts
+# 3.	Now check the scaled values:
+min_max.scale
 
-# 4.	Calculate the chance of a customer churning by inputting the following values: 
-Age: 50
-EstimatedSalary: 100,000
-CreditScore: 600
-Balance: 100,000
-NumOfProducts: 2
-Use the following code (here, we are implementing the formula we saw in Figure 7.4):
-import numpy as np y1 = y(coef, 50, 100000, 600,100000,2) p = np.exp(y1) / (1+np.exp(y1)) p
-
-# 5.	In the previous steps, you learned how to use the statsmodel package. In this step, you will implement scikit-learn's LogisticRegression module to build your classifier and predict on the test data to find out the accuracy of our model:
-from sklearn.linear_model import LogisticRegression
-
-# 6.	Fit the logistic regression model on the partitioned training data that was prepared previously:
-clf = LogisticRegression(random_state=0, solver='lbfgs')\
-      .fit(X_train[top5_features], y_train)
-
-# 7.	Call the predict and predict_proba functions on the test data:
-clf.predict(X_test[top5_features]) clf.predict_proba(X_test[top5_features])
-<img width="468" height="189" alt="image" src="https://github.com/user-attachments/assets/2b4610a3-0964-4e2f-946a-7dcf194983f0" />
-
-# 8. Calculate the accuracy of the model by calling the score function:
-clf.score(X_test[top5_features], y_test)
+# 4.	Transform the train and test data using min_max:
+X_train_min_max=min_max.transform(X_train[top5_features])
+X_test_min_max=min_max.transform(X_test[top5_features])  
 
 ```
 
