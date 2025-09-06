@@ -3,13 +3,12 @@
 
 ## **Mục tiêu học tập**
 Sau khi hoàn thành bài học này, học viên sẽ có thể:
-- Hiểu rõ nhu cầu và tầm quan trọng của customer segmentation
-- Nắm vững thuật toán K-means và ứng dụng trong phân khúc khách hàng
-- Thực hiện phân tích thống kê mô tả và tổng hợp dữ liệu
-- Sử dụng các công cụ Python để thực hiện segmentation
-- Phân tích và diễn giải kết quả phân khúc khách hàng
-- Áp dụng các kỹ thuật nâng cao trong customer segmentation
-
+- Tối ưu hóa phân tích dự đoán sử dụng các thuật toán phân loại
+- Triển khai và điều chỉnh Support Vector Machines, Decision Trees, và Random Forests
+- Lựa chọn metrics phù hợp để đánh giá hiệu suất mô hình
+- Giải quyết bài toán dự đoán customer churn
+- Tối ưu hóa và đánh giá thuật toán phân loại tốt nhất
+  
 ---
 
 ## **Bài tập Thực hành**
