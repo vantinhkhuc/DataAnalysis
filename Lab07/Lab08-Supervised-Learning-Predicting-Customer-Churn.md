@@ -516,7 +516,7 @@ After you have reported your initial findings to the marketing team, they want y
 The given customer should have a value of around 81.939% likelihood of churning.
 
 ---
-## Bài tập tổng hợp
+### Bài tập tổng hợp
 
 #### Bài tập 1: Model Comparison và Ensemble
 
