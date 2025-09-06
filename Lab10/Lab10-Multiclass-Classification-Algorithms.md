@@ -2,14 +2,12 @@
 
 
 ## **Mục tiêu học tập**
-Sau khi hoàn thành bài học này, học viên sẽ có thể:
-- Hiểu rõ nhu cầu và tầm quan trọng của customer segmentation
-- Nắm vững thuật toán K-means và ứng dụng trong phân khúc khách hàng
-- Thực hiện phân tích thống kê mô tả và tổng hợp dữ liệu
-- Sử dụng các công cụ Python để thực hiện segmentation
-- Phân tích và diễn giải kết quả phân khúc khách hàng
-- Áp dụng các kỹ thuật nâng cao trong customer segmentation
-
+Sau khi hoàn thành bài học này, học viên sẽ:
+1. Hiểu và triển khai các thuật toán giải quyết bài toán phân loại đa lớp trong marketing analytics
+2. Thành thạo các loại classifier khác nhau sử dụng thư viện scikit-learn
+3. Diễn giải các chỉ số đánh giá micro và macro performance cho bài toán multiclass
+4. Áp dụng các kỹ thuật sampling để giải quyết vấn đề dữ liệu không cân bằng
+5. Vận dụng thuật toán và metric phù hợp cho bài toán thực tế
 ---
 
 ## **Bài tập Thực hành**
