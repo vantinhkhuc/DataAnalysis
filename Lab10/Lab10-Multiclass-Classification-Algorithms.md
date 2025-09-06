@@ -22,33 +22,41 @@ Consider the **Segmentation.csv** dataset. This dataset contains the transaction
 The manager of this store has reached out to you to help increase their sales by properly segmenting the customers into different categories, for example, loyal customer, potential customer, fence sitter, and more. The store will use this knowledge to give segment-specific discounts to their customers, which would help in increasing their sales and shifting more customers to the loyal customer category.
 
 Since there are more than two classes, the given problem falls under the category of multiclass classification. You will have access to the following features of the dataset:
-•	Frequency: The number of purchases made by the customer.
-•	Recency: How recently the customer bought from the online retailer (in days).
-•	MonetaryValue: The total amount spent by the customer between 2010 and 2011.
-•	Tenure: How long the customer has been associated with the retailer (in days).
-•	Segment: Which segment the customer belongs to; that is, are they a loyal customer or a potential customer? With the help of segment details, marketing campaigns can be targeted effectively.
-Given the segment details of the customer, you need to classify which segment a sample customer belongs to. You need to implement a multiclass classification algorithm to classify the customers into the three different classes using OneVsRestClassifier and OneVsOneClassifier. For both the classifiers, you will be using LinearSVC as the base classifier.
+•	**Frequency**: The number of purchases made by the customer.
+•	**Recency**: How recently the customer bought from the online retailer (in days).
+•	**MonetaryValue**: The total amount spent by the customer between 2010 and 2011.
+•	**Tenure**: How long the customer has been associated with the retailer (in days).
+•	**Segment**: Which segment the customer belongs to; that is, are they a loyal customer or a potential customer? With the help of segment details, marketing campaigns can be targeted effectively.
+Given the segment details of the customer, you need to classify which segment a sample customer belongs to. You need to implement a multiclass classification algorithm to classify the customers into the three different classes using **OneVsRestClassifier** and **OneVsOneClassifier**. For both the classifiers, you will be using **LinearSVC** as the base classifier.
 
 _Perform the following steps to achieve the goal of this exercise:_
 
 **Code:**
 
 ```python
-# 1.	Import OneVsRestClassifier, OneVsOneClassifier, and LinearSVC and create a new pandas DataFrame named segmentation.
-# 		Also, import the numpy module for any computations that you will be doing on the DataFrame.
-# 		Read the Segmentation.csv file into it:
-import pandas as pd import numpy as np
-from sklearn.multiclass import OneVsRestClassifier,\                                OneVsOneClassifier from sklearn.svm import LinearSVC segmentation = pd.read_csv('Segmentation.csv')
+# 1.	Import OneVsRestClassifier, OneVsOneClassifier, and LinearSVC and create a new pandas 
+# 	DataFrame named segmentation.	Also, import the numpy module for any computations that you will be doing 
+# 		on the DataFrame. Read the Segmentation.csv file into it:
+import pandas as pd
+import numpy as np
+from sklearn.multiclass import OneVsRestClassifier, OneVsOneClassifier
+from sklearn.svm import LinearSVC
 
-# 2.	Load all the features and the target to variables X and y, respectively. You will also have to drop CustomerID since it is going to be different for each customer and won't add any value to the model. Also, you will have to remove the Segment column, which is the target variable, from the features variable (X):
+segmentation = pd.read_csv('Segmentation.csv')
+
+# 2.	Load all the features and the target to variables X and y, respectively.
+# 		You will also have to drop CustomerID since it is going to be different for each customer and won't add any  
+# 		value to the model.	Also, you will have to remove the Segment column, which is the target variable,
+# 		from the features variable (X):
+
 # Putting feature variable to X
 X = segmentation.drop(['CustomerID','Segment'],axis=1) # Putting response variable to y y = segmentation['Segment']
 
 # 3.	Fit and predict using the one-versus-all classifier. Use the following code:
-OneVsRestClassifier(LinearSVC(random_state=0)).fit(X, y)\                                              .predict(X)
+OneVsRestClassifier(LinearSVC(random_state=0)).fit(X, y).predict(X)
 
 # 4. Fit and predict using the one-versus-one classifier. Use the following code:
-OneVsOneClassifier(LinearSVC(random_state=0)).fit(X, y)\                                             .predict(X)
+OneVsOneClassifier(LinearSVC(random_state=0)).fit(X, y).predict(X)
 
 ```
 
@@ -56,7 +64,7 @@ OneVsOneClassifier(LinearSVC(random_state=0)).fit(X, y)\                        
 
 #### **Exercise 9.02: Evaluating Performance Using Multiclass Performance Metrics**
 
-In this exercise, you will continue with the same case study as in Exercise 9.01, Implementing a Multiclass Classification Algorithm on a Dataset. This time, you will train a decision tree classifier and evaluate the model using the micro- and macro-averages of the performance metrics discussed in the previous section. For evaluating the model performance, divide (with stratification) the dataset using an 80:20 ratio (train:test) and set random_state to 123. You should be able to achieve a classification report like the following (a variation of up to 5% from the values we got is acceptable):
+In this exercise, you will continue with the same case study as in _Exercise 9.01, Implementing a Multiclass Classification Algorithm on a Dataset_. This time, you will train a decision tree classifier and evaluate the model using the micro- and macro-averages of the performance metrics discussed in the previous section. For evaluating the model performance, divide (with stratification) the dataset using an 80:20 ratio (train:test) and set random_state to 123. You should be able to achieve a classification report like the following (a variation of up to 5% from the values we got is acceptable):
 
 ![Figure 9.6: Expected classification report](images/Figure-9.6.jpg)
 
@@ -65,10 +73,19 @@ _Perform the following steps to achieve the goal of this exercise:_
 **Code:**
 
 ```python
-# 1.	Import numpy, DecisionTreeClassifier, train_test_split, precision_recall_fscore_support,  classification_report, confusion_matrix, and accuracy_score:
-import numpy as np import pandas as pd
-# Importing decision tree classifier from sklearn library from sklearn.tree import DecisionTreeClassifier from sklearn.model_selection import train_test_split """
-Importing classification report and confusion matrix from sklearn metrics """ from sklearn.metrics import classification_report, \                             confusion_matrix, \                             accuracy_score from sklearn.metrics import precision_recall_fscore_support
+# 1.	Import numpy, DecisionTreeClassifier, train_test_split, precision_recall_fscore_support,
+# 		classification_report, confusion_matrix, and accuracy_score:
+import numpy as np
+import pandas as pd
+
+# Importing decision tree classifier from sklearn library
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+"""
+Importing classification report and confusion matrix from sklearn metrics
+"""
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn.metrics import precision_recall_fscore_support
 
 # 2.	Load the Segmentation.csv dataset into a variable called segmentation:
 segmentation = pd.read_csv('Segmentation.csv')
@@ -82,43 +99,32 @@ segmentation.info()
 # 5. Use the value_counts() function to find the number of customers in each segment:
 segmentation['Segment'].value_counts()
 
-# 6.	Split the data into training and testing sets and store it in the X_train,  X_test, y_train, and y_test variables, as follows:
-# Putting feature variable to X
-X = segmentation.drop(['CustomerID','Segment'],axis=1) # Putting response variable to y y = segmentation['Segment'] X_train, X_test, y_train, y_test = train_test_split\                                    (X,y,test_size=0.20, \                                     random_state=123, \                                     stratify=y)
+# 6.	Split the data into training and testing sets and store it in the X_train,  X_test, y_train,
+# 		and y_test variables, as follows:
 
-# 7.	Store the DecisionTreeClassifier model in the model variable and fit the classifier to the training set. Store the fitted model in the clf variable:
+# Putting feature variable to X
+X = segmentation.drop(['CustomerID','Segment'],axis=1)
+
+# Putting response variable to y
+y = segmentation['Segment']
+X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.20, random_state=123, stratify=y)
+
+# 7.	Store the DecisionTreeClassifier model in the model variable and fit the classifier to the training set.
+# 		Store the fitted model in the clf variable:
 model = DecisionTreeClassifier() clf = model.fit(X_train,y_train)
 
 # 8.	Use the predict function of the classifier to predict on the test data and store the results in y_pred:
 y_pred=clf.predict(X_test)
 
-# 9.	Fit the macro-averaging and the micro-averaging using the  precision_recall_fscore_support function. The  
-precision_recall_fscore_support function can directly calculate the metrics for the micro-average and macro-average, as follows:
-precision_recall_fscore_support(y_test, y_pred, average='macro') precision_recall_fscore_support(y_test, y_pred, average='micro')
+# 9.	Fit the macro-averaging and the micro-averaging using the  precision_recall_fscore_support function.
+# 		The  precision_recall_fscore_support function can directly calculate the metrics for
+# 		the micro-average and macro-average, as follows:
+precision_recall_fscore_support(y_test, y_pred, average='macro')
+precision_recall_fscore_support(y_test, y_pred, average='micro')
 
-# 10.	You can also calculate more detailed metrics statistics using the classification_report function. Generate the classification report using the y_test and y_pred variables:
+# 10.	You can also calculate more detailed metrics statistics using the classification_report function.
+# 		Generate the classification report using the y_test and y_pred variables:
 print(classification_report(y_test, y_pred))
-
-
-```
-
----
-
-#### **Exercise 8.03: Implementing a Random Forest Model over a Dataset**
-In this exercise, you will use a random forest to build a model over the same auction dataset used previously. Ensure that you use the same Jupyter notebook as the one used for the preceding exercise:
-
-**Code:**
-
-```python
-# 1.	Import the random forest classifier:
-from sklearn.ensemble import RandomForestClassifier
-
-# 2.	Fit the random forest classifier to the training data using the following code:
-clf = RandomForestClassifier(n_estimators=20, max_depth=None, min_samples_split=7, random_state=0)
-clf.fit(X_train,y_train)
-
-# 3.	Calculate the accuracy score:
-clf.score(X_test, y_test)
 
 ```
 
@@ -127,17 +133,19 @@ clf.score(X_test, y_test)
 #### **Activity 9.01: Performing Multiclass Classification and Evaluating Performance**
 
 You have been provided with data on the annual spend amount of each of the 20,000 customers of a major retail company. The marketing team of the company used different channels to sell their goods and has segregated customers based on the purchases made using different channels, which are as follows: 
-•	0: Retail
-•	1: Roadshow
-•	2: Social media
-•	3: Television
+•	**0**: Retail
+•	**1**: Roadshow
+•	**2**: Social media
+•	**3**: Television
+
 As a marketing analyst, you are tasked with building a machine learning model that will be able to predict the most effective channel that can be used to target a customer based on the annual spend on the following seven products (features) sold by the company: fresh produce, milk, groceries, frozen products, detergent, paper, and delicatessen.
 To complete this task, you will have to train a random forest classifier and evaluate it using a confusion matrix and classification report. 
 
 
 _Perform the following steps to complete this activity:_
 
-1.	Import the required libraries. You will need the pandas, numpy, sklearn, matplotlib, and seaborn libraries in this activity.
+1.	Import the required libraries. You will need the **pandas, numpy, sklearn, matplotlib, and seaborn** libraries in this activity.
+
 2.	Load the marketing data into a DataFrame named data and look at the first five rows of the DataFrame. It should appear as follows:
 
 ![Figure 9.11: The first five rows of the data DataFrame](images/Figure-9.11.jpg)
@@ -150,10 +158,15 @@ The shape should be (20000,7), and there should be no null values in the data. T
 4. Check the target variable, Channel, for the number of transactions for each of the channels. You should get the following output:
  
 ![Figure 9.13: The number of transactions for each channel](images/Figure-9.13.jpg)
+
 5.	Split the data into training and testing sets using the ratio 80:20 (train:test).
+
 6.	Fit a random forest classifier and store the model in a clf_random variable. Set the number of estimators to 20, the maximum depth to None, and the number of samples to 7 and use random_state=0.
+
 7.	Predict on the test data and store the predictions in y_pred.
+
 8.	Find the micro- and macro-average reports using the  precision_recall_fscore_support function.
+
 9.	Print the classification report. It should look as follows:
  
 ![Figure 9.14: Classification report for the random forest classifier](images/Figure-9.14.jpg)
@@ -161,6 +174,7 @@ The shape should be (20000,7), and there should be no null values in the data. T
 10.	Plot the confusion matrix. It should appear as follows:
 
 ![Figure 9.15: Confusion matrix for the random forest classifier](images/Figure-9.15.jpg)
+
 **Code:**
 
 ```python
@@ -178,8 +192,18 @@ However, there is a big issue with the dataset. Around 74% of the dataset has pe
 **Code:**
 
 ```python
-# 1.	Import pandas, RandomForestClassifier, train_test_split, classification_report, confusion_matrix, accuracy_score, metrics, seaborn, and svm using the following code:
-import pandas as pd import numpy as np from sklearn.ensemble import RandomForestClassifier from sklearn.model_selection import train_test_split from sklearn.metrics import classification_report,\                             confusion_matrix,\                             accuracy_score from sklearn import metrics import matplotlib.pyplot as plt import seaborn as sns
+# 1.	Import pandas, RandomForestClassifier, train_test_split, classification_report,
+# 		confusion_matrix, accuracy_score, metrics, seaborn, and svm using the following code:
+import pandas as pd
+import numpy as np
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn import metrics
+
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # 2.	Create a DataFrame named data and load adult.csv into it: 
 data = pd.read_csv('adult.csv')
@@ -187,60 +211,86 @@ data = pd.read_csv('adult.csv')
 # 3.	Check the first five rows of the data DataFrame using the following code:
 data.head()
 
-# 4.	As you can see from the output of Step 3, the dataset has some values filled with ?. Replace them with np.nan:
+# 4.	As you can see from the output of Step 3, the dataset has some values filled with ?.
+# 		Replace them with np.nan:
 data.replace('?',np.nan,inplace=True)
 
 # 5.	Drop the rows that contains null values:
 data.dropna(inplace=True)
 
-# 6.	Check the number of people earning less than or equal to 50,000 USD and more than 50,000 USD using the following code:
+# 6.	Check the number of people earning less than or equal to 50,000 USD and
+# 		more than 50,000 USD using the following code:
 data['income'].value_counts()
 
-# 7.	You can see in the data.head() output that there are a lot of categorical values in the DataFrame. To perform classification, you need to convert the categorical values (workclass, education, marital-status, occupation, relationship, race, gender, native country, and income) into numerical values. You can use a label encoder for this conversion. 
-Label encoders convert categorical values into numerical values:
-#Encoding the Categorical values to Numericals using LabelEncoder from sklearn.preprocessing import LabelEncoder
-Labelenc_workclass = LabelEncoder() data['workclass'] = Labelenc_workclass\
-                    .fit_transform(data['workclass'])
-Labelenc_education = LabelEncoder() data['education'] = Labelenc_education\
-                    .fit_transform(data['education'])
-Labelenc_marital_status = LabelEncoder() data['marital-status'] = Labelenc_marital_status\
-                         .fit_transform(data['marital-status'])
-Labelenc_occupation = LabelEncoder() data['occupation'] = Labelenc_occupation\
-                     .fit_transform(data['occupation'])
+# 7.	You can see in the data.head() output that there are a lot of categorical values in the DataFrame.
+# 		To perform classification, you need to convert the categorical values (workclass, education, marital-status,
+# 		occupation, relationship, race, gender, native country, and income) into numerical values.
+# 		You can use a label encoder for this conversion. 
+# 		Label encoders convert categorical values into numerical values:
+
+# Encoding the Categorical values to Numericals using LabelEncoder
+from sklearn.preprocessing import LabelEncoder
+
+Labelenc_workclass = LabelEncoder()
+data['workclass'] = Labelenc_workclass.fit_transform(data['workclass'])
+
+Labelenc_education = LabelEncoder()
+data['education'] = Labelenc_education.fit_transform(data['education'])
+
+Labelenc_marital_status = LabelEncoder()
+data['marital-status'] = Labelenc_marital_status.fit_transform(data['marital-status'])
+
+Labelenc_occupation = LabelEncoder()
+data['occupation'] = Labelenc_occupation.fit_transform(data['occupation'])
+
 Labelenc_relationship = LabelEncoder()
-data['relationship'] = Labelenc_relationship\
-                       .fit_transform(data['relationship'])
-Labelenc_race = LabelEncoder() data['race'] = Labelenc_race\
-               .fit_transform(data['race'])
-Labelenc_gender = LabelEncoder() data['gender'] = Labelenc_gender\
-                 .fit_transform(data['gender'])
-Labelenc_native_country = LabelEncoder() data['native-country'] = Labelenc_native_country\
-                         .fit_transform(data['native-country'])
-Labelenc_income = LabelEncoder() data['income'] = Labelenc_income\
-                 .fit_transform(data['income'])
+data['relationship'] = Labelenc_relationship.fit_transform(data['relationship'])
+
+Labelenc_race = LabelEncoder()
+data['race'] = Labelenc_race.fit_transform(data['race'])
+
+Labelenc_gender = LabelEncoder()
+data['gender'] = Labelenc_gender.fit_transform(data['gender'])
+
+Labelenc_native_country = LabelEncoder()
+data['native-country'] = Labelenc_native_country.fit_transform(data['native-country'])
+
+Labelenc_income = LabelEncoder()
+data['income'] = Labelenc_income.fit_transform(data['income'])
 
 # 8.	Look at the encoded DataFrame using the following command:
 data.head()
 
 # 9.	Put all the independent variables in the variable X and the dependent variable in y:
+
 # Putting feature variable to X
 X = data.drop(['income'],axis=1) # Putting response variable to y y = data['income']
 
 # 10.	Split the data into training and testing sets, as shown here:
-X_train, X_test, y_train, y_test = train_test_split\                                    (X,y,\                                     test_size=0.20, \                                     random_state=123)
+X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.20, random_state=123)
 
 # 11.	Now, fit a random forest classifier using the following code and save the model to a clf_random variable:
-clf_random = RandomForestClassifier(random_state=0) clf_random.fit(X_train,y_train)
+clf_random = RandomForestClassifier(random_state=0)
+clf_random.fit(X_train,y_train)
 
 # 12.	Predict on the test data and save the predictions to the y_pred variable:
 y_pred=clf_random.predict(X_test)
-13.	Generate the classification report using the following code:
+
+# 13.	Generate the classification report using the following code:
 print(classification_report(y_test, y_pred))
 
 # 14. Finally, plot the confusion matrix:
 cm = confusion_matrix(y_test, y_pred) 
-cm_df = pd.DataFrame(cm,\                      index = ['<=50K', '>50K'], \                      columns = ['<=50K', '>50K']) plt.figure(figsize=(8,6)) sns.heatmap(cm_df, annot=True,fmt='g',cmap='Greys_r') plt.title('Random Forest \nAccuracy:{0:.3f}'\           .format(accuracy_score(y_test, y_pred))) plt.ylabel('True Values') plt.xlabel('Predicted Values') plt.show()
+cm_df = pd.DataFrame(cm, index = ['<=50K', '>50K'], columns = ['<=50K', '>50K'])
 
+plt.figure(figsize=(8,6))
+
+sns.heatmap(cm_df, annot=True,fmt='g',cmap='Greys_r')
+
+plt.title('Random Forest \nAccuracy:{0:.3f}'.format(accuracy_score(y_test, y_pred)))
+plt.ylabel('True Values')
+plt.xlabel('Predicted Values')
+plt.show()
 
 ```
 ---
@@ -248,14 +298,17 @@ cm_df = pd.DataFrame(cm,\                      index = ['<=50K', '>50K'], \     
 #### **Exercise 9.04: Fixing the Imbalance of a Dataset Using SMOTE**
 
 In Exercise 9.03, Performing Classification on Imbalanced Data, you noticed that your model was not able to generalize because of imbalanced data and your precision and recall scores were low. In this exercise, you will first resample your dataset using the SMOTE technique to obtain a balanced dataset. Then, you will use the same balanced dataset to fit a random forest classifier (which was initialized in the previous exercise). 
+
 By the end of the exercise, you should be able to see an improvement in model performance for the annual income of more than 50,000 USD class. This should happen since by using SMOTE technique, the number of samples in the minority class (greater than 50,000) would increase, which would fix the issue of overfitting that you saw in the previous exercise. This in turn should increase the number of correctly classified samples for this class (greater than 50,000). You will be able to see this information with the help of the confusion matrix.
-The detailed steps to follow for completing this exercise are as follows:
+
+_The detailed steps to follow for completing this exercise are as follows:_
 
 
 **Code:**
 
 ```python
-# 1.	First, import the imblearn library and the SMOTE function, which you will be using exclusively in this exercise:
+# 1.	First, import the imblearn library and the SMOTE function,
+# 		which you will be using exclusively in this exercise:
 import imblearn
 from imblearn.over_sampling import SMOTE
 
@@ -273,38 +326,21 @@ print(classification_report(y_test, y_pred))
 
 # 6.	Plot the confusion matrix using the following code:
 cm = confusion_matrix(y_test, y_pred) 
-cm_df = pd.DataFrame(cm,\                      index = ['<=50K', '>50K'],\                      columns = ['<=50K', '>50K']) plt.figure(figsize=(8,6)) sns.heatmap(cm_df, annot=True,fmt='g',cmap='Greys_r') plt.title('Random Forest \nAccuracy:{0:.3f}'\           .format(accuracy_score(y_test, y_pred))) plt.ylabel('True Values') plt.xlabel('Predicted Values') plt.show()
+cm_df = pd.DataFrame(cm, index = ['<=50K', '>50K'], columns = ['<=50K', '>50K'])
+
+plt.figure(figsize=(8,6))
+
+sns.heatmap(cm_df, annot=True,fmt='g',cmap='Greys_r')
+
+plt.title('Random Forest \nAccuracy:{0:.3f}'.format(accuracy_score(y_test, y_pred)))
+plt.ylabel('True Values')
+plt.xlabel('Predicted Values')
+plt.show()
 
 ```
 
 ---
 
-#### **Exercise 8.08: Fine-Tuning a Model**
-
-In this exercise, you will implement a grid search to find out the best parameters for an SVM on the bank churn prediction data. You will continue using the same notebook as in the preceding exercise:
-
-**Code:**
-
-```python
-# 1.	Import SVM, GridSearchCV, and StratifiedKfold:
-from sklearn import svm
-from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import StratifiedKFold
-
-# 2.	Specify the parameters for the grid search as follows:
-parameters = [{'kernel': ['linear'], 'C':[0.1, 1]}, {'kernel': ['rbf'], 'C':[0.1, 1]}]
-
-# 3.	Fit the grid search with StratifiedKFold, setting the parameter as  n_splits = 3. 
-clf = GridSearchCV(svm.SVC(), parameters,  cv = StratifiedKFold(n_splits = 3), verbose=4,n_jobs=-1)
-clf.fit(X_train[top5_features], y_train)
-
-# 4. Print the best score and the best parameters:
-print('best score train:', clf.best_score_)
-print('best parameters train: ', clf.best_params_)
-
-```
-
----
 
 #### **Activity 9.02: Dealing with Imbalanced Data Using scikit-learn**
 
@@ -317,13 +353,17 @@ For the next marketing campaign, your company wants to use this data and only co
 _To complete this activity, please follow the steps given here:_
 
 1.	Import all the necessary libraries. You will primarily be working with the sklearn, numpy, pandas, matplotlib, and seaborn modules.
+
 2.	Read the dataset into a pandas DataFrame named bank and look at the first five rows of the data. Your output should be as follows:
 
 ![Figure 9.23: The first few rows of bank data](images/Figure-9.23.jpg)
 
 3.	Rename the y column Target. This will add readability to the dataset.
+
 4.	Replace the no values with 0 and yes with 1. This will help in converting the string-based classes to numerical classes, which would make further processing easier.
+
 5.	Check the shape and missing values in the data. The shape should be (4334,17) and there should be no missing values.
+
 6.	Use the describe function to check the continuous and categorical values. You should get the following output for continuous variables:
  
 ![Figure 9.24: Output for continuous variables](images/Figure-9.24.jpg)
@@ -337,13 +377,17 @@ You will get the following output for categorical variables:
 ![Figure 9.26: Count of class labels](images/Figure-9.26.jpg)
 
 8.	Use the cat.codes function to encode the job, marital, default, housing, loan, contact, and poutcome columns. Since education and month are ordinal columns, convert them as follows:
+
 a)	Replace primary education with 0, secondary education with 1, and tertiary education with 2.
+
 b)	Replace the months January to December with their corresponding month number, 1 to 12.
+
 9.	Check the first five rows of the bank data after the conversion. You will get the following output:
  
 ![Figure 9.27: The first few rows of bank data after conversion](images/Figure-9.27.jpg)
 
 10.	Split the data into training and testing sets using the train_test_split function. Use a ratio of 85:15 (train:test) for splitting the dataset.
+
 11.	Check the number of items in each class in y_train and y_test using the value_counts method. You should get the following output for the number of entries in each class in y_train:
  
 ![Figure 9.28: Number of entries in each class in y_train](images/Figure-9.28.jpg)
@@ -353,9 +397,13 @@ You should get the following output for the number of entries in each class  in 
 ![Figure 9.29: Number of entries in each class in y_test](images/Figure-9.29.jpg)
 
 12.	Use the standard_scalar function to scale the X_train and X_test data. Assign it to the X_train_sc and X_test_sc variables.
+
 13.	Call the random forest classifier with the n_estimators=20,  max_depth=None, min_samples_split=7, and  random_state=0 parameters.
+
 14.	Fit the random forest model on the training dataset.
+
 15.	Predict on the test data using the random forest model.
+
 16.	Use the predictions and the ground-truth classes for test data to get the classification report. You should get the following output:
  
 ![Figure 9.30: Classification report](images/Figure-9.30.jpg)
@@ -365,8 +413,11 @@ You should get the following output for the number of entries in each class  in 
 ![Figure 9.31: Confusion matrix](images/Figure-9.31.jpg)
 
 18.	Use the smote() function on x_train and y_train to convert the imbalanced dataset into a balanced dataset. Assign it to the x_resampled and y_resampled variables, respectively.
+
 19.	Use standard_scalar to fit on x_resampled and x_test. Assign it to the X_train_sc_resampled and X_test_sc variables.
+
 20.	Fit the random forest classifier on X_train_sc_resampled and  y_resampled.
+
 21.	Predict on X_test_sc and use the predictions and ground-truth classes to generate the classification report. It should look as follows (variation of up to 5% is acceptable):
  
 ![Figure 9.32: Classification report of the random forest classifier](images/Figure-9.32.jpg)
