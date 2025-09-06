@@ -476,1880 +476,1014 @@ You plot should look as follows:
 ---
 ## Bài tập tổng hợp
 
-### Bài Tập 1: Cải Tiến Phương Pháp Customer Segmentation với Kỹ Thuật Clustering Hiện Đại
+## Bài Tập Thực Hành
 
-### Mô Tả Bài Toán
-Bạn là Data Scientist tại một công ty thương mại điện tử. Công ty muốn cải tiến chiến lược phân khúc khách hàng hiện tại bằng cách sử dụng các kỹ thuật clustering hiện đại thay vì phương pháp truyền thống.
+### **Mô tả chung cho các bài tập 01-03**
 
-### Dataset
-Sử dụng dữ liệu khách hàng với các đặc trưng:
-- `customer_id`: ID khách hàng
-- `recency`: Số ngày kể từ lần mua hàng cuối
-- `frequency`: Tần suất mua hàng trong năm
-- `monetary`: Tổng giá trị đơn hàng
-- `avg_order_value`: Giá trị đơn hàng trung bình
-- `days_since_first_purchase`: Số ngày từ lần mua đầu tiên
-- `product_categories`: Số danh mục sản phẩm đã mua
-
-### Yêu Cầu Thực Hiện
-
-#### Phần A: Chuẩn Bị Dữ Liệu và EDA
 ```python
-import pandas as pd
+# =============================================================================
+# TÓM TẮT VÀ HƯỚNG DẪN SỬ DỤNG
+# =============================================================================
+
+print("\n" + "="*80)
+print("TÓM TẮT BÀI TẬP CLASSIFICATION ALGORITHMS")
+print("="*80)
+
+print("""
+BÀI TẬP 1 - CƠ BẢN:
+✓ Tạo synthetic dataset với 3 features, 2 classes
+✓ Triển khai Decision Tree, Random Forest, SVM cơ bản
+✓ So sánh accuracy và F1-score
+✓ Visualize confusion matrices
+→ Học cách sử dụng các thuật toán cơ bản
+
+BÀI TẬP 2 - TRUNG BÌNH:
+✓ Sử dụng Wine dataset thực tế (multi-class)
+✓ EDA với correlation analysis
+✓ Feature selection với Random Forest importance
+✓ Hyperparameter tuning với GridSearchCV
+✓ Ensemble model với Voting Classifier
+→ Học cách tối ưu hóa model và feature engineering
+
+BÀI TẬP 3 - NÂNG CAO:
+✓ Customer Churn prediction với realistic dataset
+✓ Feature engineering và business context
+✓ Xử lý imbalanced data
+✓ Business metrics (cost-benefit analysis)
+✓ Model interpretation và deployment simulation
+✓ Customer segmentation và business recommendations
+→ Áp dụng machine learning vào business problem thực tế
+
+KEY LEARNING POINTS:
+1. Model Selection: Không chỉ dựa vào accuracy mà phải xem xét business context
+2. Feature Engineering: Tạo features mới có thể cải thiện performance đáng kể
+3. Imbalanced Data: Cần xử lý đặc biệt và chọn metrics phù hợp
+4. Business Value: Machine learning phải tạo ra giá trị kinh doanh cụ thể
+5. Model Deployment: Cần simulation để đảm bảo model hoạt động trong thực tế
+
+NEXT STEPS:
+- Thử nghiệm với real datasets từ Kaggle
+- Học thêm về ensemble methods (XGBoost, LightGBM)
+- Tìm hiểu về model explainability (SHAP, LIME)
+- Thực hành với streaming data và online learning
+""")
+
+print("="*80)
+print("🎉 HOÀN THÀNH TẤT CẢ BÀI TẬP! 🎉")
+print("="*80)
+```
+
+**Các thư viện sử dụng chung cho bài tập 01-03**
+
+```python
+# =============================================================================
+# BÀI TẬP THỰC HÀNH: FINE-TUNING CLASSIFICATION ALGORITHMS
+# =============================================================================
+
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.preprocessing import StandardScaler, RobustScaler
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
-from sklearn.mixture import GaussianMixture
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.datasets import make_classification, load_iris, load_wine
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.metrics import (accuracy_score, precision_score, recall_score, f1_score,
+                           classification_report, confusion_matrix, roc_auc_score, roc_curve)
+from sklearn.feature_selection import SelectKBest, f_classif
 import warnings
 warnings.filterwarnings('ignore')
-
-# Tạo dữ liệu mẫu
-np.random.seed(42)
-n_customers = 2000
-
-# Tạo 4 segment khách hàng khác nhau
-segments = []
-for i in range(4):
-    segment_size = n_customers // 4
-    if i == 0:  # High Value Customers
-        segment = {
-            'recency': np.random.normal(15, 5, segment_size),
-            'frequency': np.random.normal(25, 5, segment_size),
-            'monetary': np.random.normal(5000, 1000, segment_size),
-            'avg_order_value': np.random.normal(200, 50, segment_size),
-            'days_since_first_purchase': np.random.normal(400, 100, segment_size),
-            'product_categories': np.random.normal(8, 2, segment_size)
-        }
-    elif i == 1:  # Regular Customers
-        segment = {
-            'recency': np.random.normal(45, 10, segment_size),
-            'frequency': np.random.normal(12, 3, segment_size),
-            'monetary': np.random.normal(2000, 500, segment_size),
-            'avg_order_value': np.random.normal(100, 30, segment_size),
-            'days_since_first_purchase': np.random.normal(200, 50, segment_size),
-            'product_categories': np.random.normal(5, 1, segment_size)
-        }
-    elif i == 2:  # At Risk Customers
-        segment = {
-            'recency': np.random.normal(120, 30, segment_size),
-            'frequency': np.random.normal(8, 2, segment_size),
-            'monetary': np.random.normal(1500, 400, segment_size),
-            'avg_order_value': np.random.normal(80, 20, segment_size),
-            'days_since_first_purchase': np.random.normal(300, 80, segment_size),
-            'product_categories': np.random.normal(3, 1, segment_size)
-        }
-    else:  # Lost Customers
-        segment = {
-            'recency': np.random.normal(200, 50, segment_size),
-            'frequency': np.random.normal(3, 1, segment_size),
-            'monetary': np.random.normal(500, 200, segment_size),
-            'avg_order_value': np.random.normal(60, 15, segment_size),
-            'days_since_first_purchase': np.random.normal(500, 150, segment_size),
-            'product_categories': np.random.normal(2, 0.5, segment_size)
-        }
-    segments.append(pd.DataFrame(segment))
-
-# Kết hợp tất cả segments
-df = pd.concat(segments, ignore_index=True)
-df['customer_id'] = range(1, len(df) + 1)
-
-# Đảm bảo giá trị dương
-for col in df.columns:
-    if col != 'customer_id':
-        df[col] = np.maximum(df[col], 1)
-
-print("Dataset shape:", df.shape)
-print("\nDataset info:")
-print(df.describe())
 ```
+### **Bài Tập 1: CƠ BẢN - Synthetic Dataset Classification**
 
-**Nhiệm vụ 1.1**: Thực hiện EDA chi tiết
-- Vẽ distribution plots cho từng feature
-- Tạo correlation matrix
-- Phân tích outliers bằng boxplots
-- Tính toán và visualize skewness của các biến
-
-**Nhiệm vụ 1.2**: So sánh các phương pháp scaling
 ```python
-# So sánh StandardScaler vs RobustScaler
-scalers = {
-    'StandardScaler': StandardScaler(),
-    'RobustScaler': RobustScaler()
-}
+# =============================================================================
+# BÀI TẬP 1: CƠ BẢN - Synthetic Dataset Classification
+# =============================================================================
 
-# Thực hiện scaling và so sánh kết quả
-```
+print("=" * 60)
+print("BÀI TẬP 1: CƠ BẢN - Synthetic Dataset Classification")
+print("=" * 60)
 
-#### Phần B: Implement Clustering Algorithms Hiện Đại
-
-**Nhiệm vụ 1.3**: Implement và so sánh các thuật toán clustering
-```python
-from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
-from sklearn.mixture import GaussianMixture
-from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
-
-class ModernClusteringComparison:
-    def __init__(self, data):
-        self.data = data
-        self.results = {}
-    
-    def fit_kmeans_variants(self, n_clusters=4):
-        """So sánh các variant của K-Means"""
-        kmeans_variants = {
-            'K-Means (Lloyd)': KMeans(n_clusters=n_clusters, algorithm='lloyd', random_state=42),
-            'K-Means (Elkan)': KMeans(n_clusters=n_clusters, algorithm='elkan', random_state=42),
-            'K-Means++': KMeans(n_clusters=n_clusters, init='k-means++', random_state=42)
-        }
-        
-        for name, model in kmeans_variants.items():
-            labels = model.fit_predict(self.data)
-            self.results[name] = {
-                'labels': labels,
-                'silhouette': silhouette_score(self.data, labels),
-                'calinski_harabasz': calinski_harabasz_score(self.data, labels),
-                'davies_bouldin': davies_bouldin_score(self.data, labels),
-                'inertia': model.inertia_
-            }
-    
-    def fit_gaussian_mixture(self, n_components=4):
-        """Gaussian Mixture Models với các covariance types"""
-        covariance_types = ['full', 'tied', 'diag', 'spherical']
-        
-        for cov_type in covariance_types:
-            gmm = GaussianMixture(n_components=n_components, 
-                                covariance_type=cov_type, 
-                                random_state=42)
-            labels = gmm.fit_predict(self.data)
-            
-            self.results[f'GMM ({cov_type})'] = {
-                'labels': labels,
-                'silhouette': silhouette_score(self.data, labels),
-                'calinski_harabasz': calinski_harabasz_score(self.data, labels),
-                'davies_bouldin': davies_bouldin_score(self.data, labels),
-                'aic': gmm.aic(self.data),
-                'bic': gmm.bic(self.data)
-            }
-    
-    def fit_hierarchical_clustering(self):
-        """Hierarchical Clustering với các linkage methods"""
-        linkage_methods = ['ward', 'complete', 'average', 'single']
-        
-        for linkage in linkage_methods:
-            if linkage == 'ward':
-                model = AgglomerativeClustering(n_clusters=4, linkage=linkage)
-            else:
-                model = AgglomerativeClustering(n_clusters=4, linkage=linkage, 
-                                              metric='euclidean')
-            labels = model.fit_predict(self.data)
-            
-            self.results[f'Hierarchical ({linkage})'] = {
-                'labels': labels,
-                'silhouette': silhouette_score(self.data, labels),
-                'calinski_harabasz': calinski_harabasz_score(self.data, labels),
-                'davies_bouldin': davies_bouldin_score(self.data, labels)
-            }
-    
-    def compare_results(self):
-        """So sánh kết quả của tất cả các thuật toán"""
-        comparison_df = pd.DataFrame({
-            'Algorithm': list(self.results.keys()),
-            'Silhouette Score': [self.results[alg]['silhouette'] for alg in self.results.keys()],
-            'Calinski-Harabasz': [self.results[alg]['calinski_harabasz'] for alg in self.results.keys()],
-            'Davies-Bouldin': [self.results[alg]['davies_bouldin'] for alg in self.results.keys()]
-        })
-        
-        return comparison_df.sort_values('Silhouette Score', ascending=False)
-
-# Sử dụng class
-features = ['recency', 'frequency', 'monetary', 'avg_order_value', 
-           'days_since_first_purchase', 'product_categories']
-X_scaled = StandardScaler().fit_transform(df[features])
-
-clustering_comparison = ModernClusteringComparison(X_scaled)
-clustering_comparison.fit_kmeans_variants()
-clustering_comparison.fit_gaussian_mixture()
-clustering_comparison.fit_hierarchical_clustering()
-
-results_comparison = clustering_comparison.compare_results()
-print(results_comparison)
-```
-
-#### Phần C: Cluster Evaluation và Interpretation
-
-**Nhiệm vụ 1.4**: Tạo comprehensive evaluation framework
-```python
-def comprehensive_cluster_evaluation(X, labels, original_data):
+def exercise_1_basic():
     """
-    Đánh giá toàn diện các cluster được tạo
+    Bài tập cơ bản: Tạo dataset đơn giản và so sánh 3 algorithms
+    
+    Yêu cầu:
+    1. Tạo synthetic dataset với 3 features, 2 classes, 1000 samples
+    2. Triển khai Decision Tree, Random Forest, SVM
+    3. So sánh hiệu suất với accuracy và F1-score
+    4. Vẽ confusion matrix cho từng model
     """
-    evaluation_metrics = {}
     
-    # Internal metrics
-    evaluation_metrics['silhouette_score'] = silhouette_score(X, labels)
-    evaluation_metrics['calinski_harabasz_score'] = calinski_harabasz_score(X, labels)
-    evaluation_metrics['davies_bouldin_score'] = davies_bouldin_score(X, labels)
+    # Bước 1: Tạo synthetic dataset
+    print("\n1. Tạo Synthetic Dataset")
+    X, y = make_classification(
+        n_samples=1000,
+        n_features=3,
+        n_informative=3,
+        n_redundant=0,
+        n_clusters_per_class=1,
+        random_state=42
+    )
     
-    # Business metrics
-    cluster_profiles = original_data.copy()
-    cluster_profiles['cluster'] = labels
+    # Tạo feature names
+    feature_names = ['Feature_1', 'Feature_2', 'Feature_3']
     
-    # Tính toán business metrics cho từng cluster
-    business_metrics = cluster_profiles.groupby('cluster').agg({
-        'recency': ['mean', 'std'],
-        'frequency': ['mean', 'std'],
-        'monetary': ['mean', 'std', 'sum'],
-        'avg_order_value': ['mean', 'std'],
-        'days_since_first_purchase': ['mean', 'std'],
-        'product_categories': ['mean', 'std']
-    })
+    print(f"Dataset shape: {X.shape}")
+    print(f"Class distribution: {np.bincount(y)}")
     
-    # Cluster size distribution
-    cluster_sizes = cluster_profiles['cluster'].value_counts().sort_index()
-    evaluation_metrics['cluster_sizes'] = cluster_sizes
-    evaluation_metrics['cluster_balance'] = cluster_sizes.std() / cluster_sizes.mean()
+    # Visualize dataset
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+    for i in range(3):
+        axes[i].scatter(X[y==0, i], X[y==1, i==0], c='red', alpha=0.6, label='Class 0')
+        axes[i].scatter(X[y==1, i], X[y==1, i==1], c='blue', alpha=0.6, label='Class 1')
+        axes[i].set_xlabel(f'Feature {i+1}')
+        axes[i].set_title(f'Feature {i+1} Distribution')
+        axes[i].legend()
+    plt.tight_layout()
+    plt.show()
     
-    return evaluation_metrics, business_metrics
+    # Bước 2: Split data
+    print("\n2. Chia dữ liệu Train/Test")
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42, stratify=y
+    )
+    
+    # Bước 3: Triển khai các models
+    print("\n3. Triển khai và huấn luyện Models")
+    models = {}
+    
+    # Decision Tree
+    dt = DecisionTreeClassifier(random_state=42, max_depth=5)
+    dt.fit(X_train, y_train)
+    models['Decision Tree'] = dt
+    
+    # Random Forest
+    rf = RandomForestClassifier(n_estimators=100, random_state=42, max_depth=5)
+    rf.fit(X_train, y_train)
+    models['Random Forest'] = rf
+    
+    # SVM
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    
+    svm = SVC(kernel='rbf', random_state=42)
+    svm.fit(X_train_scaled, y_train)
+    models['SVM'] = svm
+    
+    # Bước 4: Đánh giá và so sánh models
+    print("\n4. Đánh giá và So sánh Models")
+    results = {}
+    
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    
+    for idx, (name, model) in enumerate(models.items()):
+        # Dự đoán
+        if name == 'SVM':
+            y_pred = model.predict(X_test_scaled)
+        else:
+            y_pred = model.predict(X_test)
+        
+        # Tính metrics
+        accuracy = accuracy_score(y_test, y_pred)
+        f1 = f1_score(y_test, y_pred)
+        precision = precision_score(y_test, y_pred)
+        recall = recall_score(y_test, y_pred)
+        
+        results[name] = {
+            'Accuracy': accuracy,
+            'F1-Score': f1,
+            'Precision': precision,
+            'Recall': recall
+        }
+        
+        # Confusion Matrix
+        cm = confusion_matrix(y_test, y_pred)
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=axes[idx])
+        axes[idx].set_title(f'{name}\nAccuracy: {accuracy:.3f}, F1: {f1:.3f}')
+        axes[idx].set_xlabel('Predicted')
+        axes[idx].set_ylabel('Actual')
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Results DataFrame
+    results_df = pd.DataFrame(results).T
+    print("\n=== RESULTS COMPARISON ===")
+    print(results_df.round(4))
+    
+    # Tìm model tốt nhất
+    best_model = results_df['F1-Score'].idxmax()
+    print(f"\nBest Model: {best_model} (F1-Score: {results_df.loc[best_model, 'F1-Score']:.4f})")
+    
+    return models, results_df
 
-# Áp dụng evaluation
-best_algorithm = 'K-Means++'  # Từ kết quả comparison
-best_labels = clustering_comparison.results[best_algorithm]['labels']
-
-eval_metrics, business_profiles = comprehensive_cluster_evaluation(
-    X_scaled, best_labels, df[features]
-)
+# Chạy bài tập 1
+models_basic, results_basic = exercise_1_basic()
 ```
-
----
-
-## Bài Tập 2: Xác Định Số Cluster Tối Ưu Một Cách Có Nguyên Tắc
-
-### Mô Tả Bài Toán
-Phát triển một framework toàn diện để xác định số cluster tối ưu cho customer segmentation, đảm bảo các segment có ý nghĩa thống kê và khả thi trong kinh doanh.
-
-### Yêu Cầu Thực Hiện
-
-#### Phần A: Multiple Methods for Optimal K Selection
-
-**Nhiệm vụ 2.1**: Implement các phương pháp xác định K tối ưu
+### **Bài Tập 02 TRUNG BÌNH - Real Dataset với Feature Selection**
 ```python
-class OptimalClusterSelector:
-    def __init__(self, data, max_clusters=15):
-        self.data = data
-        self.max_clusters = max_clusters
-        self.results = {}
-        
-    def elbow_method(self):
-        """Elbow Method với improved detection"""
-        inertias = []
-        k_range = range(1, self.max_clusters + 1)
-        
-        for k in k_range:
-            kmeans = KMeans(n_clusters=k, random_state=42)
-            kmeans.fit(self.data)
-            inertias.append(kmeans.inertia_)
-        
-        # Tính gradient để detect elbow point
-        gradients = np.diff(inertias)
-        second_gradients = np.diff(gradients)
-        
-        # Elbow point là điểm có second gradient lớn nhất (most negative)
-        elbow_point = np.argmax(second_gradients) + 2
-        
-        self.results['elbow'] = {
-            'k_range': k_range,
-            'inertias': inertias,
-            'optimal_k': elbow_point,
-            'gradients': gradients,
-            'second_gradients': second_gradients
-        }
-        
-        return elbow_point
+# =============================================================================
+# BÀI TẬP 2: TRUNG BÌNH - Real Dataset với Feature Selection
+# =============================================================================
+
+print("\n" + "=" * 60)
+print("BÀI TẬP 2: TRUNG BÌNH - Wine Dataset với Feature Selection")
+print("=" * 60)
+
+def exercise_2_intermediate():
+    """
+    Bài tập trung bình: Sử dụng Wine dataset từ sklearn
     
-    def silhouette_analysis(self):
-        """Silhouette Analysis với detailed scores"""
-        silhouette_scores = []
-        k_range = range(2, self.max_clusters + 1)
-        
-        for k in k_range:
-            kmeans = KMeans(n_clusters=k, random_state=42)
-            labels = kmeans.fit_predict(self.data)
-            score = silhouette_score(self.data, labels)
-            silhouette_scores.append(score)
-        
-        optimal_k = k_range[np.argmax(silhouette_scores)]
-        
-        self.results['silhouette'] = {
-            'k_range': k_range,
-            'scores': silhouette_scores,
-            'optimal_k': optimal_k
-        }
-        
-        return optimal_k
+    Yêu cầu:
+    1. Load Wine dataset và EDA
+    2. Feature selection với Random Forest importance
+    3. Hyperparameter tuning với GridSearchCV
+    4. Tạo ensemble model
+    """
     
-    def gap_statistic(self, n_refs=10):
-        """Gap Statistic method"""
-        def compute_inertia(data, k):
-            kmeans = KMeans(n_clusters=k, random_state=42)
-            kmeans.fit(data)
-            return kmeans.inertia_
-        
-        k_range = range(1, self.max_clusters + 1)
-        gaps = []
-        errors = []
-        
-        for k in k_range:
-            # Original data inertia
-            original_inertia = compute_inertia(self.data, k)
-            
-            # Reference data inertias
-            ref_inertias = []
-            for _ in range(n_refs):
-                # Generate reference data
-                ref_data = np.random.uniform(
-                    low=self.data.min(axis=0),
-                    high=self.data.max(axis=0),
-                    size=self.data.shape
-                )
-                ref_inertia = compute_inertia(ref_data, k)
-                ref_inertias.append(ref_inertia)
-            
-            # Gap statistic
-            gap = np.log(np.mean(ref_inertias)) - np.log(original_inertia)
-            error = np.sqrt(1 + 1/n_refs) * np.std(np.log(ref_inertias))
-            
-            gaps.append(gap)
-            errors.append(error)
-        
-        # Find optimal k using Gap(k) >= Gap(k+1) - s_{k+1}
-        optimal_k = 1
-        for i in range(len(gaps) - 1):
-            if gaps[i] >= gaps[i + 1] - errors[i + 1]:
-                optimal_k = k_range[i]
-                break
-        
-        self.results['gap_statistic'] = {
-            'k_range': k_range,
-            'gaps': gaps,
-            'errors': errors,
-            'optimal_k': optimal_k
-        }
-        
-        return optimal_k
+    # Bước 1: Load và explore dataset
+    print("\n1. Load và Explore Wine Dataset")
+    wine = load_wine()
+    X, y = wine.data, wine.target
+    feature_names = wine.feature_names
+    target_names = wine.target_names
     
-    def calinski_harabasz_method(self):
-        """Calinski-Harabasz Index method"""
-        ch_scores = []
-        k_range = range(2, self.max_clusters + 1)
-        
-        for k in k_range:
-            kmeans = KMeans(n_clusters=k, random_state=42)
-            labels = kmeans.fit_predict(self.data)
-            score = calinski_harabasz_score(self.data, labels)
-            ch_scores.append(score)
-        
-        optimal_k = k_range[np.argmax(ch_scores)]
-        
-        self.results['calinski_harabasz'] = {
-            'k_range': k_range,
-            'scores': ch_scores,
-            'optimal_k': optimal_k
-        }
-        
-        return optimal_k
+    print(f"Dataset shape: {X.shape}")
+    print(f"Features: {len(feature_names)}")
+    print(f"Classes: {target_names}")
+    print(f"Class distribution: {np.bincount(y)}")
     
-    def davies_bouldin_method(self):
-        """Davies-Bouldin Index method (lower is better)"""
-        db_scores = []
-        k_range = range(2, self.max_clusters + 1)
-        
-        for k in k_range:
-            kmeans = KMeans(n_clusters=k, random_state=42)
-            labels = kmeans.fit_predict(self.data)
-            score = davies_bouldin_score(self.data, labels)
-            db_scores.append(score)
-        
-        optimal_k = k_range[np.argmin(db_scores)]
-        
-        self.results['davies_bouldin'] = {
-            'k_range': k_range,
-            'scores': db_scores,
-            'optimal_k': optimal_k
-        }
-        
-        return optimal_k
+    # Convert to DataFrame for easier handling
+    df = pd.DataFrame(X, columns=feature_names)
+    df['target'] = y
     
-    def consensus_optimal_k(self):
-        """Tìm consensus từ tất cả các phương pháp"""
-        methods = ['elbow', 'silhouette', 'gap_statistic', 'calinski_harabasz', 'davies_bouldin']
-        optimal_ks = []
-        
-        for method in methods:
-            if method == 'elbow':
-                k = self.elbow_method()
-            elif method == 'silhouette':
-                k = self.silhouette_analysis()
-            elif method == 'gap_statistic':
-                k = self.gap_statistic()
-            elif method == 'calinski_harabasz':
-                k = self.calinski_harabasz_method()
-            elif method == 'davies_bouldin':
-                k = self.davies_bouldin_method()
-            
-            optimal_ks.append(k)
-        
-        # Tìm mode (giá trị xuất hiện nhiều nhất)
-        consensus_k = max(set(optimal_ks), key=optimal_ks.count)
-        
-        consensus_results = pd.DataFrame({
-            'Method': methods,
-            'Optimal_K': optimal_ks
-        })
-        
-        return consensus_k, consensus_results
+    # EDA - Correlation heatmap
+    plt.figure(figsize=(12, 10))
+    correlation_matrix = df.corr()
+    sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm', center=0)
+    plt.title('Wine Dataset - Feature Correlation Matrix')
+    plt.tight_layout()
+    plt.show()
     
-    def plot_all_methods(self):
-        """Visualize kết quả của tất cả các phương pháp"""
-        fig, axes = plt.subplots(2, 3, figsize=(18, 12))
-        axes = axes.ravel()
-        
-        # Elbow Method
-        axes[0].plot(self.results['elbow']['k_range'], self.results['elbow']['inertias'], 'bo-')
-        axes[0].axvline(x=self.results['elbow']['optimal_k'], color='red', linestyle='--', 
-                       label=f'Optimal K = {self.results["elbow"]["optimal_k"]}')
-        axes[0].set_title('Elbow Method')
-        axes[0].set_xlabel('Number of Clusters (K)')
-        axes[0].set_ylabel('Inertia')
-        axes[0].legend()
-        axes[0].grid(True, alpha=0.3)
-        
-        # Silhouette Analysis
-        axes[1].plot(self.results['silhouette']['k_range'], self.results['silhouette']['scores'], 'go-')
-        axes[1].axvline(x=self.results['silhouette']['optimal_k'], color='red', linestyle='--',
-                       label=f'Optimal K = {self.results["silhouette"]["optimal_k"]}')
-        axes[1].set_title('Silhouette Analysis')
-        axes[1].set_xlabel('Number of Clusters (K)')
-        axes[1].set_ylabel('Silhouette Score')
-        axes[1].legend()
-        axes[1].grid(True, alpha=0.3)
-        
-        # Gap Statistic
-        axes[2].errorbar(self.results['gap_statistic']['k_range'], 
-                        self.results['gap_statistic']['gaps'],
-                        yerr=self.results['gap_statistic']['errors'], 
-                        fmt='ro-', capsize=5)
-        axes[2].axvline(x=self.results['gap_statistic']['optimal_k'], color='red', linestyle='--',
-                       label=f'Optimal K = {self.results["gap_statistic"]["optimal_k"]}')
-        axes[2].set_title('Gap Statistic')
-        axes[2].set_xlabel('Number of Clusters (K)')
-        axes[2].set_ylabel('Gap Statistic')
-        axes[2].legend()
-        axes[2].grid(True, alpha=0.3)
-        
-        # Calinski-Harabasz
-        axes[3].plot(self.results['calinski_harabasz']['k_range'], 
-                    self.results['calinski_harabasz']['scores'], 'mo-')
-        axes[3].axvline(x=self.results['calinski_harabasz']['optimal_k'], color='red', linestyle='--',
-                       label=f'Optimal K = {self.results["calinski_harabasz"]["optimal_k"]}')
-        axes[3].set_title('Calinski-Harabasz Index')
-        axes[3].set_xlabel('Number of Clusters (K)')
-        axes[3].set_ylabel('CH Score')
-        axes[3].legend()
-        axes[3].grid(True, alpha=0.3)
-        
-        # Davies-Bouldin
-        axes[4].plot(self.results['davies_bouldin']['k_range'], 
-                    self.results['davies_bouldin']['scores'], 'co-')
-        axes[4].axvline(x=self.results['davies_bouldin']['optimal_k'], color='red', linestyle='--',
-                       label=f'Optimal K = {self.results["davies_bouldin"]["optimal_k"]}')
-        axes[4].set_title('Davies-Bouldin Index')
-        axes[4].set_xlabel('Number of Clusters (K)')
-        axes[4].set_ylabel('DB Score')
-        axes[4].legend()
-        axes[4].grid(True, alpha=0.3)
-        
-        # Summary plot
-        methods_data = []
-        for method, result in self.results.items():
-            methods_data.append({
-                'Method': method.replace('_', ' ').title(),
-                'Optimal K': result['optimal_k']
-            })
-        
-        methods_df = pd.DataFrame(methods_data)
-        axes[5].bar(methods_df['Method'], methods_df['Optimal K'], color='skyblue', edgecolor='navy')
-        axes[5].set_title('Optimal K by Different Methods')
-        axes[5].set_xlabel('Methods')
-        axes[5].set_ylabel('Optimal K')
-        axes[5].tick_params(axis='x', rotation=45)
-        
-        plt.tight_layout()
-        plt.show()
-
-# Sử dụng class
-selector = OptimalClusterSelector(X_scaled, max_clusters=10)
-consensus_k, methods_summary = selector.consensus_optimal_k()
-selector.plot_all_methods()
-
-print(f"Consensus Optimal K: {consensus_k}")
-print("\nMethods Summary:")
-print(methods_summary)
-```
-
-#### Phần B: Business-Driven Cluster Validation
-
-**Nhiệm vụ 2.2**: Tạo business validation framework
-```python
-class BusinessClusterValidator:
-    def __init__(self, data, features, business_metrics):
-        self.data = data
-        self.features = features
-        self.business_metrics = business_metrics
-        
-    def validate_cluster_actionability(self, labels):
-        """
-        Kiểm tra tính khả thi của clusters trong kinh doanh
-        """
-        cluster_data = self.data.copy()
-        cluster_data['cluster'] = labels
-        
-        validation_results = {}
-        
-        # 1. Cluster Size Adequacy
-        cluster_sizes = cluster_data['cluster'].value_counts()
-        min_viable_size = len(self.data) * 0.05  # Ít nhất 5% của total customers
-        
-        validation_results['size_adequacy'] = {
-            'min_size': cluster_sizes.min(),
-            'max_size': cluster_sizes.max(),
-            'min_viable_size': min_viable_size,
-            'all_adequate': cluster_sizes.min() >= min_viable_size,
-            'cluster_sizes': cluster_sizes.to_dict()
-        }
-        
-        # 2. Statistical Separation
-        separation_scores = {}
-        for metric in self.business_metrics:
-            cluster_means = cluster_data.groupby('cluster')[metric].mean()
-            overall_std = cluster_data[metric].std()
-            
-            # Tính Cohen's d between clusters
-            cohens_d_matrix = np.zeros((len(cluster_means), len(cluster_means)))
-            for i, cluster1 in enumerate(cluster_means.index):
-                for j, cluster2 in enumerate(cluster_means.index):
-                    if i != j:
-                        mean_diff = abs(cluster_means.iloc[i] - cluster_means.iloc[j])
-                        cohens_d = mean_diff / overall_std
-                        cohens_d_matrix[i, j] = cohens_d
-            
-            separation_scores[metric] = {
-                'min_cohens_d': cohens_d_matrix[cohens_d_matrix > 0].min(),
-                'max_cohens_d': cohens_d_matrix.max(),
-                'avg_cohens_d': cohens_d_matrix[cohens_d_matrix > 0].mean()
-            }
-        
-        validation_results['statistical_separation'] = separation_scores
-        
-        # 3. Business Interpretability
-        cluster_profiles = cluster_data.groupby('cluster')[self.business_metrics].agg(['mean', 'std'])
-        
-        # RFM-like interpretation
-        interpretations = {}
-        for cluster_id in cluster_data['cluster'].unique():
-            cluster_subset = cluster_data[cluster_data['cluster'] == cluster_id]
-            
-            # Define cluster characteristics
-            recency_level = 'Low' if cluster_subset['recency'].mean() < cluster_data['recency'].quantile(0.33) else \
-                          'Medium' if cluster_subset['recency'].mean() < cluster_data['recency'].quantile(0.67) else 'High'
-            
-            frequency_level = 'Low' if cluster_subset['frequency'].mean() < cluster_data['frequency'].quantile(0.33) else \
-                            'Medium' if cluster_subset['frequency'].mean() < cluster_data['frequency'].quantile(0.67) else 'High'
-            
-            monetary_level = 'Low' if cluster_subset['monetary'].mean() < cluster_data['monetary'].quantile(0.33) else \
-                           'Medium' if cluster_subset['monetary'].mean() < cluster_data['monetary'].quantile(0.67) else 'High'
-            
-            interpretations[cluster_id] = {
-                'recency': recency_level,
-                'frequency': frequency_level,
-                'monetary': monetary_level,
-                'suggested_name': f"R:{recency_level[0]}-F:{frequency_level[0]}-M:{monetary_level[0]}",
-                'size': len(cluster_subset),
-                'percentage': len(cluster_subset) / len(cluster_data) * 100
-            }
-        
-        validation_results['business_interpretability'] = interpretations
-        
-        return validation_results
+    # Class distribution by some key features
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    key_features = ['alcohol', 'flavanoids', 'color_intensity', 'proline']
     
-    def stability_analysis(self, n_iterations=10, sample_ratio=0.8):
-        """
-        Phân tích stability của clustering qua multiple runs
-        """
-        stability_scores = []
-        
-        for iteration in range(n_iterations):
-            # Random sampling
-            sample_size = int(len(self.data) * sample_ratio)
-            sample_indices = np.random.choice(len(self.data), sample_size, replace=False)
-            
-            sample_data = self.data.iloc[sample_indices][self.features]
-            sample_scaled = StandardScaler().fit_transform(sample_data)
-            
-            # Clustering
-            kmeans = KMeans(n_clusters=4, random_state=iteration)
-            labels = kmeans.fit_predict(sample_scaled)
-            
-            # Calculate stability metric (silhouette score)
-            stability_score = silhouette_score(sample_scaled, labels)
-            stability_scores.append(stability_score)
-        
-        return {
-            'mean_stability': np.mean(stability_scores),
-            'std_stability': np.std(stability_scores),
-            'stability_scores': stability_scores,
-            'coefficient_of_variation': np.std(stability_scores) / np.mean(stability_scores)
-        }
-
-# Sử dụng Business Validator
-business_metrics = ['recency', 'frequency', 'monetary', 'avg_order_value']
-validator = BusinessClusterValidator(df, features, business_metrics)
-
-# Validate với optimal K
-kmeans_optimal = KMeans(n_clusters=consensus_k, random_state=42)
-optimal_labels = kmeans_optimal.fit_predict(X_scaled)
-
-business_validation = validator.validate_cluster_actionability(optimal_labels)
-stability_results = validator.stability_analysis()
-
-print("Business Validation Results:")
-print(f"All clusters adequate size: {business_validation['size_adequacy']['all_adequate']}")
-print(f"Stability coefficient of variation: {stability_results['coefficient_of_variation']:.3f}")
-```
-
----
-
-## Bài Tập 3: Áp Dụng Evaluation Approaches cho Multiple Business Problems
-
-### Mô Tả Bài Toán
-Áp dụng các phương pháp đánh giá cluster cho 3 bài toán kinh doanh khác nhau: E-commerce, Banking, và Telecommunications.
-
-### Dataset cho Multiple Domains
-
-**Nhiệm vụ 3.1**: Tạo domain-specific datasets
-```python
-class MultiDomainDataGenerator:
-    @staticmethod
-    def generate_ecommerce_data(n_customers=1500):
-        """E-commerce customer data"""
-        np.random.seed(42)
-        
-        # 5 segments: Champions, Loyal, Potential Loyalists, New Customers, At Risk
-        segments_config = [
-            {'name': 'Champions', 'size': 0.2, 'recency': (1, 10), 'frequency': (15, 25), 
-             'monetary': (3000, 5000), 'avg_session_duration': (20, 30), 'bounce_rate': (0.1, 0.3)},
-            {'name': 'Loyal', 'size': 0.25, 'recency': (10, 30), 'frequency': (8, 15), 
-             'monetary': (1500, 3000), 'avg_session_duration': (15, 25), 'bounce_rate': (0.2, 0.4)},
-            {'name': 'Potential Loyalists', 'size': 0.2, 'recency': (5, 20), 'frequency': (3, 8), 
-             'monetary': (800, 1500), 'avg_session_duration': (10, 20), 'bounce_rate': (0.3, 0.5)},
-            {'name': 'New Customers', 'size': 0.15, 'recency': (1, 15), 'frequency': (1, 3), 
-             'monetary': (200, 800), 'avg_session_duration': (5, 15), 'bounce_rate': (0.4, 0.7)},
-            {'name': 'At Risk', 'size': 0.2, 'recency': (50, 100), 'frequency': (5, 12), 
-             'monetary': (1000, 2500), 'avg_session_duration': (5, 10), 'bounce_rate': (0.6, 0.8)}
-        ]
-        
-        data = []
-        for segment in segments_config:
-            size = int(n_customers * segment['size'])
-            segment_data = {
-                'customer_id': range(len(data), len(data) + size),
-                'recency': np.random.uniform(segment['recency'][0], segment['recency'][1], size),
-                'frequency': np.random.uniform(segment['frequency'][0], segment['frequency'][1], size),
-                'monetary': np.random.uniform(segment['monetary'][0], segment['monetary'][1], size),
-                'avg_session_duration': np.random.uniform(segment['avg_session_duration'][0], 
-                                                        segment['avg_session_duration'][1], size),
-                'bounce_rate': np.random.uniform(segment['bounce_rate'][0], segment['bounce_rate'][1], size),
-                'true_segment': [segment['name']] * size
-            }
-            data.append(pd.DataFrame(segment_data))
-        
-        return pd.concat(data, ignore_index=True)
+    for i, feature in enumerate(key_features):
+        ax = axes[i//2, i%2]
+        for class_idx, class_name in enumerate(target_names):
+            class_data = df[df['target'] == class_idx][feature]
+            ax.hist(class_data, alpha=0.7, label=class_name, bins=15)
+        ax.set_title(f'{feature} Distribution by Class')
+        ax.set_xlabel(feature)
+        ax.set_ylabel('Frequency')
+        ax.legend()
     
-    @staticmethod
-    def generate_banking_data(n_customers=1500):
-        """Banking customer data"""
-        np.random.seed(42)
-        
-        segments_config = [
-            {'name': 'High Value', 'size': 0.15, 'balance': (50000, 200000), 'transaction_count': (20, 50),
-             'credit_score': (750, 850), 'products_count': (4, 8), 'digital_engagement': (0.8, 1.0)},
-            {'name': 'Mass Affluent', 'size': 0.25, 'balance': (15000, 50000), 'transaction_count': (10, 25),
-             'credit_score': (650, 750), 'products_count': (2, 5), 'digital_engagement': (0.6, 0.8)},
-            {'name': 'Mainstream', 'size': 0.35, 'balance': (2000, 15000), 'transaction_count': (5, 15),
-             'credit_score': (550, 700), 'products_count': (1, 3), 'digital_engagement': (0.4, 0.7)},
-            {'name': 'Young Professionals', 'size': 0.15, 'balance': (1000, 8000), 'transaction_count': (8, 20),
-             'credit_score': (600, 750), 'products_count': (2, 4), 'digital_engagement': (0.8, 1.0)},
-            {'name': 'Inactive', 'size': 0.1, 'balance': (100, 2000), 'transaction_count': (0, 5),
-             'credit_score': (400, 600), 'products_count': (1, 2), 'digital_engagement': (0.0, 0.3)}
-        ]
-        
-        data = []
-        for segment in segments_config:
-            size = int(n_customers * segment['size'])
-            segment_data = {
-                'customer_id': range(len(data), len(data) + size),
-                'account_balance': np.random.uniform(segment['balance'][0], segment['balance'][1], size),
-                'monthly_transactions': np.random.uniform(segment['transaction_count'][0], 
-                                                        segment['transaction_count'][1], size),
-                'credit_score': np.random.uniform(segment['credit_score'][0], segment['credit_score'][1], size),
-                'products_owned': np.random.uniform(segment['products_count'][0], 
-                                                   segment['products_count'][1], size),
-                'digital_engagement_score': np.random.uniform(segment['digital_engagement'][0], 
-                                                            segment['digital_engagement'][1], size),
-                'true_segment': [segment['name']] * size
-            }
-            data.append(pd.DataFrame(segment_data))
-        
-        return pd.concat(data, ignore_index=True)
+    plt.tight_layout()
+    plt.show()
     
-    @staticmethod
-    def generate_telecom_data(n_customers=1500):
-        """Telecommunications customer data"""
-        np.random.seed(42)
-        
-        segments_config = [
-            {'name': 'Heavy Users', 'size': 0.2, 'monthly_minutes': (800, 1500), 'data_usage': (15, 30),
-             'monthly_revenue': (80, 150), 'tenure': (24, 60), 'customer_service_calls': (0, 2)},
-            {'name': 'Standard Users', 'size': 0.4, 'monthly_minutes': (300, 800), 'data_usage': (5, 15),
-             'monthly_revenue': (40, 80), 'tenure': (12, 36), 'customer_service_calls': (1, 4)},
-            {'name': 'Light Users', 'size': 0.2, 'monthly_minutes': (50, 300), 'data_usage': (1, 5),
-             'monthly_revenue': (20, 40), 'tenure': (6, 24), 'customer_service_calls': (0, 3)},
-            {'name': 'Business Users', 'size': 0.1, 'monthly_minutes': (1000, 2000), 'data_usage': (20, 40),
-             'monthly_revenue': (100, 200), 'tenure': (12, 48), 'customer_service_calls': (2, 6)},
-            {'name': 'Churners', 'size': 0.1, 'monthly_minutes': (100, 400), 'data_usage': (2, 8),
-             'monthly_revenue': (25, 50), 'tenure': (1, 12), 'customer_service_calls': (3, 8)}
-        ]
-        
-        data = []
-        for segment in segments_config:
-            size = int(n_customers * segment['size'])
-            segment_data = {
-                'customer_id': range(len(data), len(data) + size),
-                'monthly_voice_minutes': np.random.uniform(segment['monthly_minutes'][0], 
-                                                         segment['monthly_minutes'][1], size),
-                'monthly_data_gb': np.random.uniform(segment['data_usage'][0], segment['data_usage'][1], size),
-                'monthly_revenue': np.random.uniform(segment['monthly_revenue'][0], 
-                                                   segment['monthly_revenue'][1], size),
-                'tenure_months': np.random.uniform(segment['tenure'][0], segment['tenure'][1], size),
-                'service_calls': np.random.uniform(segment['customer_service_calls'][0], 
-                                                 segment['customer_service_calls'][1], size),
-                'true_segment': [segment['name']] * size
-            }
-            data.append(pd.DataFrame(segment_data))
-        
-        return pd.concat(data, ignore_index=True)
-
-# Generate datasets
-ecommerce_data = MultiDomainDataGenerator.generate_ecommerce_data()
-banking_data = MultiDomainDataGenerator.generate_banking_data()
-telecom_data = MultiDomainDataGenerator.generate_telecom_data()
-
-print("E-commerce data shape:", ecommerce_data.shape)
-print("Banking data shape:", banking_data.shape)
-print("Telecom data shape:", telecom_data.shape)
-```
-
-#### Phần A: Domain-Specific Evaluation Metrics
-
-**Nhiệm vụ 3.2**: Tạo domain-specific evaluation framework
-```python
-class DomainSpecificEvaluator:
-    def __init__(self, domain_type):
-        self.domain_type = domain_type
-        self.domain_weights = self._get_domain_weights()
-        
-    def _get_domain_weights(self):
-        """Trọng số cho từng metric theo domain"""
-        weights = {
-            'ecommerce': {
-                'recency': 0.3,
-                'frequency': 0.25,
-                'monetary': 0.35,
-                'engagement': 0.1
-            },
-            'banking': {
-                'balance': 0.4,
-                'transactions': 0.2,
-                'credit_score': 0.25,
-                'products': 0.15
-            },
-            'telecom': {
-                'usage': 0.3,
-                'revenue': 0.35,
-                'tenure': 0.2,
-                'satisfaction': 0.15
-            }
-        }
-        return weights.get(self.domain_type, {})
+    # Bước 2: Split data
+    print("\n2. Chia dữ liệu và Chuẩn hóa")
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42, stratify=y
+    )
     
-    def calculate_business_value_score(self, data, labels):
-        """Tính Business Value Score cho từng cluster"""
-        cluster_data = data.copy()
-        cluster_data['cluster'] = labels
-        
-        if self.domain_type == 'ecommerce':
-            return self._ecommerce_business_value(cluster_data)
-        elif self.domain_type == 'banking':
-            return self._banking_business_value(cluster_data)
-        elif self.domain_type == 'telecom':
-            return self._telecom_business_value(cluster_data)
+    # Feature scaling
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
     
-    def _ecommerce_business_value(self, cluster_data):
-        """E-commerce specific business value calculation"""
-        cluster_values = {}
-        
-        for cluster_id in cluster_data['cluster'].unique():
-            cluster_subset = cluster_data[cluster_data['cluster'] == cluster_id]
-            
-            # Customer Lifetime Value approximation
-            avg_frequency = cluster_subset['frequency'].mean()
-            avg_monetary = cluster_subset['monetary'].mean()
-            avg_recency = cluster_subset['recency'].mean()
-            
-            # CLV = (Average Order Value × Purchase Frequency × Gross Margin × Lifespan)
-            # Simplified: Higher frequency and monetary, lower recency = higher value
-            clv_score = (avg_monetary * avg_frequency) / (avg_recency + 1)
-            
-            # Engagement score
-            avg_session = cluster_subset['avg_session_duration'].mean()
-            avg_bounce = cluster_subset['bounce_rate'].mean()
-            engagement_score = avg_session * (1 - avg_bounce)
-            
-            # Weighted business value
-            business_value = (
-                self.domain_weights['monetary'] * (avg_monetary / cluster_data['monetary'].max()) +
-                self.domain_weights['frequency'] * (avg_frequency / cluster_data['frequency'].max()) +
-                self.domain_weights['recency'] * (1 - avg_recency / cluster_data['recency'].max()) +
-                self.domain_weights['engagement'] * (engagement_score / 
-                    (cluster_data['avg_session_duration'] * (1 - cluster_data['bounce_rate'])).max())
-            )
-            
-            cluster_values[cluster_id] = {
-                'business_value_score': business_value,
-                'clv_approximation': clv_score,
-                'size': len(cluster_subset),
-                'avg_monetary': avg_monetary,
-                'avg_frequency': avg_frequency,
-                'avg_recency': avg_recency
-            }
-        
-        return cluster_values
+    # Bước 3: Feature Selection với Random Forest
+    print("\n3. Feature Selection với Random Forest")
+    rf_selector = RandomForestClassifier(n_estimators=100, random_state=42)
+    rf_selector.fit(X_train_scaled, y_train)
     
-    def _banking_business_value(self, cluster_data):
-        """Banking specific business value calculation"""
-        cluster_values = {}
-        
-        for cluster_id in cluster_data['cluster'].unique():
-            cluster_subset = cluster_data[cluster_data['cluster'] == cluster_id]
-            
-            # Profitability indicators
-            avg_balance = cluster_subset['account_balance'].mean()
-            avg_transactions = cluster_subset['monthly_transactions'].mean()
-            avg_credit_score = cluster_subset['credit_score'].mean()
-            avg_products = cluster_subset['products_owned'].mean()
-            
-            # Revenue potential (balance × products × transaction activity)
-            revenue_potential = avg_balance * avg_products * (avg_transactions / 10)
-            
-            # Risk adjustment (credit score)
-            risk_factor = avg_credit_score / 850  # Normalize to 0-1
-            
-            # Weighted business value
-            business_value = (
-                self.domain_weights['balance'] * (avg_balance / cluster_data['account_balance'].max()) +
-                self.domain_weights['transactions'] * (avg_transactions / cluster_data['monthly_transactions'].max()) +
-                self.domain_weights['credit_score'] * (avg_credit_score / 850) +
-                self.domain_weights['products'] * (avg_products / cluster_data['products_owned'].max())
-            )
-            
-            cluster_values[cluster_id] = {
-                'business_value_score': business_value,
-                'revenue_potential': revenue_potential,
-                'risk_factor': risk_factor,
-                'size': len(cluster_subset),
-                'avg_balance': avg_balance,
-                'avg_products': avg_products
-            }
-        
-        return cluster_values
+    # Get feature importance
+    feature_importance = pd.DataFrame({
+        'feature': feature_names,
+        'importance': rf_selector.feature_importances_
+    }).sort_values('importance', ascending=False)
     
-    def _telecom_business_value(self, cluster_data):
-        """Telecom specific business value calculation"""
-        cluster_values = {}
-        
-        for cluster_id in cluster_data['cluster'].unique():
-            cluster_subset = cluster_data[cluster_data['cluster'] == cluster_id]
-            
-            avg_voice = cluster_subset['monthly_voice_minutes'].mean()
-            avg_data = cluster_subset['monthly_data_gb'].mean()
-            avg_revenue = cluster_subset['monthly_revenue'].mean()
-            avg_tenure = cluster_subset['tenure_months'].mean()
-            avg_service_calls = cluster_subset['service_calls'].mean()
-            
-            # Usage intensity
-            usage_score = (avg_voice + avg_data * 100) / 1000  # Normalize
-            
-            # Customer satisfaction proxy (fewer service calls = higher satisfaction)
-            satisfaction_score = max(0, 1 - avg_service_calls / 10)
-            
-            # Customer lifetime value (revenue × tenure)
-            clv_estimate = avg_revenue * avg_tenure
-            
-            # Weighted business value
-            business_value = (
-                self.domain_weights['usage'] * usage_score +
-                self.domain_weights['revenue'] * (avg_revenue / cluster_data['monthly_revenue'].max()) +
-                self.domain_weights['tenure'] * (avg_tenure / cluster_data['tenure_months'].max()) +
-                self.domain_weights['satisfaction'] * satisfaction_score
-            )
-            
-            cluster_values[cluster_id] = {
-                'business_value_score': business_value,
-                'clv_estimate': clv_estimate,
-                'usage_intensity': usage_score,
-                'satisfaction_proxy': satisfaction_score,
-                'size': len(cluster_subset),
-                'avg_revenue': avg_revenue
-            }
-        
-        return cluster_values
+    print("Top 10 Most Important Features:")
+    print(feature_importance.head(10))
     
-    def evaluate_clustering_quality(self, X, labels, original_data):
-        """Comprehensive clustering evaluation"""
-        # Technical metrics
-        silhouette = silhouette_score(X, labels)
-        calinski_harabasz = calinski_harabasz_score(X, labels)
-        davies_bouldin = davies_bouldin_score(X, labels)
-        
-        # Business metrics
-        business_values = self.calculate_business_value_score(original_data, labels)
-        
-        # Cluster balance
-        cluster_sizes = pd.Series(labels).value_counts()
-        balance_score = 1 - (cluster_sizes.std() / cluster_sizes.mean())
-        
-        # Overall business impact score
-        total_business_value = sum([cv['business_value_score'] for cv in business_values.values()])
-        weighted_business_value = sum([
-            cv['business_value_score'] * cv['size'] 
-            for cv in business_values.values()
-        ]) / len(original_data)
-        
-        return {
-            'technical_metrics': {
-                'silhouette_score': silhouette,
-                'calinski_harabasz_score': calinski_harabasz,
-                'davies_bouldin_score': davies_bouldin
-            },
-            'business_metrics': {
-                'total_business_value': total_business_value,
-                'weighted_business_value': weighted_business_value,
-                'cluster_balance_score': balance_score,
-                'cluster_business_values': business_values
-            }
-        }
-
-# Apply domain-specific evaluation
-domains_data = {
-    'ecommerce': (ecommerce_data, ['recency', 'frequency', 'monetary', 'avg_session_duration', 'bounce_rate']),
-    'banking': (banking_data, ['account_balance', 'monthly_transactions', 'credit_score', 'products_owned', 'digital_engagement_score']),
-    'telecom': (telecom_data, ['monthly_voice_minutes', 'monthly_data_gb', 'monthly_revenue', 'tenure_months', 'service_calls'])
-}
-
-evaluation_results = {}
-
-for domain_name, (data, features) in domains_data.items():
-    print(f"\n=== {domain_name.upper()} DOMAIN EVALUATION ===")
+    # Visualize feature importance
+    plt.figure(figsize=(10, 8))
+    sns.barplot(data=feature_importance.head(10), x='importance', y='feature')
+    plt.title('Top 10 Feature Importance (Random Forest)')
+    plt.xlabel('Importance Score')
+    plt.tight_layout()
+    plt.show()
     
-    # Prepare data
-    X = StandardScaler().fit_transform(data[features])
+    # Select top k features
+    k = 8  # Select top 8 features
+    top_features_idx = feature_importance.head(k).index
+    X_train_selected = X_train_scaled[:, top_features_idx]
+    X_test_selected = X_test_scaled[:, top_features_idx]
+    selected_feature_names = [feature_names[i] for i in top_features_idx]
     
-    # Find optimal K
-    selector = OptimalClusterSelector(X, max_clusters=8)
-    optimal_k, _ = selector.consensus_optimal_k()
+    print(f"\nSelected {k} features: {selected_feature_names}")
     
-    # Apply clustering
-    kmeans = KMeans(n_clusters=optimal_k, random_state=42)
-    labels = kmeans.fit_predict(X)
+    # Bước 4: Hyperparameter Tuning
+    print("\n4. Hyperparameter Tuning với GridSearchCV")
     
-    # Domain-specific evaluation
-    evaluator = DomainSpecificEvaluator(domain_name)
-    results = evaluator.evaluate_clustering_quality(X, labels, data)
+    models_tuned = {}
     
-    evaluation_results[domain_name] = {
-        'optimal_k': optimal_k,
-        'results': results,
-        'labels': labels
+    # Decision Tree tuning
+    dt_params = {
+        'max_depth': [3, 5, 7, 10],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4]
     }
     
-    print(f"Optimal K: {optimal_k}")
-    print(f"Silhouette Score: {results['technical_metrics']['silhouette_score']:.3f}")
-    print(f"Weighted Business Value: {results['business_metrics']['weighted_business_value']:.3f}")
-    print(f"Cluster Balance Score: {results['business_metrics']['cluster_balance_score']:.3f}")
+    dt = DecisionTreeClassifier(random_state=42)
+    dt_grid = GridSearchCV(dt, dt_params, cv=5, scoring='f1_macro', n_jobs=-1)
+    dt_grid.fit(X_train_selected, y_train)
+    models_tuned['Decision Tree'] = dt_grid.best_estimator_
+    print(f"Best DT params: {dt_grid.best_params_}")
+    
+    # Random Forest tuning
+    rf_params = {
+        'n_estimators': [50, 100, 200],
+        'max_depth': [3, 5, 7],
+        'min_samples_split': [2, 5]
+    }
+    
+    rf = RandomForestClassifier(random_state=42)
+    rf_grid = GridSearchCV(rf, rf_params, cv=5, scoring='f1_macro', n_jobs=-1)
+    rf_grid.fit(X_train_selected, y_train)
+    models_tuned['Random Forest'] = rf_grid.best_estimator_
+    print(f"Best RF params: {rf_grid.best_params_}")
+    
+    # SVM tuning
+    svm_params = {
+        'C': [0.1, 1, 10],
+        'kernel': ['rbf', 'linear'],
+        'gamma': ['scale', 'auto']
+    }
+    
+    svm = SVC(random_state=42)
+    svm_grid = GridSearchCV(svm, svm_params, cv=5, scoring='f1_macro', n_jobs=-1)
+    svm_grid.fit(X_train_selected, y_train)
+    models_tuned['SVM'] = svm_grid.best_estimator_
+    print(f"Best SVM params: {svm_grid.best_params_}")
+    
+    # Bước 5: Tạo Ensemble Model
+    print("\n5. Tạo Ensemble Model")
+    ensemble = VotingClassifier(
+        estimators=[
+            ('dt', models_tuned['Decision Tree']),
+            ('rf', models_tuned['Random Forest']),
+            ('svm', models_tuned['SVM'])
+        ],
+        voting='hard'  # Use hard voting
+    )
+    ensemble.fit(X_train_selected, y_train)
+    models_tuned['Ensemble'] = ensemble
+    
+    # Bước 6: Đánh giá tất cả models
+    print("\n6. Đánh giá và So sánh Models")
+    results_intermediate = {}
+    
+    for name, model in models_tuned.items():
+        # Cross-validation
+        cv_scores = cross_val_score(model, X_train_selected, y_train, cv=5, scoring='f1_macro')
+        
+        # Test predictions
+        y_pred = model.predict(X_test_selected)
+        
+        # Metrics
+        accuracy = accuracy_score(y_test, y_pred)
+        f1_macro = f1_score(y_test, y_pred, average='macro')
+        precision_macro = precision_score(y_test, y_pred, average='macro')
+        recall_macro = recall_score(y_test, y_pred, average='macro')
+        
+        results_intermediate[name] = {
+            'CV_F1_Mean': cv_scores.mean(),
+            'CV_F1_Std': cv_scores.std(),
+            'Test_Accuracy': accuracy,
+            'Test_F1_Macro': f1_macro,
+            'Test_Precision': precision_macro,
+            'Test_Recall': recall_macro
+        }
+    
+    # Results comparison
+    results_df_intermediate = pd.DataFrame(results_intermediate).T
+    print("\n=== MODEL COMPARISON RESULTS ===")
+    print(results_df_intermediate.round(4))
+    
+    # Confusion matrices
+    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+    axes = axes.ravel()
+    
+    for idx, (name, model) in enumerate(models_tuned.items()):
+        y_pred = model.predict(X_test_selected)
+        cm = confusion_matrix(y_test, y_pred)
+        
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=axes[idx])
+        axes[idx].set_title(f'{name}\nAccuracy: {accuracy_score(y_test, y_pred):.3f}')
+        axes[idx].set_xlabel('Predicted')
+        axes[idx].set_ylabel('Actual')
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Best model
+    best_model = results_df_intermediate['Test_F1_Macro'].idxmax()
+    print(f"\nBest Model: {best_model}")
+    print(f"F1-Macro Score: {results_df_intermediate.loc[best_model, 'Test_F1_Macro']:.4f}")
+    
+    return models_tuned, results_df_intermediate, selected_feature_names
+
+# Chạy bài tập 2
+models_intermediate, results_intermediate, selected_features = exercise_2_intermediate()
 ```
 
----
+### **Bài Tập 03 NÂNG CAO - Customer Churn Prediction với Business Context**
 
-## Bài Tập 4: Áp Dụng Các Thuật Toán Clustering Nâng Cao
-
-### Mô Tả Bài Toán
-Học và implement các thuật toán clustering nâng cao: Mean-Shift, K-Modes (cho categorical data), và K-Prototypes (cho mixed data).
-
-### Yêu Cầu Thực Hiện
-
-#### Phần A: Mean-Shift Clustering
-
-**Nhiệm vụ 4.1**: Implement và optimize Mean-Shift
 ```python
-from sklearn.cluster import MeanShift, estimate_bandwidth
-from sklearn.neighbors import NearestNeighbors
+# =============================================================================
+# BÀI TẬP 3: NÂNG CAO - Customer Churn Prediction với Business Context
+# =============================================================================
 
-class AdvancedMeanShift:
-    def __init__(self, data):
-        self.data = data
-        self.results = {}
+print("\n" + "=" * 60)
+print("BÀI TẬP 3: NÂNG CAO - Customer Churn Prediction")
+print("=" * 60)
+
+def exercise_3_advanced():
+    """
+    Bài tập nâng cao: Customer Churn Prediction với business context
     
-    def find_optimal_bandwidth(self, quantile_range=(0.1, 0.3), n_samples_range=(100, 500)):
-        """
-        Tìm bandwidth tối ưu cho Mean-Shift
-        """
-        bandwidths = []
-        quantiles = np.arange(quantile_range[0], quantile_range[1], 0.05)
-        n_samples_list = range(n_samples_range[0], n_samples_range[1], 100)
-        
-        bandwidth_scores = []
-        
-        for quantile in quantiles:
-            for n_samples in n_samples_list:
-                try:
-                    bandwidth = estimate_bandwidth(
-                        self.data, 
-                        quantile=quantile, 
-                        n_samples=min(n_samples, len(self.data))
-                    )
-                    
-                    if bandwidth > 0:
-                        # Test clustering with this bandwidth
-                        ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
-                        labels = ms.fit_predict(self.data)
-                        
-                        n_clusters = len(np.unique(labels))
-                        
-                        if n_clusters > 1 and n_clusters < len(self.data) * 0.5:
-                            silhouette = silhouette_score(self.data, labels)
-                            
-                            bandwidth_scores.append({
-                                'bandwidth': bandwidth,
-                                'quantile': quantile,
-                                'n_samples': n_samples,
-                                'n_clusters': n_clusters,
-                                'silhouette_score': silhouette
-                            })
-                except:
-                    continue
-        
-        if bandwidth_scores:
-            # Chọn bandwidth có silhouette score cao nhất
-            best_config = max(bandwidth_scores, key=lambda x: x['silhouette_score'])
-            return best_config['bandwidth'], bandwidth_scores
-        else:
-            # Fallback to default
-            return estimate_bandwidth(self.data, quantile=0.2), []
+    Yêu cầu:
+    1. Tạo realistic churn dataset với feature engineering
+    2. Xử lý imbalanced data
+    3. Advanced model selection và tuning
+    4. Business interpretation và cost analysis
+    5. Model deployment simulation
+    """
     
-    def adaptive_mean_shift(self):
-        """
-        Mean-Shift với adaptive bandwidth cho từng vùng dữ liệu
-        """
-        # Chia dữ liệu thành các vùng khác nhau
-        n_regions = 5
-        kmeans_regions = KMeans(n_clusters=n_regions, random_state=42)
-        region_labels = kmeans_regions.fit_predict(self.data)
-        
-        all_labels = np.zeros(len(self.data))
-        cluster_counter = 0
-        
-        for region in range(n_regions):
-            region_mask = region_labels == region
-            region_data = self.data[region_mask]
-            
-            if len(region_data) > 10:  # Minimum points for clustering
-                # Tìm bandwidth tối ưu cho region này
-                bandwidth = estimate_bandwidth(region_data, quantile=0.2)
-                
-                if bandwidth > 0:
-                    ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
-                    region_cluster_labels = ms.fit_predict(region_data)
-                    
-                    # Adjust labels to be unique across all regions
-                    unique_labels = np.unique(region_cluster_labels)
-                    for old_label in unique_labels:
-                        mask = region_cluster_labels == old_label
-                        region_cluster_labels[mask] = cluster_counter
-                        cluster_counter += 1
-                    
-                    all_labels[region_mask] = region_cluster_labels
-                else:
-                    all_labels[region_mask] = cluster_counter
-                    cluster_counter += 1
-        
-        return all_labels.astype(int)
+    # Bước 1: Tạo realistic churn dataset
+    print("\n1. Tạo Realistic Customer Churn Dataset")
+    np.random.seed(42)
+    n_samples = 8000
     
-    def compare_mean_shift_variants(self):
-        """
-        So sánh các variant của Mean-Shift
-        """
-        variants = {}
+    # Customer demographics
+    data = {
+        'customer_id': range(1, n_samples + 1),
+        'age': np.random.normal(45, 15, n_samples).astype(int),
+        'gender': np.random.choice(['M', 'F'], n_samples),
+        'tenure_months': np.random.exponential(24, n_samples).astype(int),
+        'monthly_charges': np.random.gamma(2, 35, n_samples),
+        'total_charges': np.random.gamma(3, 500, n_samples),
         
-        # 1. Standard Mean-Shift với optimal bandwidth
-        optimal_bandwidth, _ = self.find_optimal_bandwidth()
-        ms_standard = MeanShift(bandwidth=optimal_bandwidth, bin_seeding=True)
-        labels_standard = ms_standard.fit_predict(self.data)
+        # Service features
+        'internet_service': np.random.choice(['DSL', 'Fiber', 'No'], n_samples, p=[0.35, 0.45, 0.2]),
+        'phone_service': np.random.choice([0, 1], n_samples, p=[0.1, 0.9]),
+        'multiple_lines': np.random.choice([0, 1], n_samples, p=[0.5, 0.5]),
+        'online_security': np.random.choice([0, 1], n_samples, p=[0.6, 0.4]),
+        'online_backup': np.random.choice([0, 1], n_samples, p=[0.65, 0.35]),
+        'device_protection': np.random.choice([0, 1], n_samples, p=[0.65, 0.35]),
+        'tech_support': np.random.choice([0, 1], n_samples, p=[0.7, 0.3]),
+        'streaming_tv': np.random.choice([0, 1], n_samples, p=[0.6, 0.4]),
+        'streaming_movies': np.random.choice([0, 1], n_samples, p=[0.6, 0.4]),
         
-        variants['Standard'] = {
-            'labels': labels_standard,
-            'n_clusters': len(np.unique(labels_standard)),
-            'bandwidth': optimal_bandwidth
-        }
+        # Contract and payment
+        'contract': np.random.choice(['Month-to-month', 'One year', 'Two year'], 
+                                   n_samples, p=[0.55, 0.25, 0.2]),
+        'paperless_billing': np.random.choice([0, 1], n_samples, p=[0.4, 0.6]),
+        'payment_method': np.random.choice(['Electronic check', 'Mailed check', 
+                                          'Bank transfer', 'Credit card'],
+                                         n_samples, p=[0.35, 0.2, 0.25, 0.2]),
         
-        # 2. Adaptive Mean-Shift
-        labels_adaptive = self.adaptive_mean_shift()
-        variants['Adaptive'] = {
-            'labels': labels_adaptive,
-            'n_clusters': len(np.unique(labels_adaptive))
-        }
-        
-        # 3. Mean-Shift với different seeds
-        ms_random_seed = MeanShift(bandwidth=optimal_bandwidth, bin_seeding=False)
-        labels_random = ms_random_seed.fit_predict(self.data)
-        
-        variants['Random Seed'] = {
-            'labels': labels_random,
-            'n_clusters': len(np.unique(labels_random)),
-            'bandwidth': optimal_bandwidth
-        }
-        
-        # Evaluate all variants
-        for variant_name, variant_data in variants.items():
-            labels = variant_data['labels']
-            if len(np.unique(labels)) > 1:
-                silhouette = silhouette_score(self.data, labels)
-                calinski_harabasz = calinski_harabasz_score(self.data, labels)
-                davies_bouldin = davies_bouldin_score(self.data, labels)
-                
-                variant_data.update({
-                    'silhouette_score': silhouette,
-                    'calinski_harabasz_score': calinski_harabasz,
-                    'davies_bouldin_score': davies_bouldin
-                })
-        
-        return variants
-
-# Test Mean-Shift trên ecommerce data
-ecommerce_features = ['recency', 'frequency', 'monetary', 'avg_session_duration', 'bounce_rate']
-X_ecommerce_scaled = StandardScaler().fit_transform(ecommerce_data[ecommerce_features])
-
-mean_shift_analyzer = AdvancedMeanShift(X_ecommerce_scaled)
-mean_shift_variants = mean_shift_analyzer.compare_mean_shift_variants()
-
-print("Mean-Shift Variants Comparison:")
-for variant_name, results in mean_shift_variants.items():
-    if 'silhouette_score' in results:
-        print(f"{variant_name}: {results['n_clusters']} clusters, "
-              f"Silhouette: {results['silhouette_score']:.3f}")
-```
-
-#### Phần B: K-Modes cho Categorical Data
-
-**Nhiệm vụ 4.2**: Implement K-Modes clustering
-```python
-# Cần cài đặt: pip install kmodes
-from kmodes.kmodes import KModes
-from kmodes.kprototypes import KPrototypes
-
-class CategoricalClusteringFramework:
-    def __init__(self):
-        self.results = {}
+        # Behavioral features
+        'avg_monthly_calls': np.random.poisson(25, n_samples),
+        'customer_service_calls': np.random.poisson(2, n_samples),
+        'late_payments': np.random.poisson(1, n_samples)
+    }
     
-    def create_categorical_customer_data(self, n_customers=2000):
-        """
-        Tạo dữ liệu khách hàng với categorical features
-        """
-        np.random.seed(42)
-        
-        # Define categorical segments
-        segments = {
-            'Premium': 0.2,
-            'Standard': 0.4, 
-            'Budget': 0.3,
-            'Inactive': 0.1
-        }
-        
-        data = []
-        customer_id = 1
-        
-        for segment, proportion in segments.items():
-            size = int(n_customers * proportion)
-            
-            if segment == 'Premium':
-                segment_data = {
-                    'customer_id': range(customer_id, customer_id + size),
-                    'age_group': np.random.choice(['18-24', '25-34', '35-44'], size, p=[0.2, 0.5, 0.3]),
-                    'gender': np.random.choice(['Male', 'Female'], size, p=[0.5, 0.5]),
-                    'education': np.random.choice(['High School', 'Graduate'], size, p=[0.6, 0.4]),
-                    'income_bracket': np.random.choice(['Medium', 'High'], size, p=[0.7, 0.3]),
-                    'city_tier': np.random.choice(['Tier 1', 'Tier 2'], size, p=[0.4, 0.6]),
-                    'preferred_channel': np.random.choice(['Online', 'Store'], size, p=[0.6, 0.4]),
-                    'payment_method': np.random.choice(['Credit Card', 'Debit Card', 'Cash'], size, p=[0.4, 0.4, 0.2]),
-                    'product_category': np.random.choice(['Fashion', 'Electronics', 'Books'], size, p=[0.5, 0.3, 0.2]),
-                    'membership_type': np.random.choice(['Standard', 'Silver'], size, p=[0.8, 0.2]),
-                    'true_segment': [segment] * size
-                }
-            elif segment == 'Budget':
-                segment_data = {
-                    'customer_id': range(customer_id, customer_id + size),
-                    'age_group': np.random.choice(['18-24', '45-54', '55+'], size, p=[0.4, 0.3, 0.3]),
-                    'gender': np.random.choice(['Male', 'Female'], size, p=[0.4, 0.6]),
-                    'education': np.random.choice(['High School', 'Graduate'], size, p=[0.8, 0.2]),
-                    'income_bracket': np.random.choice(['Low', 'Medium'], size, p=[0.6, 0.4]),
-                    'city_tier': np.random.choice(['Tier 2', 'Tier 3'], size, p=[0.5, 0.5]),
-                    'preferred_channel': np.random.choice(['Store', 'Online'], size, p=[0.7, 0.3]),
-                    'payment_method': np.random.choice(['Cash', 'Debit Card'], size, p=[0.6, 0.4]),
-                    'product_category': np.random.choice(['Books', 'Home', 'Fashion'], size, p=[0.4, 0.4, 0.2]),
-                    'membership_type': np.random.choice(['Basic'], size),
-                    'true_segment': [segment] * size
-                }
-            else:  # Inactive
-                segment_data = {
-                    'customer_id': range(customer_id, customer_id + size),
-                    'age_group': np.random.choice(['25-34', '45-54', '55+'], size, p=[0.2, 0.4, 0.4]),
-                    'gender': np.random.choice(['Male', 'Female'], size, p=[0.5, 0.5]),
-                    'education': np.random.choice(['High School', 'Graduate'], size, p=[0.7, 0.3]),
-                    'income_bracket': np.random.choice(['Low', 'Medium'], size, p=[0.8, 0.2]),
-                    'city_tier': np.random.choice(['Tier 2', 'Tier 3'], size, p=[0.6, 0.4]),
-                    'preferred_channel': np.random.choice(['Store'], size),
-                    'payment_method': np.random.choice(['Cash', 'Debit Card'], size, p=[0.8, 0.2]),
-                    'product_category': np.random.choice(['Books'], size),
-                    'membership_type': np.random.choice(['Basic'], size),
-                    'true_segment': [segment] * size
-                }
-            
-            data.append(pd.DataFrame(segment_data))
-            customer_id += size
-        
-        return pd.concat(data, ignore_index=True)
+    df_churn = pd.DataFrame(data)
     
-    def implement_kmodes_clustering(self, categorical_data, k_range=(2, 8)):
-        """
-        Implement K-Modes clustering cho categorical data
-        """
-        # Chuẩn bị data cho K-Modes (chỉ categorical columns)
-        categorical_columns = ['age_group', 'gender', 'education', 'income_bracket', 
-                             'city_tier', 'preferred_channel', 'payment_method', 
-                             'product_category', 'membership_type']
-        
-        X_categorical = categorical_data[categorical_columns].values
-        
-        # Custom distance function cho categorical data
-        def matching_dissimilarity(X, Y):
-            """Hamming distance cho categorical data"""
-            return np.sum(X != Y, axis=1) / X.shape[1]
-        
-        kmodes_results = {}
-        
-        for k in range(k_range[0], k_range[1] + 1):
-            try:
-                kmodes = KModes(n_clusters=k, init='Huang', verbose=0, random_state=42)
-                labels = kmodes.fit_predict(X_categorical)
-                
-                # Calculate categorical-specific metrics
-                # Purity score
-                true_labels = categorical_data['true_segment'].values
-                purity = self._calculate_purity(labels, true_labels)
-                
-                # Categorical silhouette approximation
-                # Use Gower distance for mixed data types
-                cat_silhouette = self._categorical_silhouette(X_categorical, labels)
-                
-                kmodes_results[k] = {
-                    'labels': labels,
-                    'cost': kmodes.cost_,
-                    'purity': purity,
-                    'categorical_silhouette': cat_silhouette,
-                    'n_iterations': kmodes.n_iter_
-                }
-                
-            except Exception as e:
-                print(f"Error with k={k}: {e}")
-                continue
-        
-        return kmodes_results
+    # Fix data types and ranges
+    df_churn['age'] = np.clip(df_churn['age'], 18, 80)
+    df_churn['tenure_months'] = np.clip(df_churn['tenure_months'], 1, 72)
+    df_churn['monthly_charges'] = np.clip(df_churn['monthly_charges'], 20, 120)
     
-    def _calculate_purity(self, cluster_labels, true_labels):
-        """
-        Calculate purity score for categorical clustering
-        """
-        total_samples = len(cluster_labels)
-        cluster_purity = 0
-        
-        for cluster_id in np.unique(cluster_labels):
-            cluster_mask = cluster_labels == cluster_id
-            cluster_true_labels = true_labels[cluster_mask]
-            
-            if len(cluster_true_labels) > 0:
-                # Find most frequent true label in this cluster
-                unique, counts = np.unique(cluster_true_labels, return_counts=True)
-                max_count = counts.max()
-                cluster_purity += max_count
-        
-        return cluster_purity / total_samples
+    # Feature Engineering
+    print("\n2. Feature Engineering")
     
-    def _categorical_silhouette(self, X, labels):
-        """
-        Approximation của silhouette score cho categorical data
-        """
-        n_samples = len(X)
-        silhouette_scores = []
-        
-        for i in range(n_samples):
-            same_cluster_mask = labels == labels[i]
-            same_cluster_indices = np.where(same_cluster_mask)[0]
-            same_cluster_indices = same_cluster_indices[same_cluster_indices != i]
-            
-            if len(same_cluster_indices) == 0:
-                silhouette_scores.append(0)
-                continue
-            
-            # Average distance to same cluster
-            a = np.mean([
-                np.sum(X[i] != X[j]) / len(X[i]) 
-                for j in same_cluster_indices
-            ])
-            
-            # Average distance to nearest different cluster
-            b_scores = []
-            for other_cluster in np.unique(labels):
-                if other_cluster != labels[i]:
-                    other_cluster_indices = np.where(labels == other_cluster)[0]
-                    if len(other_cluster_indices) > 0:
-                        avg_dist_to_cluster = np.mean([
-                            np.sum(X[i] != X[j]) / len(X[i])
-                            for j in other_cluster_indices
-                        ])
-                        b_scores.append(avg_dist_to_cluster)
-            
-            if b_scores:
-                b = min(b_scores)
-                silhouette_score = (b - a) / max(a, b) if max(a, b) > 0 else 0
-                silhouette_scores.append(silhouette_score)
-            else:
-                silhouette_scores.append(0)
-        
-        return np.mean(silhouette_scores)
-
-# Tạo và test categorical clustering
-cat_framework = CategoricalClusteringFramework()
-categorical_customer_data = cat_framework.create_categorical_customer_data()
-
-print("Categorical Customer Data:")
-print(categorical_customer_data.head())
-print("\nData shape:", categorical_customer_data.shape)
-print("\nCategorical columns info:")
-for col in categorical_customer_data.select_dtypes(include=['object']).columns:
-    if col not in ['customer_id', 'true_segment']:
-        print(f"{col}: {categorical_customer_data[col].nunique()} unique values")
-
-# Apply K-Modes clustering
-kmodes_results = cat_framework.implement_kmodes_clustering(categorical_customer_data)
-
-print("\nK-Modes Results:")
-for k, results in kmodes_results.items():
-    print(f"K={k}: Cost={results['cost']:.2f}, Purity={results['purity']:.3f}, "
-          f"Cat_Silhouette={results['categorical_silhouette']:.3f}")
-```
-
-#### Phần C: K-Prototypes cho Mixed Data
-
-**Nhiệm vụ 4.3**: Implement K-Prototypes cho mixed categorical và numerical data
-```python
-class MixedDataClusteringFramework:
-    def __init__(self):
-        self.results = {}
+    # Create engineered features
+    df_churn['charges_per_month'] = df_churn['total_charges'] / (df_churn['tenure_months'] + 1)
+    df_churn['services_count'] = (df_churn[['phone_service', 'multiple_lines', 'online_security',
+                                           'online_backup', 'device_protection', 'tech_support',
+                                           'streaming_tv', 'streaming_movies']].sum(axis=1))
+    df_churn['is_senior'] = (df_churn['age'] >= 65).astype(int)
+    df_churn['high_monthly_charges'] = (df_churn['monthly_charges'] > df_churn['monthly_charges'].quantile(0.75)).astype(int)
+    df_churn['short_tenure'] = (df_churn['tenure_months'] <= 12).astype(int)
+    df_churn['high_support_calls'] = (df_churn['customer_service_calls'] >= 3).astype(int)
     
-    def create_mixed_customer_data(self, n_customers=2000):
-        """
-        Tạo dữ liệu mixed (categorical + numerical)
-        """
-        # Sử dụng categorical data đã tạo
-        cat_data = CategoricalClusteringFramework().create_categorical_customer_data(n_customers)
-        
-        # Thêm numerical features
-        np.random.seed(42)
-        
-        # Numerical features based on segments
-        numerical_features = {}
-        for idx, segment in enumerate(cat_data['true_segment']):
-            if segment == 'Premium':
-                numerical_features.setdefault('annual_spend', []).append(
-                    np.random.normal(8000, 1500))
-                numerical_features.setdefault('avg_order_value', []).append(
-                    np.random.normal(200, 50))
-                numerical_features.setdefault('website_visits_per_month', []).append(
-                    np.random.normal(25, 5))
-                numerical_features.setdefault('customer_service_interactions', []).append(
-                    np.random.normal(2, 1))
-            elif segment == 'Standard':
-                numerical_features.setdefault('annual_spend', []).append(
-                    np.random.normal(3000, 800))
-                numerical_features.setdefault('avg_order_value', []).append(
-                    np.random.normal(100, 30))
-                numerical_features.setdefault('website_visits_per_month', []).append(
-                    np.random.normal(12, 4))
-                numerical_features.setdefault('customer_service_interactions', []).append(
-                    np.random.normal(1, 0.5))
-            elif segment == 'Budget':
-                numerical_features.setdefault('annual_spend', []).append(
-                    np.random.normal(800, 300))
-                numerical_features.setdefault('avg_order_value', []).append(
-                    np.random.normal(50, 15))
-                numerical_features.setdefault('website_visits_per_month', []).append(
-                    np.random.normal(6, 2))
-                numerical_features.setdefault('customer_service_interactions', []).append(
-                    np.random.normal(3, 1))
-            else:  # Inactive
-                numerical_features.setdefault('annual_spend', []).append(
-                    np.random.normal(200, 100))
-                numerical_features.setdefault('avg_order_value', []).append(
-                    np.random.normal(30, 10))
-                numerical_features.setdefault('website_visits_per_month', []).append(
-                    np.random.normal(2, 1))
-                numerical_features.setdefault('customer_service_interactions', []).append(
-                    np.random.normal(0.5, 0.3))
-        
-        # Add numerical features to dataframe
-        for feature, values in numerical_features.items():
-            cat_data[feature] = np.maximum(values, 0)  # Ensure non-negative
-        
-        return cat_data
+    # Create target variable with realistic churn logic
+    churn_probability = (
+        0.05 +  # Base churn rate
+        0.35 * (df_churn['contract'] == 'Month-to-month') +
+        0.25 * df_churn['short_tenure'] +
+        0.20 * df_churn['high_monthly_charges'] +
+        0.15 * (df_churn['tech_support'] == 0) +
+        0.15 * df_churn['high_support_calls'] +
+        0.10 * (df_churn['internet_service'] == 'Fiber') +
+        0.10 * df_churn['is_senior'] +
+        0.05 * (df_churn['payment_method'] == 'Electronic check') -
+        0.10 * (df_churn['services_count'] > 4) -  # More services = less churn
+        0.05 * (df_churn['tenure_months'] > 24)   # Longer tenure = less churn
+    )
     
-    def optimize_kprototypes_gamma(self, mixed_data, k=4, gamma_range=(0.1, 2.0, 0.1)):
-        """
-        Optimize gamma parameter for K-Prototypes
-        """
-        categorical_columns = ['age_group', 'gender', 'education', 'income_bracket', 
-                             'city_tier', 'preferred_channel', 'payment_method', 
-                             'product_category', 'membership_type']
-        numerical_columns = ['annual_spend', 'avg_order_value', 'website_visits_per_month', 
-                           'customer_service_interactions']
-        
-        # Prepare data
-        X_cat = mixed_data[categorical_columns].values
-        X_num = mixed_data[numerical_columns].values
-        X_mixed = np.column_stack([X_num, X_cat])
-        
-        # Mark categorical columns (last len(categorical_columns) columns)
-        categorical_indices = list(range(len(numerical_columns), len(numerical_columns) + len(categorical_columns)))
-        
-        gamma_scores = []
-        gammas = np.arange(gamma_range[0], gamma_range[1], gamma_range[2])
-        
-        for gamma in gammas:
-            try:
-                kproto = KPrototypes(n_clusters=k, gamma=gamma, verbose=0, random_state=42)
-                labels = kproto.fit_predict(X_mixed, categorical=categorical_indices)
-                
-                # Custom evaluation metric for mixed data
-                # Numerical part evaluation
-                if len(np.unique(labels)) > 1:
-                    num_silhouette = silhouette_score(X_num, labels)
-                    
-                    # Categorical part evaluation (purity)
-                    true_labels = mixed_data['true_segment'].values
-                    purity = self._calculate_purity(labels, true_labels)
-                    
-                    # Combined score
-                    combined_score = 0.6 * num_silhouette + 0.4 * purity
-                    
-                    gamma_scores.append({
-                        'gamma': gamma,
-                        'combined_score': combined_score,
-                        'numerical_silhouette': num_silhouette,
-                        'categorical_purity': purity,
-                        'cost': kproto.cost_,
-                        'n_iterations': kproto.n_iter_
-                    })
-                    
-            except Exception as e:
-                print(f"Error with gamma={gamma}: {e}")
-                continue
-        
-        if gamma_scores:
-            best_gamma_config = max(gamma_scores, key=lambda x: x['combined_score'])
-            return best_gamma_config['gamma'], gamma_scores
-        else:
-            return 1.0, []
+    # Ensure probability is between 0 and 1
+    churn_probability = np.clip(churn_probability, 0, 0.8)
+    df_churn['churn'] = np.random.binomial(1, churn_probability, n_samples)
     
-    def compare_mixed_data_algorithms(self, mixed_data):
-        """
-        So sánh các thuật toán cho mixed data
-        """
-        categorical_columns = ['age_group', 'gender', 'education', 'income_bracket', 
-                             'city_tier', 'preferred_channel', 'payment_method', 
-                             'product_category', 'membership_type']
-        numerical_columns = ['annual_spend', 'avg_order_value', 'website_visits_per_month', 
-                           'customer_service_interactions']
-        
-        # Prepare different data representations
-        X_num = StandardScaler().fit_transform(mixed_data[numerical_columns])
-        X_cat = mixed_data[categorical_columns].values
-        X_mixed = np.column_stack([mixed_data[numerical_columns].values, X_cat])
-        categorical_indices = list(range(len(numerical_columns), len(numerical_columns) + len(categorical_columns)))
-        
-        results = {}
-        
-        # 1. K-Means on numerical only
-        kmeans_num = KMeans(n_clusters=4, random_state=42)
-        labels_num_only = kmeans_num.fit_predict(X_num)
-        
-        results['K-Means (Numerical Only)'] = {
-            'labels': labels_num_only,
-            'silhouette': silhouette_score(X_num, labels_num_only),
-            'purity': self._calculate_purity(labels_num_only, mixed_data['true_segment'].values)
-        }
-        
-        # 2. K-Modes on categorical only
-        try:
-            kmodes = KModes(n_clusters=4, init='Huang', verbose=0, random_state=42)
-            labels_cat_only = kmodes.fit_predict(X_cat)
-            
-            results['K-Modes (Categorical Only)'] = {
-                'labels': labels_cat_only,
-                'cost': kmodes.cost_,
-                'purity': self._calculate_purity(labels_cat_only, mixed_data['true_segment'].values)
-            }
-        except Exception as e:
-            print(f"K-Modes error: {e}")
-        
-        # 3. K-Prototypes (optimal gamma)
-        try:
-            optimal_gamma, _ = self.optimize_kprototypes_gamma(mixed_data)
-            kproto = KPrototypes(n_clusters=4, gamma=optimal_gamma, verbose=0, random_state=42)
-            labels_mixed = kproto.fit_predict(X_mixed, categorical=categorical_indices)
-            
-            results['K-Prototypes (Mixed Data)'] = {
-                'labels': labels_mixed,
-                'cost': kproto.cost_,
-                'gamma': optimal_gamma,
-                'numerical_silhouette': silhouette_score(X_num, labels_mixed),
-                'purity': self._calculate_purity(labels_mixed, mixed_data['true_segment'].values)
-            }
-        except Exception as e:
-            print(f"K-Prototypes error: {e}")
-        
-        # 4. Ensemble approach: Combine numerical and categorical clustering
-        ensemble_labels = self._ensemble_clustering(labels_num_only, labels_cat_only if 'K-Modes (Categorical Only)' in results else labels_num_only)
-        
-        results['Ensemble Approach'] = {
-            'labels': ensemble_labels,
-            'numerical_silhouette': silhouette_score(X_num, ensemble_labels),
-            'purity': self._calculate_purity(ensemble_labels, mixed_data['true_segment'].values)
-        }
-        
-        return results
+    print(f"Dataset shape: {df_churn.shape}")
+    print(f"Churn rate: {df_churn['churn'].mean():.3f}")
+    print(f"Class distribution: {df_churn['churn'].value_counts()}")
     
-    def _calculate_purity(self, cluster_labels, true_labels):
-        """Calculate purity score"""
-        total_samples = len(cluster_labels)
-        cluster_purity = 0
-        
-        for cluster_id in np.unique(cluster_labels):
-            cluster_mask = cluster_labels == cluster_id
-            cluster_true_labels = true_labels[cluster_mask]
-            
-            if len(cluster_true_labels) > 0:
-                unique, counts = np.unique(cluster_true_labels, return_counts=True)
-                max_count = counts.max()
-                cluster_purity += max_count
-        
-        return cluster_purity / total_samples
+    # EDA
+    print("\n3. Exploratory Data Analysis")
     
-    def _ensemble_clustering(self, num_labels, cat_labels):
-        """
-        Combine numerical and categorical clustering results
-        """
-        # Create consensus labels based on majority voting
-        n_samples = len(num_labels)
-        ensemble_labels = np.zeros(n_samples)
-        
-        # Create mapping based on co-occurrence
-        for i in range(n_samples):
-            num_cluster = num_labels[i]
-            cat_cluster = cat_labels[i]
-            
-            # Simple combination: weight both equally
-            ensemble_labels[i] = num_cluster * 10 + cat_cluster
-        
-        # Remap to consecutive integers
-        unique_labels = np.unique(ensemble_labels)
-        label_mapping = {old: new for new, old in enumerate(unique_labels)}
-        
-        return np.array([label_mapping[label] for label in ensemble_labels])
-
-# Generate và test mixed data clustering
-mixed_framework = MixedDataClusteringFramework()
-mixed_customer_data = mixed_framework.create_mixed_customer_data()
-
-print("Mixed Data Sample:")
-print(mixed_customer_data.head())
-print("\nData types:")
-print(mixed_customer_data.dtypes)
-
-# Compare algorithms on mixed data
-mixed_results = mixed_framework.compare_mixed_data_algorithms(mixed_customer_data)
-
-print("\nMixed Data Clustering Results:")
-for algorithm, results in mixed_results.items():
-    print(f"\n{algorithm}:")
-    if 'silhouette' in results:
-        print(f"  Silhouette Score: {results['silhouette']:.3f}")
-    if 'numerical_silhouette' in results:
-        print(f"  Numerical Silhouette: {results['numerical_silhouette']:.3f}")
-    if 'purity' in results:
-        print(f"  Purity Score: {results['purity']:.3f}")
-    if 'cost' in results:
-        print(f"  Algorithm Cost: {results['cost']:.2f}")
-```
-
----
-
-## Bài Tập 5: Xây Dựng Arsenal Segmentation Techniques cho Marketing Impact
-
-### Mô Tả Bài Toán
-Phát triển một bộ công cụ segmentation toàn diện có thể tạo ra impact lớn trong marketing và business strategy.
-
-### Yêu Cầu Thực Hiện
-
-#### Phần A: Advanced Segmentation Techniques
-
-**Nhiệm vụ 5.1**: Implement advanced segmentation framework
-```python
-import scipy.stats as stats
-from sklearn.model_selection import cross_val_score
-from sklearn.ensemble import RandomForestClassifier
-
-class AdvancedSegmentationArsenal:
-    def __init__(self):
-        self.segmentation_models = {}
-        self.evaluation_results = {}
+    # Churn rate by key features
+    categorical_features = ['contract', 'internet_service', 'payment_method', 'is_senior']
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    axes = axes.ravel()
     
-    def cohort_based_segmentation(self, data, cohort_column='days_since_first_purchase'):
-        """
-        Cohort-based segmentation với time-series analysis
-        """
-        # Chia thành các cohort theo thời gian
-        data_copy = data.copy()
-        
-        # Define cohort groups
-        cohort_boundaries = np.percentile(data_copy[cohort_column], [25, 50, 75])
-        
-        def assign_cohort(days):
-            if days <= cohort_boundaries[0]:
-                return 'New (0-25%)'
-            elif days <= cohort_boundaries[1]:
-                return 'Growing (25-50%)'
-            elif days <= cohort_boundaries[2]:
-                return 'Mature (50-75%)'
-            else:
-                return 'Veteran (75%+)'
-        
-        data_copy['cohort'] = data_copy[cohort_column].apply(assign_cohort)
-        
-        # Analyze behavior patterns within each cohort
-        cohort_analysis = {}
-        
-        for cohort in data_copy['cohort'].unique():
-            cohort_data = data_copy[data_copy['cohort'] == cohort]
-            
-            # Apply clustering within cohort
-            numerical_features = ['recency', 'frequency', 'monetary']
-            if all(col in cohort_data.columns for col in numerical_features):
-                X_cohort = StandardScaler().fit_transform(cohort_data[numerical_features])
-                
-                # Optimal K for this cohort
-                optimal_k = min(4, len(cohort_data) // 50)  # At least 50 customers per cluster
-                if optimal_k >= 2:
-                    kmeans_cohort = KMeans(n_clusters=optimal_k, random_state=42)
-                    cohort_labels = kmeans_cohort.fit_predict(X_cohort)
-                    
-                    cohort_analysis[cohort] = {
-                        'size': len(cohort_data),
-                        'n_clusters': optimal_k,
-                        'labels': cohort_labels,
-                        'silhouette': silhouette_score(X_cohort, cohort_labels),
-                        'avg_metrics': cohort_data[numerical_features].mean().to_dict()
-                    }
-        
-        return cohort_analysis, data_copy
+    for i, feature in enumerate(categorical_features):
+        churn_rate = df_churn.groupby(feature)['churn'].mean().sort_values(ascending=False)
+        churn_rate.plot(kind='bar', ax=axes[i], color='skyblue', alpha=0.7)
+        axes[i].set_title(f'Churn Rate by {feature}')
+        axes[i].set_ylabel('Churn Rate')
+        axes[i].tick_params(axis='x', rotation=45)
     
-    def behavioral_segmentation_with_feature_engineering(self, data):
-        """
-        Behavioral segmentation với advanced feature engineering
-        """
-        data_copy = data.copy()
-        
-        # Create advanced behavioral features
-        if all(col in data_copy.columns for col in ['recency', 'frequency', 'monetary']):
-            # RFM Composite Scores
-            data_copy['recency_score'] = pd.qcut(data_copy['recency'], 5, labels=range(1, 6), duplicates='drop')
-            data_copy['frequency_score'] = pd.qcut(data_copy['frequency'], 5, labels=range(1, 6), duplicates='drop')
-            data_copy['monetary_score'] = pd.qcut(data_copy['monetary'], 5, labels=range(1, 6), duplicates='drop')
-            
-            # Convert to numeric
-            data_copy['recency_score'] = pd.to_numeric(data_copy['recency_score'])
-            data_copy['frequency_score'] = pd.to_numeric(data_copy['frequency_score'])
-            data_copy['monetary_score'] = pd.to_numeric(data_copy['monetary_score'])
-            
-            # Composite behavioral scores
-            data_copy['rfm_score'] = (data_copy['recency_score'] + 
-                                    data_copy['frequency_score'] + 
-                                    data_copy['monetary_score']) / 3
-            
-            # Customer lifecycle stage
-            def lifecycle_stage(row):
-                if row['frequency'] < data_copy['frequency'].quantile(0.25):
-                    if row['recency'] < data_copy['recency'].quantile(0.5):
-                        return 'New'
-                    else:
-                        return 'At Risk'
-                elif row['frequency'] > data_copy['frequency'].quantile(0.75):
-                    if row['monetary'] > data_copy['monetary'].quantile(0.75):
-                        return 'Champion'
-                    else:
-                        return 'Loyal'
-                else:
-                    if row['recency'] < data_copy['recency'].quantile(0.5):
-                        return 'Potential Loyalist'
-                    else:
-                        return 'Hibernating'
-            
-            data_copy['lifecycle_stage'] = data_copy.apply(lifecycle_stage, axis=1)
-            
-            # Advanced ratios
-            data_copy['avg_order_value'] = data_copy['monetary'] / np.maximum(data_copy['frequency'], 1)
-            data_copy['purchase_intensity'] = data_copy['frequency'] / np.maximum(data_copy['recency'], 1)
-            data_copy['value_consistency'] = data_copy['monetary'] / (data_copy['recency'] + 1)
-        
-        # Feature selection based on business importance
-        advanced_features = ['rfm_score', 'avg_order_value', 'purchase_intensity', 'value_consistency']
-        if all(col in data_copy.columns for col in advanced_features):
-            X_advanced = StandardScaler().fit_transform(data_copy[advanced_features])
-            
-            # Multiple clustering approaches
-            clustering_results = {}
-            
-            # 1. K-Means with advanced features
-            kmeans_advanced = KMeans(n_clusters=5, random_state=42)
-            labels_advanced = kmeans_advanced.fit_predict(X_advanced)
-            
-            clustering_results['K-Means Advanced Features'] = {
-                'labels': labels_advanced,
-                'silhouette': silhouette_score(X_advanced, labels_advanced),
-                'features_used': advanced_features
-            }
-            
-            # 2. Gaussian Mixture with advanced features
-            gmm_advanced = GaussianMixture(n_components=5, random_state=42)
-            labels_gmm = gmm_advanced.fit_predict(X_advanced)
-            
-            clustering_results['GMM Advanced Features'] = {
-                'labels': labels_gmm,
-                'silhouette': silhouette_score(X_advanced, labels_gmm),
-                'aic': gmm_advanced.aic(X_advanced),
-                'bic': gmm_advanced.bic(X_advanced)
-            }
-            
-            return clustering_results, data_copy
-        
-        return {}, data_copy
+    plt.tight_layout()
+    plt.show()
     
-    def predictive_segmentation_with_validation(self, data, target_column='true_segment'):
-        """
-        Predictive segmentation với cross-validation
-        """
-        # Prepare features (exclude target và ID columns)
-        feature_columns = [col for col in data.columns 
-                          if col not in [target_column, 'customer_id', 'lifecycle_stage']]
+    # Numerical features distribution
+    numerical_features = ['age', 'tenure_months', 'monthly_charges', 'services_count']
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    axes = axes.ravel()
+    
+    for i, feature in enumerate(numerical_features):
+        df_churn[df_churn['churn'] == 0][feature].hist(alpha=0.7, label='No Churn', bins=30, ax=axes[i])
+        df_churn[df_churn['churn'] == 1][feature].hist(alpha=0.7, label='Churn', bins=30, ax=axes[i])
+        axes[i].set_title(f'{feature} Distribution')
+        axes[i].set_xlabel(feature)
+        axes[i].legend()
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Bước 4: Data Preparation
+    print("\n4. Data Preparation")
+    
+    # Encode categorical variables
+    label_encoders = {}
+    categorical_cols = ['gender', 'internet_service', 'contract', 'payment_method']
+    
+    df_processed = df_churn.copy()
+    for col in categorical_cols:
+        le = LabelEncoder()
+        df_processed[col + '_encoded'] = le.fit_transform(df_processed[col])
+        label_encoders[col] = le
+    
+    # Select features for modeling
+    feature_columns = [
+        'age', 'tenure_months', 'monthly_charges', 'total_charges',
+        'phone_service', 'multiple_lines', 'online_security', 'online_backup',
+        'device_protection', 'tech_support', 'streaming_tv', 'streaming_movies',
+        'paperless_billing', 'avg_monthly_calls', 'customer_service_calls',
+        'late_payments', 'charges_per_month', 'services_count', 'is_senior',
+        'high_monthly_charges', 'short_tenure', 'high_support_calls',
+        'gender_encoded', 'internet_service_encoded', 'contract_encoded', 'payment_method_encoded'
+    ]
+    
+    X = df_processed[feature_columns]
+    y = df_processed['churn']
+    
+    # Train/test split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=y
+    )
+    
+    # Feature scaling
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+    
+    print(f"Training set: {X_train.shape}, Test set: {X_test.shape}")
+    print(f"Training churn rate: {y_train.mean():.3f}")
+    
+    # Bước 5: Handle Imbalanced Data (SMOTE simulation)
+    print("\n5. Handling Imbalanced Data")
+    
+    # Simple oversampling simulation (in practice, use SMOTE from imbalanced-learn)
+    from sklearn.utils import resample
+    
+    # Separate majority and minority classes
+    X_train_df = pd.DataFrame(X_train_scaled, columns=feature_columns)
+    X_train_df['target'] = y_train.values
+    
+    majority = X_train_df[X_train_df.target == 0]
+    minority = X_train_df[X_train_df.target == 1]
+    
+    # Upsample minority class
+    minority_upsampled = resample(minority, 
+                                 replace=True,
+                                 n_samples=len(majority),
+                                 random_state=42)
+    
+    # Combine majority and upsampled minority
+    balanced_df = pd.concat([majority, minority_upsampled])
+    
+    X_train_balanced = balanced_df.drop('target', axis=1).values
+    y_train_balanced = balanced_df['target'].values
+    
+    print(f"Original training set: {np.bincount(y_train)}")
+    print(f"Balanced training set: {np.bincount(y_train_balanced)}")
+    
+    # Bước 6: Advanced Model Selection
+    print("\n6. Advanced Model Selection và Hyperparameter Tuning")
+    
+    models_advanced = {}
+    
+    # Decision Tree with class weights
+    dt_params = {
+        'max_depth': [5, 7, 10, 15],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+        'class_weight': [None, 'balanced']
+    }
+    
+    dt = DecisionTreeClassifier(random_state=42)
+    dt_grid = GridSearchCV(dt, dt_params, cv=5, scoring='f1', n_jobs=-1, verbose=1)
+    dt_grid.fit(X_train_balanced, y_train_balanced)
+    models_advanced['Decision Tree'] = dt_grid.best_estimator_
+    
+    # Random Forest with class weights
+    rf_params = {
+        'n_estimators': [100, 200, 300],
+        'max_depth': [5, 10, 15],
+        'min_samples_split': [2, 5],
+        'class_weight': [None, 'balanced']
+    }
+    
+    rf = RandomForestClassifier(random_state=42)
+    rf_grid = GridSearchCV(rf, rf_params, cv=5, scoring='f1', n_jobs=-1, verbose=1)
+    rf_grid.fit(X_train_balanced, y_train_balanced)
+    models_advanced['Random Forest'] = rf_grid.best_estimator_
+    
+    # SVM with class weights
+    svm_params = {
+        'C': [0.1, 1, 10],
+        'kernel': ['rbf', 'linear'],
+        'class_weight': [None, 'balanced']
+    }
+    
+    svm = SVC(random_state=42, probability=True)
+    svm_grid = GridSearchCV(svm, svm_params, cv=5, scoring='f1', n_jobs=-1, verbose=1)
+    svm_grid.fit(X_train_balanced, y_train_balanced)
+    models_advanced['SVM'] = svm_grid.best_estimator_
+    
+    print("Best parameters:")
+    print(f"DT: {dt_grid.best_params_}")
+    print(f"RF: {rf_grid.best_params_}")
+    print(f"SVM: {svm_grid.best_params_}")
+    
+    # Bước 7: Model Evaluation với Business Metrics
+    print("\n7. Model Evaluation với Business Context")
+    
+    # Define business costs
+    COST_FALSE_POSITIVE = 50   # Cost of incorrectly predicting churn (retention campaign cost)
+    COST_FALSE_NEGATIVE = 200  # Cost of missing actual churn (lost customer value)
+    REVENUE_PER_CUSTOMER = 1200  # Annual customer value
+    
+    def calculate_business_metrics(y_true, y_pred, model_name):
+        """Calculate business-oriented metrics"""
+        tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
         
-        # Handle categorical variables
-        X = pd.get_dummies(data[feature_columns], drop_first=True)
-        y = data[target_column]
+        # Traditional metrics
+        accuracy = accuracy_score(y_true, y_pred)
+        precision = precision_score(y_true, y_pred)
+        recall = recall_score(y_true, y_pred)
+        f1 = f1_score(y_true, y_pred)
         
-        # Feature importance analysis
-        rf = RandomForestClassifier(n_estimators=100, random_state=42)
-        rf.fit(X, y)
-        
-        feature_importance = pd.DataFrame({
-            'feature': X.columns,
-            'importance': rf.feature_importances_
-        }).sort_values('importance', ascending=False)
-        
-        # Cross-validation score
-        cv_scores = cross_val_score(rf, X, y, cv=5, scoring='accuracy')
-        
-        # Predict clusters and analyze
-        predicted_segments = rf.predict(X)
-        
-        # Confusion matrix analysis
-        from sklearn.metrics import classification_report, confusion_matrix
+        # Business metrics
+        total_cost = (fp * COST_FALSE_POSITIVE) + (fn * COST_FALSE_NEGATIVE)
+        potential_revenue_saved = tp * REVENUE_PER_CUSTOMER * 0.3  # Assume 30% retention success
+        net_benefit = potential_revenue_saved - total_cost
+        cost_per_customer = total_cost / len(y_true)
         
         return {
-            'feature_importance': feature_importance,
-            'cv_accuracy_mean': cv_scores.mean(),
-            'cv_accuracy_std': cv_scores.std(),
-            'predicted_segments': predicted_segments,
-            'classification_report': classification_report(y, predicted_segments),
-            'confusion_matrix': confusion_matrix(y, predicted_segments)
+            'Model': model_name,
+            'Accuracy': accuracy,
+            'Precision': precision,
+            'Recall': recall,
+            'F1-Score': f1,
+            'Total_Cost': total_cost,
+            'Revenue_Saved': potential_revenue_saved,
+            'Net_Benefit': net_benefit,
+            'Cost_Per_Customer': cost_per_customer,
+            'TP': tp, 'TN': tn, 'FP': fp, 'FN': fn
         }
     
-    def business_impact_quantification(self, data, labels, revenue_column='monetary'):
-        """
-        Quantify business impact của segmentation
-        """
-        data_with_clusters = data.copy()
-        data_with_clusters['cluster'] = labels
+    # Evaluate all models
+    business_results = []
+    
+    for name, model in models_advanced.items():
+        y_pred = model.predict(X_test_scaled)
+        metrics = calculate_business_metrics(y_test, y_pred, name)
+        business_results.append(metrics)
         
-        # Calculate business metrics
-        cluster_analysis = data_with_clusters.groupby('cluster').agg({
-            revenue_column: ['sum', 'mean', 'count'],
-            'frequency': ['mean'],
-            'recency': ['mean']
-        }).round(2)
+        print(f"\n=== {name} Results ===")
+        print(f"Accuracy: {metrics['Accuracy']:.4f}")
+        print(f"Precision: {metrics['Precision']:.4f}")
+        print(f"Recall: {metrics['Recall']:.4f}")
+        print(f"F1-Score: {metrics['F1-Score']:.4f}")
+        print(f"Total Cost: ${metrics['Total_Cost']:,.2f}")
+        print(f"Revenue Saved: ${metrics['Revenue_Saved']:,.2f}")
+        print(f"Net Benefit: ${metrics['Net_Benefit']:,.2f}")
+        print(f"Cost per Customer: ${metrics['Cost_Per_Customer']:.2f}")
+    
+    # Create business results DataFrame
+    business_df = pd.DataFrame(business_results)
+    print("\n=== BUSINESS METRICS COMPARISON ===")
+    print(business_df[['Model', 'Accuracy', 'F1-Score', 'Net_Benefit', 'Cost_Per_Customer']].round(4))
+    
+    # Bước 8: ROC Curves và Threshold Optimization
+    print("\n8. ROC Analysis và Threshold Optimization")
+    
+    plt.figure(figsize=(15, 5))
+    
+    # ROC Curves
+    plt.subplot(1, 3, 1)
+    for name, model in models_advanced.items():
+        y_pred_proba = model.predict_proba(X_test_scaled)[:, 1]
+        fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
+        auc = roc_auc_score(y_test, y_pred_proba)
+        plt.plot(fpr, tpr, label=f'{name} (AUC={auc:.3f})')
+    
+    plt.plot([0, 1], [0, 1], 'k--', alpha=0.5)
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC Curves')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    
+    # Feature Importance (Random Forest)
+    plt.subplot(1, 3, 2)
+    rf_model = models_advanced['Random Forest']
+    feature_importance = pd.DataFrame({
+        'feature': feature_columns,
+        'importance': rf_model.feature_importances_
+    }).sort_values('importance', ascending=False).head(10)
+    
+    plt.barh(range(len(feature_importance)), feature_importance['importance'])
+    plt.yticks(range(len(feature_importance)), feature_importance['feature'])
+    plt.xlabel('Importance')
+    plt.title('Top 10 Feature Importance')
+    plt.gca().invert_yaxis()
+    
+    # Net Benefit Comparison
+    plt.subplot(1, 3, 3)
+    models_list = business_df['Model'].values
+    net_benefits = business_df['Net_Benefit'].values
+    colors = ['skyblue' if x > 0 else 'lightcoral' for x in net_benefits]
+    
+    plt.bar(models_list, net_benefits, color=colors)
+    plt.xlabel('Models')
+    plt.ylabel('Net Benefit ($)')
+    plt.title('Business Value Comparison')
+    plt.xticks(rotation=45)
+    plt.axhline(y=0, color='black', linestyle='-', alpha=0.5)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Bước 9: Model Interpretation và Business Insights
+    print("\n9. Model Interpretation và Business Insights")
+    
+    # Best model selection based on business metrics
+    best_model_idx = business_df['Net_Benefit'].idxmax()
+    best_model_name = business_df.iloc[best_model_idx]['Model']
+    best_model = models_advanced[best_model_name]
+    
+    print(f"Best Model for Business: {best_model_name}")
+    print(f"Net Benefit: ${business_df.iloc[best_model_idx]['Net_Benefit']:,.2f}")
+    
+    # Feature importance insights
+    if hasattr(best_model, 'feature_importances_'):
+        importance_df = pd.DataFrame({
+            'Feature': feature_columns,
+            'Importance': best_model.feature_importances_
+        }).sort_values('Importance', ascending=False).head(10)
         
-        # Business impact calculations.choice(['25-34', '35-44', '45-54'], size, p=[0.3, 0.5, 0.2]),
-                    'gender': np.random.choice(['Male', 'Female'], size, p=[0.6, 0.4]),
-                    'education': np.random.choice(['Graduate', 'Post-Graduate'], size, p=[0.4, 0.6]),
-                    'income_bracket': np.random.choice(['High', 'Very High'], size, p=[0.3, 0.7]),
-                    'city_tier': np.random.choice(['Tier 1'], size),
-                    'preferred_channel': np.random.choice(['Online', 'Store', 'Mobile'], size, p=[0.5, 0.3, 0.2]),
-                    'payment_method': np.random.choice(['Credit Card', 'Digital Wallet'], size, p=[0.6, 0.4]),
-                    'product_category': np.random.choice(['Electronics', 'Fashion', 'Home'], size, p=[0.4, 0.4, 0.2]),
-                    'membership_type': np.random.choice(['Premium', 'Gold'], size, p=[0.7, 0.3]),
-                    'true_segment': [segment] * size
-                }
-            elif segment == 'Standard':
-                segment_data = {
-                    'customer_id': range(customer_id, customer_id + size),
-                    'age_group': np.random
+        print("\nTop 10 Most Important Features:")
+        for idx, row in importance_df.iterrows():
+            print(f"{row['Feature']}: {row['Importance']:.4f}")
+    
+    # Customer segmentation for business strategy
+    print("\n10. Customer Segmentation untuk Business Strategy")
+    
+    # Predict probabilities
+    y_pred_proba = best_model.predict_proba(X_test_scaled)[:, 1]
+    
+    # Create customer segments based on churn probability
+    def categorize_risk(prob):
+        if prob < 0.3:
+            return 'Low Risk'
+        elif prob < 0.7:
+            return 'Medium Risk'
+        else:
+            return 'High Risk'
+    
+    risk_segments = [categorize_risk(p) for p in y_pred_proba]
+    segment_counts = pd.Series(risk_segments).value_counts()
+    
+    print("Customer Risk Segmentation:")
+    for segment, count in segment_counts.items():
+        percentage = count / len(risk_segments) * 100
+        print(f"{segment}: {count} customers ({percentage:.1f}%)")
+    
+    # Business recommendations
+    print("\n=== BUSINESS RECOMMENDATIONS ===")
+    
+    high_risk_customers = np.sum(np.array(risk_segments) == 'High Risk')
+    medium_risk_customers = np.sum(np.array(risk_segments) == 'Medium Risk')
+    
+    print(f"1. IMMEDIATE ACTION REQUIRED:")
+    print(f"   - {high_risk_customers} high-risk customers need immediate retention efforts")
+    print(f"   - Estimated cost: ${high_risk_customers * 100:,} for targeted campaigns")
+    print(f"   - Potential revenue at risk: ${high_risk_customers * REVENUE_PER_CUSTOMER:,}")
+    
+    print(f"\n2. PROACTIVE MEASURES:")
+    print(f"   - {medium_risk_customers} medium-risk customers for proactive engagement")
+    print(f"   - Focus on improving: {', '.join(importance_df.head(3)['Feature'].values)}")
+    
+    print(f"\n3. MODEL PERFORMANCE:")
+    print(f"   - Expected net benefit: ${business_df.iloc[best_model_idx]['Net_Benefit']:,.2f}")
+    print(f"   - Cost per customer: ${business_df.iloc[best_model_idx]['Cost_Per_Customer']:.2f}")
+    
+    # Bước 11: Model Deployment Simulation
+    print("\n11. Model Deployment Simulation")
+    
+    def predict_customer_churn(customer_data, model, scaler, feature_columns):
+        """
+        Simulate model deployment for single customer prediction
+        """
+        # Prepare customer data
+        customer_df = pd.DataFrame([customer_data])
+        customer_scaled = scaler.transform(customer_df[feature_columns])
+        
+        # Predict
+        churn_probability = model.predict_proba(customer_scaled)[0, 1]
+        churn_prediction = model.predict(customer_scaled)[0]
+        risk_level = categorize_risk(churn_probability)
+        
+        return {
+            'churn_probability': churn_probability,
+            'churn_prediction': churn_prediction,
+            'risk_level': risk_level
+        }
+    
+    # Example customer prediction
+    example_customer = {
+        'age': 35,
+        'tenure_months': 6,
+        'monthly_charges': 85.0,
+        'total_charges': 500.0,
+        'phone_service': 1,
+        'multiple_lines': 1,
+        'online_security': 0,
+        'online_backup': 0,
+        'device_protection': 0,
+        'tech_support': 0,
+        'streaming_tv': 1,
+        'streaming_movies': 1,
+        'paperless_billing': 1,
+        'avg_monthly_calls': 30,
+        'customer_service_calls': 4,
+        'late_payments': 2,
+        'charges_per_month': 85.0,
+        'services_count': 4,
+        'is_senior': 0,
+        'high_monthly_charges': 1,
+        'short_tenure': 1,
+        'high_support_calls': 1,
+        'gender_encoded': 1,
+        'internet_service_encoded': 1,
+        'contract_encoded': 0,
+        'payment_method_encoded': 0
+    }
+    
+    prediction_result = predict_customer_churn(
+        example_customer, best_model, scaler, feature_columns
+    )
+    
+    print("Example Customer Prediction:")
+    print(f"Churn Probability: {prediction_result['churn_probability']:.3f}")
+    print(f"Risk Level: {prediction_result['risk_level']}")
+    print(f"Recommended Action: {'Immediate retention campaign' if prediction_result['risk_level'] == 'High Risk' else 'Monitor and engage'}")
+    
+    # Model Performance Summary
+    print("\n" + "="*60)
+    print("FINAL MODEL PERFORMANCE SUMMARY")
+    print("="*60)
+    
+    final_summary = business_df.loc[business_df['Model'] == best_model_name].iloc[0]
+    
+    print(f"Best Model: {best_model_name}")
+    print(f"Accuracy: {final_summary['Accuracy']:.4f}")
+    print(f"Precision: {final_summary['Precision']:.4f}")
+    print(f"Recall: {final_summary['Recall']:.4f}")
+    print(f"F1-Score: {final_summary['F1-Score']:.4f}")
+    print(f"Business Net Benefit: ${final_summary['Net_Benefit']:,.2f}")
+    print(f"Cost per Customer: ${final_summary['Cost_Per_Customer']:.2f}")
+    
+    return {
+        'models': models_advanced,
+        'best_model': best_model,
+        'business_results': business_df,
+        'scaler': scaler,
+        'feature_columns': feature_columns,
+        'label_encoders': label_encoders
+    }
+
+# Chạy bài tập 3
+try:
+    results_advanced = exercise_3_advanced()
+    print("\n✓ Bài tập 3 hoàn thành thành công!")
+except Exception as e:
+    print(f"⚠ Lỗi trong bài tập 3: {e}")
+    print("Gợi ý: Kiểm tra các thư viện đã được import đầy đủ")
+```
+
+### Bài Tập 04: Cơ bản
+1. Tạo một dataset classification đơn giản với 3 features và 2 classes
+2. Triển khai Decision Tree, Random Forest, và SVM
+3. So sánh hiệu suất sử dụng accuracy và F1-score
+4. Vẽ confusion matrix cho từng model
+
+### Bài Tập 05: Trung bình
+1. Sử dụng dataset Iris hoặc Wine từ sklearn
+2. Thực hiện feature selection sử dụng Random Forest feature importance
+3. Tune hyperparameters cho các models sử dụng GridSearchCV
+4. Tạo ensemble model kết hợp 3 algorithms
+
+### Bài Tập 06: Nâng cao - Customer Churn Prediction
+1. Sử dụng dataset churn thực tế (Telco Customer Churn từ Kaggle)
+2. Thực hiện EDA chi tiết và feature engineering
+3. Xử lý imbalanced data sử dụng SMOTE hoặc class weights
+4. Triển khai pipeline hoàn chỉnh với cross-validation
+5. Tạo dashboard đơn giản để visualize results
+6. Đề xuất business strategy dựa trên model predictions
+
+### Code Template cho Bài Tập 3
+
+```python
+# Template cho bài tập Customer Churn
+def advanced_churn_analysis():
+    """
+    Template cho phân tích churn nâng cao
+    """
+    # TODO: Load real dataset
+    # df = pd.read_csv('telco_churn.csv')
+    
+    # TODO: EDA và feature engineering
+    # - Tạo new features từ existing features
+    # - Xử lý missing values
+    # - Encode categorical variables
+    
+    # TODO: Handle imbalanced data
+    # from imblearn.over_sampling import SMOTE
+    # smote = SMOTE(random_state=42)
+    # X_resampled, y_resampled = smote.fit_resample(X, y)
+    
+    # TODO: Advanced model selection
+    # - Thêm Gradient Boosting, XGBoost
+    # - Ensemble methods
+    # - Stacking classifier
+    
+    # TODO: Business interpretation
+    # - Cost-benefit analysis
+    # - Customer lifetime value integration
+    # - Actionable insights
+    
+    pass
+
+# Gợi ý đánh giá:
+# - Precision vs Recall trade-off
+# - ROC-AUC vs PR-AUC
+# - Business metrics (cost of false positives vs false negatives)
+```
 ## Hướng dẫn chấm điểm và đánh giá
 
 ### Rubric cho các bài tập:
