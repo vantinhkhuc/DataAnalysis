@@ -474,11 +474,9 @@ You plot should look as follows:
 ![Figure 8.58: ROC curve](images/Figure-8.58.jpg)
 
 ---
-## Bài tập tổng hợp
+### Bài tập tổng hợp
 
-## Bài Tập Thực Hành
-
-### **Mô tả chung cho các bài tập 01-03**
+#### **Mô tả chung cho các bài tập 01-03**
 
 ```python
 # =============================================================================
@@ -556,7 +554,7 @@ from sklearn.feature_selection import SelectKBest, f_classif
 import warnings
 warnings.filterwarnings('ignore')
 ```
-### **Bài Tập 1: CƠ BẢN - Synthetic Dataset Classification**
+#### **Bài Tập 1: CƠ BẢN - Synthetic Dataset Classification**
 
 ```python
 # =============================================================================
@@ -685,7 +683,7 @@ def exercise_1_basic():
 # Chạy bài tập 1
 models_basic, results_basic = exercise_1_basic()
 ```
-### **Bài Tập 02 TRUNG BÌNH - Real Dataset với Feature Selection**
+#### **Bài Tập 02 TRUNG BÌNH - Real Dataset với Feature Selection**
 ```python
 # =============================================================================
 # BÀI TẬP 2: TRUNG BÌNH - Real Dataset với Feature Selection
@@ -904,7 +902,7 @@ def exercise_2_intermediate():
 models_intermediate, results_intermediate, selected_features = exercise_2_intermediate()
 ```
 
-### **Bài Tập 03 NÂNG CAO - Customer Churn Prediction với Business Context**
+#### **Bài Tập 03 NÂNG CAO - Customer Churn Prediction với Business Context**
 
 ```python
 # =============================================================================
@@ -1426,19 +1424,19 @@ except Exception as e:
     print("Gợi ý: Kiểm tra các thư viện đã được import đầy đủ")
 ```
 
-### Bài Tập 04: Cơ bản
+#### Bài Tập 04: Cơ bản
 1. Tạo một dataset classification đơn giản với 3 features và 2 classes
 2. Triển khai Decision Tree, Random Forest, và SVM
 3. So sánh hiệu suất sử dụng accuracy và F1-score
 4. Vẽ confusion matrix cho từng model
 
-### Bài Tập 05: Trung bình
+#### Bài Tập 05: Trung bình
 1. Sử dụng dataset Iris hoặc Wine từ sklearn
 2. Thực hiện feature selection sử dụng Random Forest feature importance
 3. Tune hyperparameters cho các models sử dụng GridSearchCV
 4. Tạo ensemble model kết hợp 3 algorithms
 
-### Bài Tập 06: Nâng cao - Customer Churn Prediction
+#### Bài Tập 06: Nâng cao - Customer Churn Prediction
 1. Sử dụng dataset churn thực tế (Telco Customer Churn từ Kaggle)
 2. Thực hiện EDA chi tiết và feature engineering
 3. Xử lý imbalanced data sử dụng SMOTE hoặc class weights
