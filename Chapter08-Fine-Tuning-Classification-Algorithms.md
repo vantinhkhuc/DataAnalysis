@@ -685,7 +685,7 @@ def exercise_1_basic():
 # Chạy bài tập 1
 models_basic, results_basic = exercise_1_basic()
 ```
-### **Bài Tập 02**
+### **Bài Tập 02 TRUNG BÌNH - Real Dataset với Feature Selection**
 ```python
 # =============================================================================
 # BÀI TẬP 2: TRUNG BÌNH - Real Dataset với Feature Selection
@@ -904,7 +904,7 @@ def exercise_2_intermediate():
 models_intermediate, results_intermediate, selected_features = exercise_2_intermediate()
 ```
 
-### **Bài Tập 03**
+### **Bài Tập 03 NÂNG CAO - Customer Churn Prediction với Business Context**
 
 ```python
 # =============================================================================
