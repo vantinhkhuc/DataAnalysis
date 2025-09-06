@@ -1,13 +1,12 @@
 # Lab 08 Supervised Learning: Predicting Customer Churn
 
 ## **Mục tiêu học tập**
-Sau khi hoàn thành bài học này, học viên sẽ có thể:
-- Hiểu rõ nhu cầu và tầm quan trọng của customer segmentation
-- Nắm vững thuật toán K-means và ứng dụng trong phân khúc khách hàng
-- Thực hiện phân tích thống kê mô tả và tổng hợp dữ liệu
-- Sử dụng các công cụ Python để thực hiện segmentation
-- Phân tích và diễn giải kết quả phân khúc khách hàng
-- Áp dụng các kỹ thuật nâng cao trong customer segmentation
+Sau khi hoàn thành bài học này, học viên sẽ có khả năng:
+1. Thực hiện các tác vụ phân loại sử dụng logistic regression
+2. Triển khai pipeline phân tích dữ liệu OSEMN (Obtain, Scrub, Explore, Model, iNterpret)
+3. Phân tích mối quan hệ giữa biến target và biến giải thích thông qua data exploration
+4. Lựa chọn features hiệu quả cho mô hình dự đoán
+5. Xây dựng mô hình churn prediction sử dụng logistic regression
 
 ---
 
