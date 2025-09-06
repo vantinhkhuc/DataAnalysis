@@ -426,9 +426,9 @@ You should get the following output for the number of entries in each class  in 
 
 ---
 
-## Bài tập tổng hợp
+### Bài tập tổng hợp
 
-### Bài tập 1: Customer Segmentation cho E-commerce
+#### Bài tập 1: Customer Segmentation cho E-commerce
 
 **Mô tả:** Bạn là Data Analyst cho một công ty e-commerce. Công ty muốn phân loại khách hàng thành 4 nhóm dựa trên hành vi mua hàng để thiết kế chiến lược marketing phù hợp.
 
@@ -554,7 +554,7 @@ def handle_imbalanced_data(X, y):
     pass
 ```
 
-### Bài tập 2: Marketing Campaign Response Prediction
+#### Bài tập 2: Marketing Campaign Response Prediction
 
 **Scenario:** Công ty muốn dự đoán phản hồi của khách hàng đối với các loại campaign marketing khác nhau.
 
@@ -634,7 +634,7 @@ def cost_sensitive_evaluation(y_true, y_pred, costs):
     pass
 ```
 
-### Bài tập 3: Advanced Challenge - Multi-Channel Attribution
+#### Bài tập 3: Advanced Challenge - Multi-Channel Attribution
 
 **Bối cảnh:** Phân tích attribution cho marketing multi-channel để hiểu customer journey.
 
