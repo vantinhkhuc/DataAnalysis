@@ -1,0 +1,870 @@
+# Lab 01 : PYTHON CƠ BẢN CHO PHÂN TÍCH DỮ LIỆU
+
+**Thời gian:** 150 phút (2.5 giờ)  
+**Đối tượng:** Học viên có kiến thức lập trình C# cơ bản  
+**Phân bổ thời gian:** Lý thuyết 50 phút + Thực hành 100 phút
+
+---
+
+## MỤC TIÊU BÀI HỌC
+
+### Kiến thức:
+- Hiểu được syntax cơ bản của Python và sự khác biệt với C#
+- Nắm vững các kiểu dữ liệu và cấu trúc dữ liệu trong Python
+- Hiểu về thư viện NumPy và Pandas cho phân tích dữ liệu
+- Biết cách sử dụng Matplotlib cho visualization cơ bản
+
+### Kỹ năng:
+- Viết được code Python cơ bản cho xử lý dữ liệu
+- Sử dụng được Pandas để đọc, xử lý và phân tích dữ liệu
+- Tạo được biểu đồ đơn giản với Matplotlib
+- Thực hiện được các phép toán thống kê cơ bản
+
+---
+
+## PHẦN I: LỶ THUYẾT (50 PHÚT)
+
+### 1. So sánh Python và C# (10 phút)
+
+#### Điểm khác biệt chính:
+
+**C# (Quen thuộc)**
+```csharp
+// Khai báo biến có kiểu
+int number = 10;
+string name = "John";
+
+// Method với access modifier
+public static void Main(string[] args)
+{
+    Console.WriteLine("Hello World");
+}
+
+// Strongly typed
+List<int> numbers = new List<int>();
+```
+
+**Python (Mới)**
+```python
+# Khai báo biến không cần kiểu
+number = 10
+name = "John"
+
+# Function đơn giản hơn
+def main():
+    print("Hello World")
+
+# Dynamic typing
+numbers = []  # có thể chứa bất kỳ kiểu nào
+```
+
+#### Ưu điểm của Python cho Data Analysis:
+- Syntax đơn giản, dễ đọc
+- Thư viện phong phú cho data science
+- Interactive development (Jupyter Notebook)
+- Cộng đồng lớn và tài liệu phong phú
+
+### 2. Syntax cơ bản Python (15 phút)
+
+#### 2.1 Biến và Kiểu dữ liệu
+```python
+# Kiểu số
+age = 25          # int
+price = 19.99     # float
+is_student = True # bool
+
+# Kiểu chuỗi
+name = "Nguyen Van A"
+description = '''Đây là chuỗi
+nhiều dòng'''
+
+# Kiểu None (tương đương null trong C#)
+data = None
+```
+
+#### 2.2 Collections
+```python
+# List (tương đương List<object> trong C#)
+fruits = ["apple", "banana", "orange"]
+mixed_list = [1, "hello", True, 3.14]
+
+# Dictionary (tương đương Dictionary<string, object>)
+person = {
+    "name": "John",
+    "age": 30,
+    "city": "Hanoi"
+}
+
+# Tuple (immutable)
+coordinates = (10, 20)
+```
+
+#### 2.3 Control Flow
+```python
+# If statement (không cần dấu ngoặc và dấu chấm phẩy)
+if age >= 18:
+    print("Adult")
+elif age >= 13:
+    print("Teenager")
+else:
+    print("Child")
+
+# For loop
+for fruit in fruits:
+    print(fruit)
+
+# While loop
+count = 0
+while count < 5:
+    print(count)
+    count += 1
+```
+
+### 3. Thư viện cho Data Analysis (15 phút)
+
+#### 3.1 NumPy - Xử lý mảng số học
+```python
+import numpy as np
+
+# Tạo mảng
+arr = np.array([1, 2, 3, 4, 5])
+matrix = np.array([[1, 2], [3, 4]])
+
+# Các phép toán
+print(arr.mean())  # Trung bình
+print(arr.sum())   # Tổng
+print(arr.std())   # Độ lệch chuẩn
+```
+
+#### 3.2 Pandas - Xử lý dữ liệu có cấu trúc
+```python
+import pandas as pd
+
+# DataFrame (giống DataTable trong C#)
+df = pd.DataFrame({
+    'Name': ['Alice', 'Bob', 'Charlie'],
+    'Age': [25, 30, 35],
+    'City': ['Hanoi', 'HCMC', 'Danang']
+})
+
+# Đọc dữ liệu từ file
+df = pd.read_csv('data.csv')
+df = pd.read_excel('data.xlsx')
+```
+
+#### 3.3 Matplotlib - Visualization
+```python
+import matplotlib.pyplot as plt
+
+# Biểu đồ đường
+plt.plot([1, 2, 3, 4], [1, 4, 2, 3])
+plt.title('Sample Plot')
+plt.show()
+
+# Biểu đồ cột
+plt.bar(['A', 'B', 'C'], [1, 3, 2])
+plt.show()
+```
+
+### 4. Jupyter Notebook (10 phút)
+
+#### Ưu điểm:
+- Chạy code từng cell
+- Kết hợp code, text và visualization
+- Dễ dàng thử nghiệm và debug
+
+#### Các phím tắt quan trọng:
+- `Shift + Enter`: Chạy cell hiện tại
+- `Ctrl + Enter`: Chạy cell không di chuyển
+- `A`: Thêm cell ở trên
+- `B`: Thêm cell ở dưới
+- `M`: Chuyển sang Markdown
+- `Y`: Chuyển sang Code
+
+---
+
+## PHẦN II: THỰC HÀNH (100 PHÚT)
+
+### Bài tập 1: Làm quen với Python syntax (20 phút)
+
+#### Yêu cầu:
+Viết chương trình Python thực hiện các nhiệm vụ sau:
+
+1. **Tạo danh sách sinh viên (5 phút)**
+```python
+# TODO: Tạo danh sách sinh viên với thông tin: tên, tuổi, điểm
+students = [
+    {"name": "Nguyen Van A", "age": 20, "score": 8.5},
+    {"name": "Tran Thi B", "age": 19, "score": 9.0},
+    {"name": "Le Van C", "age": 21, "score": 7.5}
+]
+```
+
+2. **Xử lý dữ liệu cơ bản (10 phút)**
+```python
+# TODO: Viết function tính điểm trung bình
+def calculate_average_score(students):
+    # Gợi ý: sử dụng sum() và len()
+    pass
+
+# TODO: Tìm sinh viên có điểm cao nhất
+def find_top_student(students):
+    # Gợi ý: sử dụng max() với key parameter
+    pass
+
+# TODO: Lọc sinh viên trên 18 tuổi
+def filter_adult_students(students):
+    # Gợi ý: sử dụng list comprehension
+    pass
+```
+
+3. **In kết quả (5 phút)**
+```python
+# TODO: In thông tin theo format đẹp
+print(f"Điểm trung bình lớp: {calculate_average_score(students):.2f}")
+print(f"Sinh viên xuất sắc nhất: {find_top_student(students)['name']}")
+print("Danh sách sinh viên trưởng thành:")
+for student in filter_adult_students(students):
+    print(f"- {student['name']} ({student['age']} tuổi)")
+```
+
+#### Đáp án:
+```python
+students = [
+    {"name": "Nguyen Van A", "age": 20, "score": 8.5},
+    {"name": "Tran Thi B", "age": 19, "score": 9.0},
+    {"name": "Le Van C", "age": 21, "score": 7.5}
+]
+
+def calculate_average_score(students):
+    total_score = sum(student["score"] for student in students)
+    return total_score / len(students)
+
+def find_top_student(students):
+    return max(students, key=lambda x: x["score"])
+
+def filter_adult_students(students):
+    return [student for student in students if student["age"] >= 18]
+
+# In kết quả
+print(f"Điểm trung bình lớp: {calculate_average_score(students):.2f}")
+print(f"Sinh viên xuất sắc nhất: {find_top_student(students)['name']}")
+print("Danh sách sinh viên trưởng thành:")
+for student in filter_adult_students(students):
+    print(f"- {student['name']} ({student['age']} tuổi)")
+```
+
+### Bài tập 2: Làm việc với NumPy (20 phút)
+
+#### Yêu cầu:
+Phân tích dữ liệu bán hàng của một cửa hàng
+
+```python
+import numpy as np
+
+# Dữ liệu bán hàng 30 ngày (triệu đồng)
+sales_data = np.array([
+    12.5, 15.3, 18.2, 14.7, 16.8, 13.9, 17.4, 19.1, 15.6, 16.2,
+    14.3, 18.7, 16.9, 15.8, 17.2, 13.4, 16.5, 18.9, 15.1, 17.6,
+    14.8, 16.3, 18.1, 15.9, 17.8, 16.4, 18.5, 15.2, 17.1, 16.7
+])
+
+# TODO 1: Tính các thống kê cơ bản
+print("=== THỐNG KÊ BÁN HÀNG ===")
+# Doanh thu trung bình
+# Doanh thu cao nhất và thấp nhất
+# Độ lệch chuẩn
+# Tổng doanh thu
+
+# TODO 2: Phân tích theo tuần (mỗi tuần 7 ngày)
+# Reshape dữ liệu thành ma trận 4x7 (4 tuần, 7 ngày)
+# Tính doanh thu trung bình mỗi tuần
+# Tìm tuần có doanh thu cao nhất
+
+# TODO 3: Phân tích ngày trong tuần
+# Tính doanh thu trung bình theo ngày trong tuần
+# Tìm ngày bán chạy nhất trong tuần
+```
+
+#### Đáp án:
+```python
+import numpy as np
+
+sales_data = np.array([
+    12.5, 15.3, 18.2, 14.7, 16.8, 13.9, 17.4, 19.1, 15.6, 16.2,
+    14.3, 18.7, 16.9, 15.8, 17.2, 13.4, 16.5, 18.9, 15.1, 17.6,
+    14.8, 16.3, 18.1, 15.9, 17.8, 16.4, 18.5, 15.2, 17.1, 16.7
+])
+
+# Thống kê cơ bản
+print("=== THỐNG KÊ BÁN HÀNG ===")
+print(f"Doanh thu trung bình: {sales_data.mean():.2f} triệu")
+print(f"Doanh thu cao nhất: {sales_data.max():.2f} triệu")
+print(f"Doanh thu thấp nhất: {sales_data.min():.2f} triệu")
+print(f"Độ lệch chuẩn: {sales_data.std():.2f} triệu")
+print(f"Tổng doanh thu: {sales_data.sum():.2f} triệu")
+
+# Phân tích theo tuần
+weekly_data = sales_data[:28].reshape(4, 7)  # Lấy 28 ngày đầu
+weekly_avg = weekly_data.mean(axis=1)
+print(f"\nDoanh thu trung bình theo tuần:")
+for i, avg in enumerate(weekly_avg):
+    print(f"Tuần {i+1}: {avg:.2f} triệu")
+print(f"Tuần có doanh thu cao nhất: Tuần {weekly_avg.argmax() + 1}")
+
+# Phân tích ngày trong tuần
+daily_avg = weekly_data.mean(axis=0)
+days = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN']
+print(f"\nDoanh thu trung bình theo ngày trong tuần:")
+for day, avg in zip(days, daily_avg):
+    print(f"{day}: {avg:.2f} triệu")
+print(f"Ngày bán chạy nhất: {days[daily_avg.argmax()]}")
+```
+
+### Bài tập 3: Pandas DataFrame (30 phút)
+
+#### Yêu cầu:
+Phân tích dữ liệu khách hàng của một cửa hàng online
+
+```python
+import pandas as pd
+import numpy as np
+
+# Tạo dữ liệu mẫu
+np.random.seed(42)
+customers_data = {
+    'CustomerID': range(1001, 1101),
+    'Name': [f'Customer_{i}' for i in range(1, 101)],
+    'Age': np.random.randint(18, 65, 100),
+    'City': np.random.choice(['Hanoi', 'HCMC', 'Danang', 'Haiphong', 'Cantho'], 100),
+    'TotalSpent': np.random.uniform(100, 5000, 100),
+    'OrderCount': np.random.randint(1, 20, 100),
+    'LastOrderDate': pd.date_range('2023-01-01', periods=100, freq='D')
+}
+
+df = pd.DataFrame(customers_data)
+
+# TODO 1: Khám phá dữ liệu cơ bản (5 phút)
+print("=== KHÁM PHÁ DỮ LIỆU ===")
+# In 5 dòng đầu
+# Thông tin về DataFrame (shape, columns, dtypes)
+# Thống kê mô tả
+
+# TODO 2: Phân tích theo thành phố (10 phút)
+print("\n=== PHÂN TÍCH THEO THÀNH PHỐ ===")
+# Số lượng khách hàng mỗi thành phố
+# Tổng chi tiêu theo thành phố
+# Khách hàng chi tiêu cao nhất mỗi thành phố
+
+# TODO 3: Phân tích theo độ tuổi (10 phút)
+print("\n=== PHÂN TÍCH THEO ĐỘ TUỔI ===")
+# Tạo nhóm tuổi: 18-25, 26-35, 36-45, 46+
+# Chi tiêu trung bình theo nhóm tuổi
+# Số đơn hàng trung bình theo nhóm tuổi
+
+# TODO 4: Tìm top khách hàng (5 phút)
+print("\n=== TOP KHÁCH HÀNG ===")
+# Top 10 khách hàng chi tiêu nhiều nhất
+# Top 10 khách hàng có nhiều đơn hàng nhất
+# Khách hàng có giá trị đơn hàng trung bình cao nhất
+```
+
+#### Đáp án:
+```python
+import pandas as pd
+import numpy as np
+
+# Tạo dữ liệu
+np.random.seed(42)
+customers_data = {
+    'CustomerID': range(1001, 1101),
+    'Name': [f'Customer_{i}' for i in range(1, 101)],
+    'Age': np.random.randint(18, 65, 100),
+    'City': np.random.choice(['Hanoi', 'HCMC', 'Danang', 'Haiphong', 'Cantho'], 100),
+    'TotalSpent': np.random.uniform(100, 5000, 100).round(2),
+    'OrderCount': np.random.randint(1, 20, 100),
+    'LastOrderDate': pd.date_range('2023-01-01', periods=100, freq='D')
+}
+
+df = pd.DataFrame(customers_data)
+
+# 1. Khám phá dữ liệu cơ bản
+print("=== KHÁM PHÁ DỮ LIỆU ===")
+print("5 dòng đầu:")
+print(df.head())
+print(f"\nKích thước: {df.shape}")
+print(f"Cột: {list(df.columns)}")
+print("\nThống kê mô tả:")
+print(df.describe())
+
+# 2. Phân tích theo thành phố
+print("\n=== PHÂN TÍCH THEO THÀNH PHỐ ===")
+city_analysis = df.groupby('City').agg({
+    'CustomerID': 'count',
+    'TotalSpent': ['sum', 'mean'],
+    'OrderCount': 'mean'
+}).round(2)
+
+print("Số lượng khách hàng theo thành phố:")
+print(df['City'].value_counts())
+print("\nTổng chi tiêu theo thành phố:")
+print(df.groupby('City')['TotalSpent'].sum().sort_values(ascending=False))
+
+# Top spender mỗi thành phố
+print("\nKhách hàng chi tiêu cao nhất mỗi thành phố:")
+top_by_city = df.loc[df.groupby('City')['TotalSpent'].idxmax()]
+print(top_by_city[['City', 'Name', 'TotalSpent']])
+
+# 3. Phân tích theo độ tuổi
+print("\n=== PHÂN TÍCH THEO ĐỘ TUỔI ===")
+df['AgeGroup'] = pd.cut(df['Age'], 
+                       bins=[17, 25, 35, 45, 100], 
+                       labels=['18-25', '26-35', '36-45', '46+'])
+
+age_analysis = df.groupby('AgeGroup').agg({
+    'TotalSpent': 'mean',
+    'OrderCount': 'mean'
+}).round(2)
+print("Chi tiêu và đơn hàng trung bình theo nhóm tuổi:")
+print(age_analysis)
+
+# 4. Top khách hàng
+print("\n=== TOP KHÁCH HÀNG ===")
+print("Top 10 khách hàng chi tiêu nhiều nhất:")
+top_spenders = df.nlargest(10, 'TotalSpent')[['Name', 'City', 'TotalSpent']]
+print(top_spenders)
+
+print("\nTop 10 khách hàng có nhiều đơn hàng nhất:")
+top_buyers = df.nlargest(10, 'OrderCount')[['Name', 'City', 'OrderCount']]
+print(top_buyers)
+
+# Giá trị đơn hàng trung bình
+df['AvgOrderValue'] = (df['TotalSpent'] / df['OrderCount']).round(2)
+print("\nTop 10 khách hàng có giá trị đơn hàng trung bình cao nhất:")
+top_aov = df.nlargest(10, 'AvgOrderValue')[['Name', 'City', 'AvgOrderValue']]
+print(top_aov)
+```
+
+### Bài tập 4: Data Visualization (30 phút)
+
+#### Yêu cầu:
+Tạo các biểu đồ trực quan hóa dữ liệu khách hàng
+
+```python
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+# Sử dụng dữ liệu từ bài tập 3
+# (Code tạo dữ liệu như trên)
+
+# TODO 1: Biểu đồ cột - Số khách hàng theo thành phố (8 phút)
+plt.figure(figsize=(10, 6))
+# Tạo biểu đồ cột
+# Thêm title, labels
+# Xoay labels nếu cần
+# Thêm giá trị trên mỗi cột
+
+# TODO 2: Biểu đồ histogram - Phân bố độ tuổi (8 phút)
+plt.figure(figsize=(10, 6))
+# Tạo histogram với 15 bins
+# Thêm đường trung bình
+# Thêm title và labels
+
+# TODO 3: Biểu đồ scatter - Mối quan hệ Age vs TotalSpent (8 phút)
+plt.figure(figsize=(10, 6))
+# Tạo scatter plot
+# Color theo City
+# Thêm trendline
+# Legend và labels
+
+# TODO 4: Subplots - Kết hợp nhiều biểu đồ (6 phút)
+fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+# Biểu đồ 1: Bar chart - TotalSpent theo City
+# Biểu đồ 2: Pie chart - Phân bố City  
+# Biểu đồ 3: Box plot - TotalSpent theo AgeGroup
+# Biểu đồ 4: Line plot - Xu hướng đặt hàng theo thời gian
+```
+
+#### Đáp án:
+```python
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+# Sử dụng dữ liệu từ bài tập 3
+np.random.seed(42)
+customers_data = {
+    'CustomerID': range(1001, 1101),
+    'Name': [f'Customer_{i}' for i in range(1, 101)],
+    'Age': np.random.randint(18, 65, 100),
+    'City': np.random.choice(['Hanoi', 'HCMC', 'Danang', 'Haiphong', 'Cantho'], 100),
+    'TotalSpent': np.random.uniform(100, 5000, 100).round(2),
+    'OrderCount': np.random.randint(1, 20, 100),
+    'LastOrderDate': pd.date_range('2023-01-01', periods=100, freq='D')
+}
+df = pd.DataFrame(customers_data)
+
+# 1. Biểu đồ cột - Số khách hàng theo thành phố
+plt.figure(figsize=(10, 6))
+city_counts = df['City'].value_counts()
+bars = plt.bar(city_counts.index, city_counts.values, 
+               color=['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7'])
+plt.title('Số lượng khách hàng theo thành phố', fontsize=16, fontweight='bold')
+plt.xlabel('Thành phố')
+plt.ylabel('Số lượng khách hàng')
+plt.xticks(rotation=45)
+
+# Thêm giá trị trên mỗi cột
+for bar in bars:
+    height = bar.get_height()
+    plt.text(bar.get_x() + bar.get_width()/2., height + 0.5,
+             f'{int(height)}', ha='center', va='bottom')
+
+plt.tight_layout()
+plt.show()
+
+# 2. Biểu đồ histogram - Phân bố độ tuổi
+plt.figure(figsize=(10, 6))
+plt.hist(df['Age'], bins=15, color='skyblue', alpha=0.7, edgecolor='black')
+plt.axvline(df['Age'].mean(), color='red', linestyle='--', 
+            label=f'Trung bình: {df["Age"].mean():.1f} tuổi')
+plt.title('Phân bố độ tuổi khách hàng', fontsize=16, fontweight='bold')
+plt.xlabel('Độ tuổi')
+plt.ylabel('Số lượng khách hàng')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# 3. Biểu đồ scatter - Age vs TotalSpent
+plt.figure(figsize=(12, 8))
+colors = {'Hanoi': 'red', 'HCMC': 'blue', 'Danang': 'green', 
+          'Haiphong': 'orange', 'Cantho': 'purple'}
+
+for city in df['City'].unique():
+    city_data = df[df['City'] == city]
+    plt.scatter(city_data['Age'], city_data['TotalSpent'], 
+               c=colors[city], label=city, alpha=0.6, s=60)
+
+# Trendline
+z = np.polyfit(df['Age'], df['TotalSpent'], 1)
+p = np.poly1d(z)
+plt.plot(df['Age'], p(df['Age']), "r--", alpha=0.8, linewidth=2)
+
+plt.title('Mối quan hệ giữa độ tuổi và tổng chi tiêu', fontsize=16, fontweight='bold')
+plt.xlabel('Độ tuổi')
+plt.ylabel('Tổng chi tiêu (VNĐ)')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# 4. Subplots - Kết hợp nhiều biểu đồ
+fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+
+# Biểu đồ 1: Bar chart - TotalSpent theo City
+city_spending = df.groupby('City')['TotalSpent'].sum()
+axes[0, 0].bar(city_spending.index, city_spending.values, color='lightcoral')
+axes[0, 0].set_title('Tổng chi tiêu theo thành phố')
+axes[0, 0].tick_params(axis='x', rotation=45)
+
+# Biểu đồ 2: Pie chart - Phân bố City
+city_counts = df['City'].value_counts()
+axes[0, 1].pie(city_counts.values, labels=city_counts.index, autopct='%1.1f%%')
+axes[0, 1].set_title('Phân bố khách hàng theo thành phố')
+
+# Biểu đồ 3: Box plot - TotalSpent theo AgeGroup
+df['AgeGroup'] = pd.cut(df['Age'], bins=[17, 25, 35, 45, 100], 
+                       labels=['18-25', '26-35', '36-45', '46+'])
+age_groups = [df[df['AgeGroup'] == group]['TotalSpent'].values 
+              for group in df['AgeGroup'].cat.categories]
+axes[1, 0].boxplot(age_groups, labels=df['AgeGroup'].cat.categories)
+axes[1, 0].set_title('Phân bố chi tiêu theo nhóm tuổi')
+axes[1, 0].tick_params(axis='x', rotation=45)
+
+# Biểu đồ 4: Line plot - Xu hướng theo thời gian
+monthly_orders = df.groupby(df['LastOrderDate'].dt.month)['OrderCount'].sum()
+axes[1, 1].plot(monthly_orders.index, monthly_orders.values, 
+                marker='o', linewidth=2, markersize=6)
+axes[1, 1].set_title('Xu hướng đơn hàng theo tháng')
+axes[1, 1].set_xlabel('Tháng')
+axes[1, 1].set_ylabel('Tổng số đơn hàng')
+
+plt.tight_layout()
+plt.show()
+```
+
+---
+
+## ĐÁNH GIÁ VÀ TỔNG KẾT
+
+### Tiêu chí đánh giá:
+- **Kiến thức lý thuyết (30%)**: Hiểu syntax Python, khác biệt với C#
+- **Thực hành cơ bản (25%)**: Bài tập 1 - Python syntax
+- **NumPy (20%)**: Bài tập 2 - Xử lý mảng và tính toán
+- **Pandas (15%)**: Bài tập 3 - DataFrame operations
+- **Visualization (10%)**: Bài tập 4 - Matplotlib
+
+### Câu hỏi ôn tập:
+1. So sánh cách khai báo biến trong Python và C#?
+2. Pandas DataFrame khác gì với DataTable trong C#?
+3. Khi nào nên dùng NumPy, khi nào nên dùng Pandas?
+4. Làm thế nào để đọc file CSV vào Python?
+5. Cách tạo biểu đồ cơ bản với Matplotlib?
+
+### Bài tập về nhà:
+1. Tìm hiểu thêm về thư viện Seaborn cho visualization nâng cao
+2. Thực hành với dataset thực tế (có thể download từ Kaggle)
+3. Tạo một báo cáo phân tích dữ liệu hoàn chỉnh với Jupyter Notebook
+
+### Tài liệu tham khảo:
+- **Python Official Documentation**: https://docs.python.org/3/
+- **Pandas Documentation**: https://pandas.pydata.org/docs/
+- **NumPy Documentation**: https://numpy.org/doc/
+- **Matplotlib Documentation**: https://matplotlib.org/stable/
+- **Jupyter Notebook**: https://jupyter.org/documentation
+
+---
+
+## PHỤ LỤC: CODE TEMPLATES VÀ CHEAT SHEET
+
+### A. Template cho Data Analysis Project
+
+```python
+# Import các thư viện cần thiết
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 1. LOAD DATA
+def load_data(file_path):
+    """Load data from various formats"""
+    if file_path.endswith('.csv'):
+        return pd.read_csv(file_path)
+    elif file_path.endswith('.xlsx'):
+        return pd.read_excel(file_path)
+    elif file_path.endswith('.json'):
+        return pd.read_json(file_path)
+
+# 2. EXPLORE DATA  
+def explore_data(df):
+    """Basic data exploration"""
+    print("=== DATA INFO ===")
+    print(f"Shape: {df.shape}")
+    print(f"Columns: {list(df.columns)}")
+    print("\n=== MISSING VALUES ===")
+    print(df.isnull().sum())
+    print("\n=== DATA TYPES ===")
+    print(df.dtypes)
+    print("\n=== STATISTICAL SUMMARY ===")
+    print(df.describe())
+
+# 3. CLEAN DATA
+def clean_data(df):
+    """Basic data cleaning"""
+    # Remove duplicates
+    df = df.drop_duplicates()
+    
+    # Handle missing values
+    # Option 1: Drop rows with missing values
+    # df = df.dropna()
+    
+    # Option 2: Fill missing values
+    # df = df.fillna(method='forward')
+    
+    return df
+
+# 4. VISUALIZE DATA
+def create_visualizations(df):
+    """Create basic visualizations"""
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    
+    # Histogram for numeric column
+    numeric_col = df.select_dtypes(include=[np.number]).columns[0]
+    axes[0, 0].hist(df[numeric_col].dropna(), bins=20)
+    axes[0, 0].set_title(f'Distribution of {numeric_col}')
+    
+    # Count plot for categorical column
+    cat_col = df.select_dtypes(include=['object']).columns[0]
+    df[cat_col].value_counts().plot(kind='bar', ax=axes[0, 1])
+    axes[0, 1].set_title(f'Count of {cat_col}')
+    
+    plt.tight_layout()
+    plt.show()
+
+# Main analysis function
+def main_analysis(file_path):
+    """Main analysis pipeline"""
+    # Load data
+    df = load_data(file_path)
+    
+    # Explore data
+    explore_data(df)
+    
+    # Clean data
+    df_clean = clean_data(df)
+    
+    # Visualize data
+    create_visualizations(df_clean)
+    
+    return df_clean
+
+# Usage
+# df = main_analysis('your_data.csv')
+```
+
+### B. Python for C# Developers Cheat Sheet
+
+| **Concept** | **C#** | **Python** |
+|-------------|--------|------------|
+| **Variables** | `int age = 25;` | `age = 25` |
+| **String formatting** | `$"Hello {name}"` | `f"Hello {name}"` |
+| **Arrays/Lists** | `int[] arr = {1,2,3};` | `arr = [1, 2, 3]` |
+| **Dictionary** | `Dictionary<string, int>` | `dict = {'key': value}` |
+| **For loop** | `for(int i=0; i<n; i++)` | `for i in range(n):` |
+| **Functions** | `public int Add(int a, int b)` | `def add(a, b):` |
+| **Classes** | `public class Person { }` | `class Person:` |
+| **Null check** | `if (obj != null)` | `if obj is not None:` |
+| **Exception handling** | `try { } catch { }` | `try: except:` |
+
+### C. Pandas Quick Reference
+
+```python
+# READING DATA
+df = pd.read_csv('file.csv')
+df = pd.read_excel('file.xlsx', sheet_name='Sheet1')
+df = pd.read_json('file.json')
+
+# BASIC INFO
+df.head()          # First 5 rows
+df.tail()          # Last 5 rows  
+df.info()          # Data types and null counts
+df.describe()      # Statistical summary
+df.shape           # (rows, columns)
+df.columns         # Column names
+
+# SELECTING DATA
+df['column']       # Select single column
+df[['col1', 'col2']]  # Select multiple columns
+df.iloc[0]         # Select by position
+df.loc[0]          # Select by index
+df[df['age'] > 25] # Filter rows
+
+# GROUPING AND AGGREGATION
+df.groupby('column').sum()
+df.groupby('column').agg({'col1': 'mean', 'col2': 'sum'})
+df.pivot_table(values='value', index='row', columns='col')
+
+# MISSING DATA
+df.isnull().sum()  # Count missing values
+df.dropna()        # Remove rows with missing values
+df.fillna(value)   # Fill missing values
+
+# SORTING
+df.sort_values('column')
+df.sort_values(['col1', 'col2'], ascending=[True, False])
+```
+
+### D. Common Matplotlib Patterns
+
+```python
+import matplotlib.pyplot as plt
+
+# BASIC SETUP
+plt.figure(figsize=(10, 6))
+plt.style.use('seaborn')  # Use seaborn style
+
+# LINE PLOT
+plt.plot(x, y, marker='o', linestyle='-', color='blue', label='Data')
+plt.title('Title')
+plt.xlabel('X Label')
+plt.ylabel('Y Label')
+plt.legend()
+plt.grid(True)
+
+# BAR PLOT
+plt.bar(categories, values, color='skyblue')
+plt.xticks(rotation=45)
+
+# HISTOGRAM  
+plt.hist(data, bins=20, alpha=0.7, color='green')
+
+# SCATTER PLOT
+plt.scatter(x, y, c=colors, s=sizes, alpha=0.6)
+plt.colorbar()
+
+# SUBPLOTS
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+axes[0, 0].plot(x, y)
+axes[0, 1].bar(x, y)
+plt.tight_layout()
+
+# SAVE FIGURE
+plt.savefig('plot.png', dpi=300, bbox_inches='tight')
+plt.show()
+```
+
+### E. Error Handling Best Practices
+
+```python
+# FILE OPERATIONS
+try:
+    df = pd.read_csv('data.csv')
+    print("Data loaded successfully")
+except FileNotFoundError:
+    print("File not found. Please check the file path.")
+except pd.errors.EmptyDataError:
+    print("The file is empty.")
+except Exception as e:
+    print(f"An error occurred: {e}")
+
+# DATA OPERATIONS
+def safe_division(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return None
+    except TypeError:
+        print("Invalid input types")
+        return None
+
+# VALIDATION
+def validate_dataframe(df, required_columns):
+    """Validate if DataFrame has required columns"""
+    missing_cols = set(required_columns) - set(df.columns)
+    if missing_cols:
+        raise ValueError(f"Missing columns: {missing_cols}")
+    return True
+```
+
+---
+
+## HƯỚNG DẪN CHO GIẢNG VIÊN
+
+### Chuẩn bị trước buổi học:
+1. **Môi trường**: Đảm bảo tất cả máy đã cài đặt Python, Jupyter Notebook
+2. **Dữ liệu**: Chuẩn bị file dữ liệu mẫu (CSV, Excel) cho thực hành
+3. **Code**: Kiểm tra tất cả code examples hoạt động chính xác
+
+### Gợi ý dẫn dắt:
+1. **Mở đầu**: So sánh với C# để học viên dễ tiếp cận
+2. **Demo**: Thực hiện live coding để học viên theo dõi
+3. **Tương tác**: Đặt câu hỏi trong quá trình giảng
+4. **Thực hành**: Đi kiểm tra và hỗ trợ từng nhóm
+
+### Xử lý tình huống:
+- **Học viên chậm**: Cung cấp code template
+- **Lỗi technical**: Có backup code và dữ liệu
+- **Câu hỏi khó**: Ghi chú để trả lời sau hoặc tìm hiểu thêm
+
+### Mở rộng nâng cao:
+- **Seaborn** cho visualization đẹp hơn
+- **Plotly** cho interactive charts  
+- **Scikit-learn** cho machine learning cơ bản
+- **Streamlit** cho tạo web app đơn giản
+
+---
+
+**LƯU Ý**: Bài học này được thiết kế linh hoạt. Giảng viên có thể điều chỉnh thời gian và độ khó tùy theo trình độ lớp học.
