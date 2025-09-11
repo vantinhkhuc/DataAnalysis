@@ -1,4 +1,4 @@
-# Lab 02 - **Data Exploration and Visualization**
+# Lab 03 - **Data Exploration and Visualization**
 
 ## **Mục tiêu học tập**
 
