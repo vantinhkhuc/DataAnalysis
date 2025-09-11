@@ -598,7 +598,7 @@ plt.show()
 ---
 
 
-### Bài tập 2B: Ma trận điểm số và phân tích học tập (25 phút)
+### Bài tập 5: Ma trận điểm số và phân tích học tập (25 phút)
 
 #### Yêu cầu:
 Phân tích ma trận điểm của 50 sinh viên qua 6 môn học
@@ -744,7 +744,7 @@ for subject_idx, subject in enumerate(subject_names):
         print(f"    {rank}. SV{student_idx+1}: {scores_matrix[student_idx, subject_idx]:.2f}")
 ```
 
-### Bài tập 2C: Phân tích dữ liệu tài chính với NumPy (25 phút)
+### Bài tập 6: Phân tích dữ liệu tài chính với NumPy (25 phút)
 
 #### Yêu cầu:
 Phân tích dữ liệu giá cổ phiếu và tính toán các chỉ số tài chính
@@ -840,11 +840,9 @@ volatility = np.std(daily_returns) * np.sqrt
 
 ```
 
-### Bài tập làm thêm:
+## Bài tập làm thêm:
 
-## BÀI TẬP PYTHON SYNTAX
-
-### Bài tập về nhà 1: Hệ thống quản lý thư viện (45 phút)
+### Bài tập 7: Hệ thống quản lý thư viện (45 phút) (PYTHON SYNTAX)
 
 **Mục tiêu:** Áp dụng OOP và collections để xây dựng hệ thống quản lý thư viện
 
@@ -922,7 +920,7 @@ if __name__ == "__main__":
     # Test các chức năng...
 ```
 
-### Bài tập về nhà 2: Máy tính toán học nâng cao (40 phút)
+### Bài tập 8: Máy tính toán học nâng cao (40 phút)  (PYTHON SYNTAX)
 
 **Mục tiêu:** Sử dụng functions, decorators, và error handling
 
@@ -1011,7 +1009,7 @@ print(calc.prime_factors(60))
 print(calc.get_history())
 ```
 
-### Bài tập về nhà 3: Web Scraper và Data Parser (50 phút)
+### Bài tập 9: Web Scraper và Data Parser (50 phút) (PYTHON SYNTAX)
 
 **Mục tiêu:** Xử lý string, regex, file I/O, và data structures phức tạp
 
@@ -1125,9 +1123,7 @@ if __name__ == "__main__":
     # parser.export_to_format(sample_data, 'json', 'output.json')
 ```
 
-## BÀI TẬP NUMPY
-
-### Bài tập về nhà 4: Phân tích dữ liệu sensor IoT (60 phút)
+### Bài tập 10: Phân tích dữ liệu sensor IoT (60 phút) (NUMPY)
 
 **Mục tiêu:** Xử lý time series data và tính toán thống kê nâng cao với NumPy
 
@@ -1255,7 +1251,7 @@ if __name__ == "__main__":
     print(f"\nNext day predictions: {predictions}")
 ```
 
-### Bài tập về nhà 5: Phân tích hình ảnh với NumPy (50 phút)
+### Bài tập 11: Phân tích hình ảnh với NumPy (50 phút) (NUMPY)
 
 **Mục tiêu:** Xử lý và phân tích dữ liệu hình ảnh sử dụng NumPy arrays
 
