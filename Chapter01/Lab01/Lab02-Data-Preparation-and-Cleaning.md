@@ -1,4 +1,4 @@
-# Lab01 - Data Preparation and Cleaning
+# Lab02 - Data Preparation and Cleaning
 
 ## **Mục tiêu học tập**
 Sau khi hoàn thành bài học này, học viên sẽ có khả năng:
